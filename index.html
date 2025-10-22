@@ -194,18 +194,22 @@ setInterval(()=>{
 
 renderLeaderboard();
 
-// 🗺️ Leaflet Map
-const map = L.map('map', { crs: L.CRS.Simple, minZoom: -1, maxZoom: 2, attributionControl: false });
+// 🗺️ Leaflet Map 放大比例 + 保持原始比例
+const map = L.map('map', { crs: L.CRS.Simple, minZoom: -1, maxZoom: 3, attributionControl: false });
 const imageUrl = 'assets/WL-平面場圖-4.png';
 const img = new Image();
 img.src = imageUrl;
 img.onload = function() {
   const w = img.width, h = img.height;
   const bounds = [[0,0],[h,w]];
-  L.imageOverlay(imageUrl, bounds, { interactive: false }).addTo(map);
-  map.fitBounds(bounds, { padding: [0, 0], animate: false });
+  L.imageOverlay(imageUrl, bounds).addTo(map);
+  map.fitBounds(bounds);
   map.setMaxBounds(bounds);
 
+  // 🩵 改成略微放大（+0.2）→ 比例更自然
+  map.setZoom(map.getZoom() + 0.2);
+
+  // 💍 浮水印
   L.control.attribution({prefix: false})
     .addAttribution('💍 MYs Map © 2025-10')
     .addTo(map);
@@ -233,3 +237,4 @@ img.onload = function() {
 </script>
 </body>
 </html>
+
