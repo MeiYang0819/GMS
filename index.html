@@ -206,8 +206,11 @@ img.onload = function() {
   map.fitBounds(bounds);
   map.setMaxBounds(bounds);
 
-  // 🩵 改成略微放大（+0.2）→ 比例更自然
-  map.setZoom(map.getZoom() + 0.05);
+  // 顯示圖片（保持原始比例）
+  L.imageOverlay(imageUrl, bounds).addTo(map);
+  map.fitBounds(bounds);           // 剛好顯示整張圖
+  map.setMaxBounds(bounds);        // 限制拖曳邊界
+  map.setZoom(map.getZoom());      // 不放大
 
   // 💍 浮水印
   L.control.attribution({prefix: false})
@@ -237,5 +240,6 @@ img.onload = function() {
 </script>
 </body>
 </html>
+
 
 
