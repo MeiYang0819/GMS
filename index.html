@@ -117,7 +117,7 @@ tr:nth-child(even) { background-color: rgba(255,255,255,0.2); }
 // ----------------------
 let step = 0;
 const missions = [
-  1️⃣ 簽到：請完成簽到並輸入暱稱！",
+  "1️⃣ 簽到：請完成簽到並輸入暱稱！",
   "2️⃣ 簽名：請上傳您的簽名或照片！",
   "3️⃣ 找招待：請找到現場工作人員確認～",
   "4️⃣ 找新人拍照：與新人合照一張 📸",
@@ -138,14 +138,14 @@ function nextMission() {
 // 🏆 排行榜模擬邏輯
 // ----------------------
 let players = [
-  {name: "Tester", score: 100},
+  {name: "Alice", score: 100},
   {name: "Alice", score: 95},
-  {name: "Bob", score: 90},
+  {name: "張咩揚", score: 90},
   {name: "Carol", score: 85},
-  {name: "David", score: 80},
+  {name: "王小慧", score: 80},
   {name: "Eve", score: 75},
   {name: "Frank", score: 70},
-  {name: "Grace", score: 65},
+  {name: "變態軒", score: 65},
   {name: "Heidi", score: 60},
   {name: "Ivan", score: 55}
 ];
@@ -181,32 +181,18 @@ const map = L.map('map', {
   attributionControl: false
 });
 
-// 載入圖片
-const imageUrl = 'assets/WL-平面場圖-4.png';
+const imageUrl = 'assets/WL-平面場圖-4.png'; // 圖片放在 /assets 下
 const img = new Image();
 img.src = imageUrl;
 
 img.onload = function() {
   const w = img.width;
   const h = img.height;
-  const aspect = w / h;
-
-  const mapW = map.getContainer().clientWidth;
-  const mapH = map.getContainer().clientHeight;
-  const mapAspect = mapW / mapH;
-
-  let bounds;
-  if (aspect > mapAspect) {
-    const newH = w / mapAspect;
-    bounds = [[0, 0], [newH, w]];
-  } else {
-    const newW = h * mapAspect;
-    bounds = [[0, 0], [h, newW]];
-  }
 
   L.imageOverlay(imageUrl, [[0, 0], [h, w]]).addTo(map);
   map.fitBounds([[0, 0], [h, w]], {padding: [0, 0], animate: false});
 
+  // 💍 浮水印
   L.control.attribution({prefix: false})
    .addAttribution('💍 MYs Map © 2025-10')
    .addTo(map);
