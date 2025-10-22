@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>解任務｜婚禮版</title>
-
+<title>🎵 婚禮互動任務 Final Demo</title>
 <style>
 :root {
   --font-base: 22px;
@@ -68,22 +67,30 @@ button:hover { background-color: #ffd166; }
   color: #111;
   margin: 5px 0 10px;
 }
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 18px;
-  color: #111;
-}
+table { width: 100%; border-collapse: collapse; font-size: 18px; color: #111; }
 th, td { text-align: center; padding: 6px; }
 th { background-color: rgba(255,255,255,0.4); }
 tr:nth-child(even) { background-color: rgba(255,255,255,0.2); }
 .ellipsis td { text-align: center; color: #555; font-style: italic; }
-#map {
-  flex: 1;
-  height: 100%;
-  border-left: 4px solid #fff;
+#map { flex: 1; height: 100%; border-left: 4px solid #fff; position: relative; overflow: hidden; }
+.leaflet-container { width: 100%; height: 100%; background: #f5f5f5; }
+
+/* 🛎️ 通知浮窗 */
+#notif {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 12px;
+  padding: 10px 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  font-size: 18px;
+  color: #111;
+  opacity: 0;
+  transition: all .4s ease;
+  pointer-events: none;
 }
-.leaflet-container { width: 100%; height: 100%; }
+#notif.show { opacity: 1; transform: translateY(0); }
 </style>
 </head>
 <body>
@@ -95,7 +102,6 @@ tr:nth-child(even) { background-color: rgba(255,255,255,0.2); }
       <button onclick="nextMission()">開始任務 ▶</button>
     </div>
   </div>
-
   <div id="bottom-area">
     <div id="leaderboard">
       <h2>🏆 排行榜</h2>
@@ -107,14 +113,12 @@ tr:nth-child(even) { background-color: rgba(255,255,255,0.2); }
     <div id="map"></div>
   </div>
 </div>
+<div id="notif"></div>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
 <script>
-// ----------------------
-// 🏁 六關任務流程
-// ----------------------
+// 🏁 任務流程
 let step = 0;
 const missions = [
   "1️⃣ 簽到：請完成簽到並輸入暱稱！",
@@ -134,25 +138,43 @@ function nextMission() {
   }
 }
 
-// ----------------------
-// 🏆 排行榜模擬邏輯
-// ----------------------
+// 🏆 排行榜 + 通知
 let players = [
-  {name: "Alice", score: 100},
+  {name: "變態人林阿軒", score: 100},
   {name: "Alice", score: 95},
-  {name: "張咩揚", score: 90},
-  {name: "Carol", score: 85},
-  {name: "王小慧", score: 80},
+  {name: "Bob", score: 90},
+  {name: "張咩揚", score: 85},
+  {name: "沒在睡的王曉慧", score: 80},
   {name: "Eve", score: 75},
   {name: "Frank", score: 70},
-  {name: "變態軒", score: 65},
+  {name: "Grace", score: 65},
   {name: "Heidi", score: 60},
   {name: "Ivan", score: 55}
 ];
+let lastRanks = {};
+
+function showNotif(text, type) {
+  const n = document.getElementById('notif');
+  n.innerHTML = text;
+  n.style.background = type==='up' ? '#d1ffd1' : '#ffe6e6';
+  n.classList.add('show');
+  setTimeout(()=>n.classList.remove('show'), 3000);
+}
+
 function renderLeaderboard() {
   players.sort((a, b) => b.score - a.score);
   const tbody = document.getElementById("rank-body");
   tbody.innerHTML = "";
+
+  players.forEach((p, i) => {
+    const prev = lastRanks[p.name];
+    if (prev !== undefined && prev !== i) {
+      if (prev > i) showNotif(`⬆️ ${p.name} 上升至第 ${i+1} 名！🎉`, 'up');
+      else showNotif(`⬇️ ${p.name} 下降至第 ${i+1} 名～😅`, 'down');
+    }
+    lastRanks[p.name] = i;
+  });
+
   players.slice(0, 5).forEach((p, i) => {
     const medal = i===0?"🥇":i===1?"🥈":i===2?"🥉":i+1;
     tbody.innerHTML += `<tr><td>${medal}</td><td>${p.name}</td><td>${p.score}</td></tr>`;
@@ -162,40 +184,31 @@ function renderLeaderboard() {
     tbody.innerHTML += `<tr><td>${players.length-2+i}</td><td>${p.name}</td><td>${p.score}</td></tr>`;
   });
 }
+
 setInterval(()=>{
   const randomPlayer = players[Math.floor(Math.random()*players.length)];
-  randomPlayer.score += Math.floor(Math.random()*5-2);
+  randomPlayer.score += Math.floor(Math.random()*7-3);
   if(randomPlayer.score<0) randomPlayer.score=0;
   renderLeaderboard();
 },2000);
+
 renderLeaderboard();
 
-// ----------------------
-// 🗺️ Leaflet 地圖初始化（平面模式，等比例顯示）
-// ----------------------
-const map = L.map('map', {
-  crs: L.CRS.Simple,
-  minZoom: -1,
-  maxZoom: 2,
-  zoomSnap: 0.1,
-  attributionControl: false
-});
-
-const imageUrl = 'assets/WL-平面場圖-4.png'; // 圖片放在 /assets 下
+// 🗺️ Leaflet Map
+const map = L.map('map', { crs: L.CRS.Simple, minZoom: -1, maxZoom: 2, attributionControl: false });
+const imageUrl = 'assets/WL-平面場圖-4.png';
 const img = new Image();
 img.src = imageUrl;
-
 img.onload = function() {
-  const w = img.width;
-  const h = img.height;
+  const w = img.width, h = img.height;
+  const bounds = [[0,0],[h,w]];
+  L.imageOverlay(imageUrl, bounds, { interactive: false }).addTo(map);
+  map.fitBounds(bounds, { padding: [0, 0], animate: false });
+  map.setMaxBounds(bounds);
 
-  L.imageOverlay(imageUrl, [[0, 0], [h, w]]).addTo(map);
-  map.fitBounds([[0, 0], [h, w]], {padding: [0, 0], animate: false});
-
-  // 💍 浮水印
   L.control.attribution({prefix: false})
-   .addAttribution('💍 MYs Map © 2025-10')
-   .addTo(map);
+    .addAttribution('💍 MYs Map © 2025-10')
+    .addTo(map);
 
   const points = [
     { name: "關卡一", coords: [h*0.45, w*0.45], color: "red" },
@@ -209,13 +222,12 @@ img.onload = function() {
     { name: "🎁 Bonus C", coords: [h*0.75, w*0.5], color: "gold" }
   ];
   points.forEach(p => {
-    const m = L.circleMarker([p.coords[0], p.coords[1]], {
-      radius: 5,
+    L.circleMarker(p.coords, {
+      radius: 4,
       color: p.color,
       fillColor: p.color,
-      fillOpacity: 0.85
-    }).addTo(map);
-    m.bindTooltip(p.name, { direction: 'top', offset: [0, -4] });
+      fillOpacity: 0.9
+    }).addTo(map).bindTooltip(p.name, { direction: 'top', offset: [0,-4] });
   });
 };
 </script>
