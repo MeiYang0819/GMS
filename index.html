@@ -161,7 +161,7 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   border-radius: 6px;
   padding: 2px 8px;
   font-size: 13px;
-  z-index: 9999; /* ✅ 確保 MYs 標示可見 */
+  z-index: 9999;
 }
 
 #notif {
@@ -285,7 +285,7 @@ function renderLeaderboard() {
     const prev = lastRanks[p.name];
     if (prev !== undefined && prev !== i) {
       notifCounter++;
-      if (notifCounter % Math.floor(Math.random() * 3 + 5) === 0) {
+      if (notifCounter % Math.floor(Math.random() * 4 + 5) === 0) {
         if (prev > i) showNotif(`⬆️ ${p.name} 上升至第 ${i + 1} 名！🎉`, "up");
         else showNotif(`⬇️ ${p.name} 下降至第 ${i + 1} 名～😅`, "down");
       }
@@ -354,6 +354,29 @@ img.onload = function () {
   map.setMaxBounds(bounds);
   map.fitBounds(bounds, { animate: false });
   map.setZoom(map.getZoom() - 1);
+
+  /* ✅ 標記所有關卡與彩蛋 */
+  const points = [
+    { name: "關卡一", coords: [h * 0.45, w * 0.45], color: "red" },
+    { name: "關卡二", coords: [h * 0.35, w * 0.70], color: "red" },
+    { name: "關卡三", coords: [h * 0.55, w * 0.30], color: "red" },
+    { name: "關卡四", coords: [h * 0.25, w * 0.80], color: "red" },
+    { name: "關卡五", coords: [h * 0.20, w * 0.20], color: "red" },
+    { name: "關卡六", coords: [h * 0.40, w * 0.10], color: "red" },
+    { name: "🎁 Bonus A", coords: [h * 0.55, w * 0.65], color: "gold" },
+    { name: "🎁 Bonus B", coords: [h * 0.40, w * 0.60], color: "gold" },
+    { name: "🎁 Bonus C", coords: [h * 0.75, w * 0.50], color: "gold" }
+  ];
+  points.forEach(p => {
+    L.circleMarker(p.coords, {
+      radius: 4,
+      color: p.color,
+      fillColor: p.color,
+      fillOpacity: 0.9
+    }).addTo(map).bindTooltip(p.name, { direction: "top", offset: [0, -4] });
+  });
+
+  /* ✅ MYs Map 標示 */
   L.control.attribution({ prefix: false })
     .addAttribution("💍 MYs Map © 2025").addTo(map);
 };
