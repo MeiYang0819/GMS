@@ -91,6 +91,14 @@ tr:nth-child(even) { background-color: rgba(255,255,255,0.2); }
   pointer-events: none;
 }
 #notif.show { opacity: 1; transform: translateY(0); }
+
+/* 💍 浮水印樣式覆寫 */
+.leaflet-control-attribution {
+  background: rgba(220,220,220,0.8);  /* 淺灰底 */
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 13px;
+}
 </style>
 </head>
 <body>
@@ -180,7 +188,7 @@ function renderLeaderboard() {
     tbody.innerHTML += `<tr><td>${medal}</td><td>${p.name}</td><td>${p.score}</td></tr>`;
   });
   tbody.innerHTML += "<tr class='ellipsis'><td colspan='3'>...</td></tr>";
-  players.slice(-3).forEach((p,i)=>{
+  players.slice(-3).forEach((p,i)=> {
     tbody.innerHTML += `<tr><td>${players.length-2+i}</td><td>${p.name}</td><td>${p.score}</td></tr>`;
   });
 }
@@ -194,7 +202,7 @@ setInterval(()=>{
 
 renderLeaderboard();
 
-// 🗺️ Leaflet Map 放大比例 + 保持原始比例
+// 🗺️ Leaflet Map（等比例顯示 + 微放大）
 const map = L.map('map', { crs: L.CRS.Simple, minZoom: -1, maxZoom: 3, attributionControl: false });
 const imageUrl = 'assets/WL-平面場圖-4.png';
 const img = new Image();
@@ -203,14 +211,9 @@ img.onload = function() {
   const w = img.width, h = img.height;
   const bounds = [[0,0],[h,w]];
   L.imageOverlay(imageUrl, bounds).addTo(map);
-  map.fitBounds(bounds);
+  map.fitBounds(bounds, { animate:false });
   map.setMaxBounds(bounds);
-
-  // 顯示圖片（保持原始比例）
-  L.imageOverlay(imageUrl, bounds).addTo(map);
-  map.fitBounds(bounds);           // 剛好顯示整張圖
-  map.setMaxBounds(bounds);        // 限制拖曳邊界
-  map.setZoom(map.getZoom());      // 不放大
+  map.setView([h/2, w/2], 0.3); // 保持比例並略微放大
 
   // 💍 浮水印
   L.control.attribution({prefix: false})
@@ -240,8 +243,3 @@ img.onload = function() {
 </script>
 </body>
 </html>
-
-
-
-
-
