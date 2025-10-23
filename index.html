@@ -97,12 +97,16 @@ button:hover { background-color: #ffd166; }
 }
 /* ✅ 排行榜提示固定右上角一行 */
 #leaderboard .hint-box {
-  position: absolute;
-  right: 10px;
-  top: 10px;
-  margin: 0;
+  position: fixed;
+  top: calc(55% + 10px); /* 對應地圖上方位置 */
+  right: 12px;
+  z-index: 9999;
+  background: rgba(210,210,210,0.9);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   white-space: nowrap;
-  transform: translateY(-4px);
 }
 
 table {
@@ -337,4 +341,5 @@ img.onload = function () {
 </script>
 </body>
 </html>
+
 
