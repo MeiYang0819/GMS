@@ -70,6 +70,8 @@ button:hover { background-color: #ffd166; }
   display: flex;
   height: 45%;
   border-top: 4px solid #fff;
+  width: 100%;
+  overflow: hidden;
 }
 
 /* ================== 🏆 排行榜 ================== */
@@ -84,6 +86,7 @@ button:hover { background-color: #ffd166; }
   align-items: center;
   justify-content: flex-start;
   position: relative; /* ✅ 為提示框定位 */
+  min-width: 100vw; /* ✅ 修正寬度讓 scroll 正常 */
 }
 #leaderboard h2 {
   font-size: 26px;
@@ -140,6 +143,7 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   border-left: 4px solid #fff;
   position: relative;
   overflow: hidden;
+  min-width: 100vw; /* ✅ 修正寬度讓 scroll 正常 */
 }
 /* ✅ 地圖提示：左上角靠內對齊（與排行榜提示對稱） */
 #map .map-hint-box {
@@ -191,7 +195,8 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
     overflow-y: hidden;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
-    touch-action: pan-x; /* ✅ 允許手機橫向滑動 */
+    touch-action: pan-x;
+    -webkit-overflow-scrolling: touch; /* ✅ iOS 修正滑動 */
   }
   #leaderboard, #map {
     flex: none;
@@ -213,13 +218,21 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
     </div>
   </div>
 
-  <div id="leaderboard">
-  <h2>🏆 排行榜</h2>
-  <span class="hint-box">👉 往左滑為地圖</span>
-  <table>
-    <thead><tr><th>名次</th><th>暱稱</th><th>分數</th></tr></thead>
-    <tbody id="rank-body"></tbody>
-  </table>
+  <div id="bottom-area">
+    <div id="leaderboard">
+      <h2>🏆 排行榜</h2>
+      <span class="hint-box">👉 往左滑為地圖</span>
+      <table>
+        <thead><tr><th>名次</th><th>暱稱</th><th>分數</th></tr></thead>
+        <tbody id="rank-body"></tbody>
+      </table>
+    </div>
+
+    <div id="map">
+      <div class="map-hint-box">👈 往右滑為排行榜</div>
+      <div id="mapContainer" class="leaflet-container"></div>
+    </div>
+  </div>
 </div>
 
 <div id="notif"></div>
@@ -331,7 +344,7 @@ setInterval(() => {
 }, 2000);
 renderLeaderboard();
 
-const map = L.map("map", {
+const map = L.map("mapContainer", {
   crs: L.CRS.Simple,
   minZoom: -2,
   maxZoom: 4,
@@ -349,12 +362,10 @@ img.onload = function () {
   L.imageOverlay(imageUrl, bounds).addTo(map);
   map.setMaxBounds(bounds);
   map.fitBounds(bounds, { animate: false });
-  map.setZoom(map.getZoom() - 1);
+  map.setZoom(map.getZoom() - 0.6); /* ✅ 略縮小比例 */
   L.control.attribution({ prefix: false })
     .addAttribution("💍 MYs Map © 2025").addTo(map);
 };
 </script>
 </body>
 </html>
-
-
