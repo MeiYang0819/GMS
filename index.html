@@ -284,7 +284,7 @@ function showNotif(text, type) {
   n.innerHTML = text;
   n.style.background = type === "up" ? "#d1ffd1" : "#ffe6e6";
   n.classList.add("show");
-  setTimeout(() => n.classList.remove("show"), 2000);
+  setTimeout(() => n.classList.remove("show"), 6000);
 }
 
 function renderLeaderboard() {
@@ -394,4 +394,5 @@ img.onload = function () {
 </script>
 </body>
 </html>
+
 
