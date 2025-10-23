@@ -191,6 +191,7 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
     overflow-y: hidden;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
+    touch-action: pan-x; /* ✅ 允許手機橫向滑動 */
   }
   #leaderboard, #map {
     flex: none;
@@ -355,4 +356,5 @@ img.onload = function () {
 </script>
 </body>
 </html>
+
 
