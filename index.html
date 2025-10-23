@@ -5,20 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>🎮闖關任務</title>
 
-<!-- ✅ 婚禮風格書法感字體：Tai Heritage Pro -->
-<link href="https://fonts.googleapis.com/css2?family=Tai+Heritage+Pro:wght@400;700&display=swap" rel="stylesheet">
+<!-- ✅ 圓潤婚禮風格字體：Zen Maru Gothic -->
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
 /* ============================================================
    🎨 全域字體與大小設定（可自行調整）
    ------------------------------------------------------------
-   - --font-family-main : 主字體（婚禮書法風）
+   - --font-family-main : 主字體（圓潤婚禮風）
    - --font-base : 一般文字大小
    - --font-lg   : 小標題大小
    - --font-xl   : 主標題大小
    ============================================================ */
 :root {
-  --font-family-main: 'Tai Heritage Pro', 'Noto Sans TC', serif;
+  --font-family-main: 'Zen Maru Gothic', 'Noto Sans TC', serif;
   --font-base: 22px;
   --font-lg: 30px;
   --font-xl: 40px;
@@ -67,7 +67,7 @@ body {
 .main-card h1 {
   font-size: var(--font-xl);
   margin: 10px 0;
-  text-shadow: 1px 2px 3px rgba(0, 0, 0, 0.25); /* ✅ 柔和文字陰影 */
+  text-shadow: 1px 2px 3px rgba(0, 0, 0, 0.25);
 }
 .main-card p {
   font-size: var(--font-base);
@@ -99,6 +99,7 @@ button:hover {
   display: flex;
   height: 45%;
   border-top: 4px solid #fff;
+  position: relative;
 }
 
 /* ================== 🏆 排行榜 ================== */
@@ -163,22 +164,38 @@ tr:nth-child(even) {
 /* ================== 🔔 通知彈出 ================== */
 #notif {
   position: fixed;
-  top: 20px;
-  right: 20px;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 12px;
-  padding: 10px 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  font-size: 18px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.95);
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 10px;
+  padding: 8px 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  font-size: 16px;
   color: #111;
   opacity: 0;
   transition: all 0.4s ease;
   pointer-events: none;
+  z-index: 999;
 }
 #notif.show {
   opacity: 1;
-  transform: translateY(0);
+  transform: translate(-50%, -50%) scale(1);
 }
+
+/* ================== 🧭 滑動提示框 ================== */
+.tip-box {
+  position: absolute;
+  top: 4px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  padding: 2px 8px;
+  font-size: 14px;
+  color: #333;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+}
+.tip-left { left: 6px; }
+.tip-right { right: 6px; }
 
 /* ============================================================
    📱 手機版（直式）專用設定
@@ -230,13 +247,16 @@ tr:nth-child(even) {
 
   <div id="bottom-area">
     <div id="leaderboard">
+      <div class="tip-right">👉 往左滑為地圖</div>
       <h2>🏆 排行榜</h2>
       <table>
         <thead><tr><th>名次</th><th>暱稱</th><th>分數</th></tr></thead>
         <tbody id="rank-body"></tbody>
       </table>
     </div>
-    <div id="map"></div>
+    <div id="map">
+      <div class="tip-left">👈 往右滑為排行榜</div>
+    </div>
   </div>
 </div>
 
@@ -290,7 +310,7 @@ function showNotif(text, type) {
   n.innerHTML = text;
   n.style.background = type === "up" ? "#d1ffd1" : "#ffe6e6";
   n.classList.add("show");
-  setTimeout(() => n.classList.remove("show"), 3000);
+  setTimeout(() => n.classList.remove("show"), 2000);
 }
 
 function renderLeaderboard() {
