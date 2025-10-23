@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>解任務｜婚禮版o</title>
+<title>🎮任務遊戲</title>
 <style>
 :root {
   --font-base: 22px;
@@ -16,7 +16,8 @@
 body {
   margin: 0;
   font-family: 'Noto Sans TC', sans-serif;
-  background: linear-gradient(180deg, rgba(247,216,104,1) 0%, rgba(209,187,144,1) 50%, rgba(184,169,169,1) 100%);
+  background: #ebb3a9;
+  background: linear-gradient(0deg, rgba(235,179,169,1) 0%, rgba(245,162,140,1) 45%, rgba(255,144,110,1) 100%);
   overflow: hidden;
   color: var(--ink);
 }
@@ -28,7 +29,7 @@ body {
   align-items: center;
 }
 .main-card {
-  background: rgba(255,255,255,0.9);
+  background: linear-gradient(180deg, rgba(247,216,104,1) 0%, rgba(209,187,144,1) 50%, rgba(184,169,169,1) 100%);
   border-radius: 24px;
   box-shadow: 0 0 20px rgba(255,255,255,0.5);
   text-align: center;
@@ -92,9 +93,9 @@ tr:nth-child(even) { background-color: rgba(255,255,255,0.2); }
 }
 #notif.show { opacity: 1; transform: translateY(0); }
 
-/* 💍 浮水印樣式覆寫 */
+/* 💍 浮水印樣式覆寫（深灰底） */
 .leaflet-control-attribution {
-  background: rgba(220,220,220,0.8);  /* 淺灰底 */
+  background: rgba(180,180,180,0.9);
   border-radius: 6px;
   padding: 2px 8px;
   font-size: 13px;
@@ -105,7 +106,7 @@ tr:nth-child(even) { background-color: rgba(255,255,255,0.2); }
 <div id="app">
   <div id="main-area">
     <div class="main-card" id="mission-card">
-      <h1>解任務｜婚禮版</h1>
+      <h1>🕧尋寶任務🕧</h1>
       <p>歡迎參加婚禮任務活動～<br>請點擊開始進行挑戰！</p>
       <button onclick="nextMission()">開始任務 ▶</button>
     </div>
@@ -151,8 +152,8 @@ let players = [
   {name: "變態人林阿軒", score: 100},
   {name: "Alice", score: 95},
   {name: "Bob", score: 90},
-  {name: "張咩揚", score: 85},
-  {name: "沒在睡的王曉慧", score: 80},
+  {name: "背鍋俠張咩揚", score: 85},
+  {name: "吃香蕉王小慧", score: 80},
   {name: "Eve", score: 75},
   {name: "Frank", score: 70},
   {name: "Grace", score: 65},
@@ -202,8 +203,8 @@ setInterval(()=>{
 
 renderLeaderboard();
 
-// 🗺️ Leaflet Map（等比例顯示 + 微放大）
-const map = L.map('map', { crs: L.CRS.Simple, minZoom: -1, maxZoom: 3, attributionControl: false });
+// 🗺️ Leaflet Map（保持原比例 + 可調縮放）
+const map = L.map('map', { crs: L.CRS.Simple, minZoom: -2, maxZoom: 4, attributionControl: false });
 const imageUrl = 'assets/WL-平面場圖-4.png';
 const img = new Image();
 img.src = imageUrl;
@@ -211,9 +212,15 @@ img.onload = function() {
   const w = img.width, h = img.height;
   const bounds = [[0,0],[h,w]];
   L.imageOverlay(imageUrl, bounds).addTo(map);
-  map.fitBounds(bounds, { animate:false });
   map.setMaxBounds(bounds);
-  map.setView([h/2, w/2], 0.3); // 保持比例並略微放大
+  map.fitBounds(bounds, { animate:false });
+
+  /* 🎨 可自行調整顯示比例
+     zoomAdjust < 0 => 縮小；zoomAdjust > 0 => 放大
+     推薦值：-0.5 ~ -1 之間（略縮小）
+  */
+  const zoomAdjust = -0.6;
+  map.setZoom(map.getZoom() + zoomAdjust);
 
   // 💍 浮水印
   L.control.attribution({prefix: false})
@@ -243,4 +250,3 @@ img.onload = function() {
 </script>
 </body>
 </html>
-
