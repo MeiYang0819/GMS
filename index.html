@@ -1,363 +1,250 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>🎮闖關任務</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎮闖關任務🎮</title>
 
-<!-- ✅ 婚禮風格書法感字體：Tai Heritage Pro -->
-<link href="https://fonts.googleapis.com/css2?family=Tai+Heritage+Pro:wght@400;700&display=swap" rel="stylesheet">
+<!-- ✅ 婚禮圓潤風格字體 Zen Maru Gothic -->
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-/* ============================================================
-   🎨 全域字體與大小設定（可自行調整）
-   ------------------------------------------------------------
-   - --font-family-main : 主字體（婚禮書法風）
-   - --font-base : 一般文字大小
-   - --font-lg   : 小標題大小
-   - --font-xl   : 主標題大小
-   ============================================================ */
 :root {
-  --font-family-main: 'Tai Heritage Pro', 'Noto Sans TC', serif; /* 主字體：婚禮風格書法感 */
-  --font-base: 22px;  /* 一般文字大小 */
-  --font-lg: 30px;    /* 小標題大小 */
-  --font-xl: 40px;    /* 主標題大小 */
-  --muted: #6b7280;
-  --ink: #111827;
-  --card-w: 880px;
+  --font-main: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif;
+  --main-bg: linear-gradient(180deg, #ebb3a9, #ff906e);
+  --card-bg: linear-gradient(180deg, #f7d868, #d1bb90, #b8a9a9);
+  --text-shadow: 1px 1px 2px rgba(0,0,0,0.25);
 }
 
-/* ============================================================
-   🪄 全域背景與版面配置
-   ============================================================ */
+/* === 基礎設定 === */
 body {
+  font-family: var(--font-main);
   margin: 0;
-  font-family: var(--font-family-main);
-  background: linear-gradient(0deg, #ebb3a9 0%, #f5a28c 45%, #ff906e 100%);
-  color: var(--ink);
-  overflow: hidden;
-}
-
-#app {
+  background: var(--main-bg);
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  align-items: center;
+  justify-content: start;
+  min-height: 100vh;
+  color: #333;
+  overflow-x: hidden;
 }
 
-/* ============================================================
-   🎴 上半主卡（固定區塊）
-   ============================================================ */
-#main-area {
-  flex: 1;
+/* === 主卡區塊 === */
+.main-card {
+  background: var(--card-bg);
+  border-radius: 24px;
+  padding: 20px;
+  width: 90%;
+  max-width: 480px;
+  margin-top: 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  text-align: center;
+}
+
+.main-card h1 {
+  font-size: 2rem;
+  text-shadow: var(--text-shadow);
+}
+
+.main-card p {
+  color: #555;
+  text-shadow: var(--text-shadow);
+}
+
+.main-btn {
+  background: #f7d868;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 12px;
+  margin-top: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+
+/* === 排行榜區 === */
+.leaderboard-container {
+  display: flex;
+  overflow-x: scroll;
+  width: 100%;
+  scroll-snap-type: x mandatory;
+}
+
+.section {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0;
+}
+
+/* 📊 排行榜主體 */
+.leaderboard {
+  width: 90%;
+  background: rgba(255,255,255,0.6);
+  border-radius: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  overflow-y: auto;
+  max-height: 300px;
+  text-align: center;
+}
+
+.leaderboard table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.leaderboard th, .leaderboard td {
+  padding: 6px 8px;
+}
+
+.leaderboard th {
+  background: #fff;
+  font-size: 0.9rem;
+  text-shadow: var(--text-shadow);
+}
+
+/* 📍排行榜左右提示框 */
+.tip-box {
+  position: absolute;
+  background: rgba(255,255,255,0.8);
+  border-radius: 8px;
+  padding: 2px 8px;
+  font-size: 0.7rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  color: #333;
+}
+.tip-left {
+  top: 8px;
+  left: 8px;
+}
+.tip-right {
+  top: 8px;
+  right: 8px;
+}
+
+/* === 地圖區 === */
+.map-container {
+  width: 100%;
+  aspect-ratio: 1 / 1.414; /* ✅ A4 比例 */
   display: flex;
   justify-content: center;
   align-items: center;
+  background: #f4f4f4;
 }
 
-.main-card {
-  background: linear-gradient(180deg, #f7d868 0%, #d1bb90 75%, #b8a9a9 100%);
-  border-radius: 24px;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-  text-align: center;
-  width: var(--card-w);
-  padding: 30px 20px;
-  backdrop-filter: blur(6px);
-  transition: all 0.6s ease;
-}
-.main-card h1 { font-size: var(--font-xl); margin: 10px 0; }
-.main-card p { font-size: var(--font-base); color: var(--muted); }
-
-button {
-  background-color: #ffb703;
-  border: none;
-  border-radius: 10px;
-  color: #111;
-  font-size: var(--font-base);
-  padding: 10px 25px;
-  cursor: pointer;
-  margin-top: 15px;
-}
-button:hover { background-color: #ffd166; }
-
-/* ============================================================
-   📊 下半分區：排行榜 + 地圖
-   ============================================================ */
-#bottom-area {
-  display: flex;
-  height: 45%;
-  border-top: 4px solid #fff;
-}
-
-/* ================== 🏆 排行榜 ================== */
-#leaderboard {
-  flex: 1;
-  background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%);
-  padding: 10px 0; /* ✅ 移除左右 padding，讓表格貼齊容器邊緣 */
-  overflow-y: auto; /* ✅ 可上下滑動，不會被卡死 */
-}
-#leaderboard h2 {
-  text-align: center;
-  font-size: var(--font-lg);
-  color: #111;
-  margin: 5px 0 10px;
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 18px;
-  color: #111;
-}
-th, td { text-align: center; padding: 6px 0; } /* ✅ 左右貼齊容器邊界 */
-th { background-color: rgba(255, 255, 255, 0.4); }
-tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
-.ellipsis td { text-align: center; color: #555; font-style: italic; }
-
-/* ================== 🗺️ 地圖 ================== */
-#map {
-  flex: 1;
-  height: 100%;
-  border-left: 4px solid #fff;
-  position: relative;
-  overflow: hidden;
-}
-.leaflet-container {
+.map-container img {
   width: 100%;
   height: 100%;
-  background: #f5f5f5;
-}
-.leaflet-control-attribution {
-  background: rgba(180, 180, 180, 0.9);
-  border-radius: 6px;
-  padding: 2px 8px;
-  font-size: 13px;
-}
-
-/* ================== 🔔 通知彈出 ================== */
-#notif {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: rgba(255, 255, 255, 0.9);
+  object-fit: contain;
   border-radius: 12px;
-  padding: 10px 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  font-size: 18px;
-  color: #111;
-  opacity: 0;
-  transition: all 0.4s ease;
-  pointer-events: none;
 }
-#notif.show { opacity: 1; transform: translateY(0); }
 
-/* ============================================================
-   📱 手機版（直式）專用設定
-   ------------------------------------------------------------
-   - 改為橫向滑動：排行榜 ←→ 地圖
-   - 移除紅框空白、固定中心點、略縮小地圖
-   ============================================================ */
-@media (max-width: 768px) {
-  #bottom-area {
-    flex-direction: row;
-    border-top: 3px solid #fff;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
+/* === 通知彈出框 === */
+.toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255,230,230,0.95);
+  color: #333;
+  padding: 12px 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  font-size: 1rem;
+  text-align: center;
+  animation: fadeInUp 0.6s ease;
+  z-index: 9999;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -60%);
   }
-  #leaderboard, #map {
-    flex: none;
-    width: 100vw;
-    height: 100%;
-    border-left: none;
-    border-right: none;
-    scroll-snap-align: start;
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
   }
-  #leaderboard { border-bottom: 2px solid #fff; }
-  #map {
-    border-left: none;
-    transform: scale(0.85); /* ✅ 再縮小一點 */
-    transform-origin: center top;
-  }
-  table { font-size: 16px; }
-  .main-card { width: 90vw; }
 }
 </style>
 </head>
 
 <body>
-<div id="app">
-  <div id="main-area">
-    <div class="main-card" id="mission-card">
-      <h1>🕧闖關任務🕧</h1>
-      <p>歡迎參加婚禮闖關活動～<br />請點擊開始進行挑戰！</p>
-      <button onclick="nextMission()">開始任務 ▶</button>
+  <!-- 🌟 主卡區 -->
+  <div class="main-card">
+    <h1>🎮闖關任務🎮</h1>
+    <p>歡迎參加婚禮闖關活動～<br>請點擊開始進行挑戰！</p>
+    <button class="main-btn">開始任務 ▶</button>
+  </div>
+
+  <!-- 📊 排行榜與地圖主容器 -->
+  <div class="leaderboard-container">
+    
+    <!-- ✅ 排行榜區 -->
+    <div class="section">
+      <div class="tip-right tip-box">👉 往左滑為地圖</div>
+      <div class="leaderboard">
+        <table>
+          <thead>
+            <tr><th>名次</th><th>暱稱</th><th>分數</th></tr>
+          </thead>
+          <tbody id="leaderboard-body">
+            <!-- JS 動態插入前4+後2 -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ✅ 地圖區 -->
+    <div class="section">
+      <div class="tip-left tip-box">👈 往右滑為排行榜</div>
+      <div class="map-container">
+        <img src="map.jpg" alt="婚禮地圖">
+      </div>
     </div>
   </div>
 
-  <div id="bottom-area">
-    <div id="leaderboard">
-      <h2>🏆 排行榜</h2>
-      <table>
-        <thead><tr><th>名次</th><th>暱稱</th><th>分數</th></tr></thead>
-        <tbody id="rank-body"></tbody>
-      </table>
-    </div>
-    <div id="map"></div>
-  </div>
-</div>
-
-<div id="notif"></div>
-
-<!-- ✅ Leaflet 套件 -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- 💬 通知範例 -->
+  <div class="toast" id="toast" style="display:none;">⬇️ Bob 下降至第 4 名～😅</div>
 
 <script>
-/* ============================================================
-   🎯 任務流程
-   ============================================================ */
-let step = 0;
-const missions = [
-  "1️⃣ 簽到：請完成簽到並輸入暱稱！",
-  "2️⃣ 簽名：請上傳您的簽名或照片！",
-  "3️⃣ 找招待：請找到現場工作人員確認～",
-  "4️⃣ 找新人拍照：與新人合照一張 📸",
-  "5️⃣ 相本桌拼圖：完成小遊戲獲得分數～",
-  "6️⃣ 四選一：回答婚禮小測驗 💡"
+/* === 模擬排行榜資料 === */
+const players = [
+  {name: '阿軒', score: 101},
+  {name: '小羊', score: 96},
+  {name: '阿揚', score: 86},
+  {name: 'Bob', score: 85},
+  {name: '小新', score: 70},
+  {name: '小美', score: 69},
+  {name: '阿德', score: 60},
+  {name: '阿米', score: 59}
 ];
-function nextMission() {
-  const card = document.getElementById("mission-card");
-  if (step < missions.length) {
-    card.innerHTML = `<h1>🎯 第 ${step + 1} 關</h1>
-      <p>${missions[step]}</p>
-      <button onclick="nextMission()">下一關 ▶</button>`;
-    step++;
-  } else {
-    card.innerHTML = `<h1>🎉 恭喜完成所有任務！</h1><p>感謝參與婚禮互動～</p>`;
-  }
-}
 
-/* ============================================================
-   🏆 排行榜邏輯
-   - 顯示「前4 + ... + 後2」
-   - 若總數 ≤ 6 顯示全部
-   ============================================================ */
-let players = [
-  { name: "變態人林阿軒", score: 101 },
-  { name: "Alice", score: 95 },
-  { name: "Bob", score: 90 },
-  { name: "背鍋俠張咩揚", score: 85 },
-  { name: "吃香蕉王小慧", score: 80 },
-  { name: "大王", score: 70 },
-  { name: "新人新娘", score: 60 }
-];
-let lastRanks = {}; // 紀錄上次名次變動用於通知
-
-function showNotif(text, type) {
-  const n = document.getElementById("notif");
-  n.innerHTML = text;
-  n.style.background = type === "up" ? "#d1ffd1" : "#ffe6e6";
-  n.classList.add("show");
-  setTimeout(() => n.classList.remove("show"), 3000);
-}
-
+/* === 顯示前4 + 後2 名 === */
 function renderLeaderboard() {
-  players.sort((a, b) => b.score - a.score);
-  const tbody = document.getElementById("rank-body");
+  const tbody = document.getElementById("leaderboard-body");
   tbody.innerHTML = "";
-
-  // 名次變動通知
-  players.forEach((p, i) => {
-    const prev = lastRanks[p.name];
-    if (prev !== undefined && prev !== i) {
-      if (prev > i) showNotif(`⬆️ ${p.name} 上升至第 ${i + 1} 名！🎉`, "up");
-      else showNotif(`⬇️ ${p.name} 下降至第 ${i + 1} 名～😅`, "down");
-    }
-    lastRanks[p.name] = i;
+  const top = players.slice(0, 4);
+  const bottom = players.slice(-2);
+  [...top, {name:"...", score:"..."}, ...bottom].forEach((p, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${i < 4 ? i+1 : (p.name==="..."?"":players.length-2+i-5)}</td><td>${p.name}</td><td>${p.score}</td>`;
+    tbody.appendChild(tr);
   });
-
-  const len = players.length;
-  if (len <= 6) {
-    players.forEach((p, i) => {
-      const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1;
-      tbody.innerHTML += `<tr><td>${medal}</td><td>${p.name}</td><td>${p.score}</td></tr>`;
-    });
-  } else {
-    const top = players.slice(0, 4);
-    const bottom = players.slice(-2);
-    [...top, { name: "...", score: "..." }, ...bottom].forEach((p, i) => {
-      if (p.name === "...") {
-        tbody.innerHTML += `<tr class="ellipsis"><td colspan="3">...</td></tr>`;
-      } else {
-        const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "";
-        const rankNum = medal || (i < 4 ? i + 1 : len - 1 + i - 5);
-        tbody.innerHTML += `<tr><td>${rankNum}</td><td>${p.name}</td><td>${p.score}</td></tr>`;
-      }
-    });
-  }
 }
-
-/* 模擬分數變動（測試用） */
-setInterval(() => {
-  const randomPlayer = players[Math.floor(Math.random() * players.length)];
-  randomPlayer.score += Math.floor(Math.random() * 7 - 3);
-  if (randomPlayer.score < 0) randomPlayer.score = 0;
-  renderLeaderboard();
-}, 2000);
 renderLeaderboard();
 
-/* ============================================================
-   🗺️ 地圖設定（Leaflet）
-   - 移除橫滑空白、固定中心、略縮小
-   ============================================================ */
-const map = L.map("map", {
-  crs: L.CRS.Simple,
-  minZoom: -2,
-  maxZoom: 4,
-  attributionControl: false,
-  dragging: false, /* ✅ 禁止拖動，固定中心點 */
-  zoomControl: false
-});
-
-const imageUrl = "assets/WL-平面場圖-4.png";
-const img = new Image();
-img.src = imageUrl;
-img.onload = function () {
-  const w = img.width, h = img.height;
-  const bounds = [[0, 0], [h, w]];
-  L.imageOverlay(imageUrl, bounds).addTo(map);
-  map.setMaxBounds(bounds);
-  map.fitBounds(bounds, { animate: false });
-
-  /* ✅ 調整縮放：手機版更小（-1.2） */
-  const zoomAdjust = window.innerWidth < 768 ? -1.2 : -0.6;
-  map.setZoom(map.getZoom() + zoomAdjust);
-
-  /* ✅ 底部浮水印樣式（偏深灰） */
-  L.control.attribution({ prefix: false })
-    .addAttribution("💍 MYs Map © 2025-10").addTo(map);
-
-  /* ✅ 標記所有關卡與彩蛋 */
-  const points = [
-    { name: "關卡一", coords: [h * 0.45, w * 0.45], color: "red" },
-    { name: "關卡二", coords: [h * 0.35, w * 0.70], color: "red" },
-    { name: "關卡三", coords: [h * 0.55, w * 0.30], color: "red" },
-    { name: "關卡四", coords: [h * 0.25, w * 0.80], color: "red" },
-    { name: "關卡五", coords: [h * 0.20, w * 0.20], color: "red" },
-    { name: "關卡六", coords: [h * 0.40, w * 0.10], color: "red" },
-    { name: "🎁 Bonus A", coords: [h * 0.55, w * 0.65], color: "gold" },
-    { name: "🎁 Bonus B", coords: [h * 0.40, w * 0.60], color: "gold" },
-    { name: "🎁 Bonus C", coords: [h * 0.75, w * 0.50], color: "gold" }
-  ];
-  points.forEach(p => {
-    L.circleMarker(p.coords, {
-      radius: 4,
-      color: p.color,
-      fillColor: p.color,
-      fillOpacity: 0.9
-    }).addTo(map).bindTooltip(p.name, { direction: "top", offset: [0, -4] });
-  });
-};
+/* === 通知彈出 === */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(()=>t.style.display='none', 2500);
+}
+showToast("⬇️ Bob 下降至第 4 名～😅");
 </script>
 </body>
 </html>
