@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>🎮闖關任務</title>
 
-<!-- ✅ 全站字體：Zen Maru Gothic（圓潤婚禮風） -->
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
@@ -66,39 +65,48 @@ button {
 }
 button:hover { background-color: #ffd166; }
 
-#bottom-area {
-  display: flex;
+/* ================== 🔽 底部容器 ================== */
+#bottom-wrap {
+  flex-shrink: 0;
   height: 45%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  display: flex;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
   border-top: 4px solid #fff;
-  width: 100%;
-  overflow: hidden;
 }
 
 /* ================== 🏆 排行榜 ================== */
+.section {
+  display: inline-block;
+  vertical-align: top;
+  width: 100vw;
+  height: 100%;
+  scroll-snap-align: start;
+}
+
 #leaderboard {
-  flex: 1;
   background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%);
   overflow-y: auto;
-  overflow-x: hidden;
-  padding-bottom: 60px;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  position: relative; /* ✅ 為提示框定位 */
-  min-width: 100vw; /* ✅ 修正寬度讓 scroll 正常 */
+  padding-bottom: 60px;
 }
 #leaderboard h2 {
   font-size: 26px;
   margin: 8px 0 12px;
   color: #111;
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
-/* ✅ 排行榜提示：右上角靠內對齊（與地圖提示對稱、永不壓文字） */
 #leaderboard .hint-box {
   position: absolute;
   top: 10px;
@@ -109,8 +117,7 @@ button:hover { background-color: #ffd166; }
   font-size: 14px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   white-space: nowrap;
-  z-index: 9999;
-  transform: translateY(0);
+  z-index: 10;
 }
 
 table {
@@ -138,15 +145,11 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 
 /* ================== 🗺️ 地圖 ================== */
 #map {
-  flex: 1;
-  height: 100%;
-  border-left: 4px solid #fff;
+  background: linear-gradient(180deg, #b8a9a9 0%, #d1bb90 50%, #f7d868 100%);
   position: relative;
   overflow: hidden;
-  min-width: 100vw; /* ✅ 修正寬度讓 scroll 正常 */
 }
-/* ✅ 地圖提示：左上角靠內對齊（與排行榜提示對稱） */
-#map .map-hint-box {
+.map-hint-box {
   position: absolute;
   top: 10px;
   left: 10px;
@@ -156,7 +159,7 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   font-size: 14px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   white-space: nowrap;
-  z-index: 9999;
+  z-index: 10;
 }
 .leaflet-container {
   width: 100%;
@@ -187,24 +190,6 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   white-space: nowrap;
 }
 #notif.show { opacity: 1; transform: translate(-50%, 0); }
-
-@media (max-width: 768px) {
-  #bottom-area {
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    touch-action: pan-x;
-    -webkit-overflow-scrolling: touch; /* ✅ iOS 修正滑動 */
-  }
-  #leaderboard, #map {
-    flex: none;
-    width: 100vw;
-    height: 100%;
-    scroll-snap-align: start;
-  }
-}
 </style>
 </head>
 
@@ -218,8 +203,8 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
     </div>
   </div>
 
-  <div id="bottom-area">
-    <div id="leaderboard">
+  <div id="bottom-wrap">
+    <div class="section" id="leaderboard">
       <h2>🏆 排行榜</h2>
       <span class="hint-box">👉 往左滑為地圖</span>
       <table>
@@ -228,7 +213,7 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
       </table>
     </div>
 
-    <div id="map">
+    <div class="section" id="map">
       <div class="map-hint-box">👈 往右滑為排行榜</div>
       <div id="mapContainer" class="leaflet-container"></div>
     </div>
@@ -362,7 +347,7 @@ img.onload = function () {
   L.imageOverlay(imageUrl, bounds).addTo(map);
   map.setMaxBounds(bounds);
   map.fitBounds(bounds, { animate: false });
-  map.setZoom(map.getZoom() - 0.6); /* ✅ 略縮小比例 */
+  map.setZoom(map.getZoom() - 0.6);
   L.control.attribution({ prefix: false })
     .addAttribution("💍 MYs Map © 2025").addTo(map);
 };
