@@ -5,23 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>🎮闖關任務</title>
 
-<!-- ✅ 圓潤婚禮風格字體：Zen Maru Gothic（你先前要求的圓潤風） -->
+<!-- ✅ 圓潤婚禮字體 -->
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
 /* ============================================================
-   🎨 全域字體與大小設定（可自行調整）
-   ------------------------------------------------------------
-   - --font-family-main : 主字體（圓潤婚禮風）
-   - --font-base : 一般文字大小
-   - --font-lg   : 小標題大小
-   - --font-xl   : 主標題大小
+   🎨 全域字體與大小設定
    ============================================================ */
 :root {
-  --font-family-main: 'Zen Maru Gothic', 'Noto Sans TC', serif; /* 主字體改為圓潤婚禮風 */
-  --font-base: 22px;  /* 一般文字大小 */
-  --font-lg: 30px;    /* 小標題大小 */
-  --font-xl: 40px;    /* 主標題大小 */
+  --font-family-main: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif;
+  --font-base: 22px;
+  --font-lg: 30px;
+  --font-xl: 40px;
   --muted: #6b7280;
   --ink: #111827;
   --card-w: 880px;
@@ -29,14 +24,14 @@
 
 /* ============================================================
    🪄 全域背景與版面配置
-   - 👉 依你指示改為金黃色漸層
    ============================================================ */
 body {
   margin: 0;
   font-family: var(--font-family-main);
-  background: linear-gradient(0deg, rgba(247, 237, 143, 1) 0%, rgba(241, 223, 57, 1) 71%, rgba(237, 214, 5, 1) 100%);
+  background: linear-gradient(0deg, #ebb3a9 0%, #f5a28c 45%, #ff906e 100%);
   color: var(--ink);
   overflow: hidden;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.15); /* 柔陰影 */
 }
 
 #app {
@@ -46,7 +41,7 @@ body {
 }
 
 /* ============================================================
-   🎴 上半主卡（固定區塊）
+   🎴 上半主卡（闖關任務）
    ============================================================ */
 #main-area {
   flex: 1;
@@ -56,26 +51,17 @@ body {
 }
 
 .main-card {
-  background: linear-gradient(180deg, #f7d868 0%, #d1bb90 75%, #b8a9a9 100%);
+  background: linear-gradient(0deg, rgba(247,237,143,1) 0%, rgba(241,223,57,1) 71%, rgba(237,214,5,1) 100%);
   border-radius: 24px;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 20px rgba(255,255,255,0.6);
   text-align: center;
   width: var(--card-w);
   padding: 30px 20px;
   backdrop-filter: blur(6px);
   transition: all 0.6s ease;
 }
-.main-card h1 {
-  font-size: var(--font-xl);
-  margin: 10px 0;
-  /* ✨ 柔和文字陰影，讓標題更有層次 */
-  text-shadow: 1px 2px 3px rgba(0,0,0,0.2);
-}
-.main-card p {
-  font-size: var(--font-base);
-  color: var(--muted);
-  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
+.main-card h1 { font-size: var(--font-xl); margin: 10px 0; }
+.main-card p { font-size: var(--font-base); color: var(--muted); }
 
 button {
   background-color: #ffb703;
@@ -96,55 +82,43 @@ button:hover { background-color: #ffd166; }
   display: flex;
   height: 45%;
   border-top: 4px solid #fff;
-  position: relative; /* 供提示框定位使用 */
+  position: relative;
 }
 
 /* ================== 🏆 排行榜 ================== */
 #leaderboard {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%);
-  padding: 10px 0; /* ✅ 左右貼齊，避免內縮空白 */
-  overflow-y: auto; /* ✅ 可上下滑動，看得到最後兩名 */
-  -webkit-overflow-scrolling: touch; /* ✅ iOS 惯性滾動 */
+  padding: 5px 0;
+  overflow-y: auto;
 }
-
-/* 🔠 標題列（與右上提示同一行） */
-#leaderboard .head-row {
+#leaderboard h2 {
+  font-size: 26px; /* 稍小一點 */
+  color: #111;
+  margin: 5px 0 8px;
   display: flex;
   align-items: center;
-  justify-content: space-between; /* 左邊標題、右邊提示同一行 */
-  padding: 0 8px;
-  margin: 0 0 6px 0;
+  justify-content: center;
 }
-
-/* 🏆 標題稍微縮小（你要求「排行榜三個字在小一點」） */
-#leaderboard h2 {
-  font-size: calc(var(--font-lg) - 4px);
-  color: #111;
-  margin: 5px 0;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
-}
-
-/* 👉 右上提示框：與標題同一行靠右 */
-.tip-inline-right {
-  background: rgba(255,255,255,0.85);
-  border-radius: 8px;
-  padding: 2px 8px;
-  font-size: 14px;
-  color: #333;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.18);
-  white-space: nowrap;
+#leaderboard h2 span.hint {
+  font-size: 18px;
+  color: #444;
+  margin-left: 10px;
 }
 
 table {
-  width: 100%;
+  width: 95%;
   border-collapse: collapse;
   font-size: 18px;
   color: #111;
+  text-align: center;
 }
-th, td { text-align: center; padding: 6px 0; } /* ✅ 左右貼齊容器邊界 */
-th { background-color: rgba(255, 255, 255, 0.4); }
-tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
+th, td { padding: 6px 0; }
+th { background-color: rgba(255,255,255,0.4); }
+tr:nth-child(even) { background-color: rgba(255,255,255,0.2); }
 .ellipsis td { text-align: center; color: #555; font-style: italic; }
 
 /* ================== 🗺️ 地圖 ================== */
@@ -155,79 +129,63 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   position: relative;
   overflow: hidden;
 }
-
-/* Leaflet 容器固定為 A4 直向比例，避免紅邊與變形 */
-.leaflet-container {
-  width: 100%;
-  height: 100%;
-  background: #f5f5f5;
-  aspect-ratio: 210 / 297; /* ✅ 固定為 A4 直向比例 */
-}
-
-/* Leaflet 浮水印（保留 MYs 標示，如你所需） */
+.leaflet-container { width: 100%; height: 100%; background: #f5f5f5; }
 .leaflet-control-attribution {
-  background: rgba(180, 180, 180, 0.9);
+  background: rgba(180,180,180,0.9);
   border-radius: 6px;
   padding: 2px 8px;
   font-size: 13px;
 }
 
-/* 自訂右下角 MYs 標章（確保一定可見，不被蓋掉） */
-.map-badge {
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
-  background: rgba(0,0,0,0.45);
-  color: #fff;
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  z-index: 20;
-  pointer-events: none;
-}
-
-/* 左上地圖提示（提層避免被地圖遮住） */
-.tip-left {
+/* ✅ 地圖左上提示 */
+#map-hint {
   position: absolute;
   top: 6px;
-  left: 6px;
-  background: rgba(255,255,255,0.85);
+  left: 10px;
+  font-size: 18px;
+  background: rgba(255,255,255,0.8);
+  padding: 3px 8px;
   border-radius: 8px;
-  padding: 2px 8px;
-  font-size: 14px;
+  z-index: 1000;
   color: #333;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.18);
-  z-index: 21; /* ✅ 提高層級，避免被地圖圖層遮住 */
-  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
 
-/* ================== 🔔 通知彈出（移到最上方，置中，略拉長） ================== */
+/* ✅ MYs 浮水印 */
+#mys-mark {
+  position: absolute;
+  bottom: 6px;
+  right: 10px;
+  font-size: 14px;
+  color: white;
+  background: rgba(120,120,120,0.7);
+  padding: 3px 8px;
+  border-radius: 6px;
+  z-index: 1000;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+}
+
+/* ================== 🔔 通知彈出 ================== */
 #notif {
   position: fixed;
-  top: 10px;              /* ✅ 最上方（靠近主卡區） */
-  left: 50%;              /* ✅ 水平置中 */
-  transform: translateX(-50%) scale(1);
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 10px;
-  padding: 10px 24px;     /* ✅ 稍微拉長 */
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-  font-size: 16px;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255,255,255,0.95);
+  border-radius: 14px;
+  padding: 12px 28px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+  font-size: 20px;
   color: #111;
   opacity: 0;
-  transition: all 0.3s ease;
+  transition: all 0.4s ease;
   pointer-events: none;
-  z-index: 1000;
-  text-align: center;
+  z-index: 3000;
 }
-#notif.show {
-  opacity: 1;
-  transform: translateX(-50%) scale(1.02);
-}
+#notif.show { opacity: 1; }
 
 /* ============================================================
-   📱 手機版（直式）專用設定
-   ------------------------------------------------------------
-   - 保持你的橫向滑動結構不變
+   📱 手機版
    ============================================================ */
 @media (max-width: 768px) {
   #bottom-area {
@@ -236,31 +194,21 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
     overflow-x: auto;
     overflow-y: hidden;
     scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
   }
   #leaderboard, #map {
     flex: none;
     width: 100vw;
-    height: 100%;
-    border-left: none;
-    border-right: none;
     scroll-snap-align: start;
-  }
-  #leaderboard { border-bottom: 2px solid #fff; }
-  #map {
-    border-left: none;
-    transform: scale(0.85);       /* 依你先前希望手機地圖略小 */
-    transform-origin: center top;
   }
   table { font-size: 16px; }
   .main-card { width: 90vw; }
+  #map { transform: scale(0.85); transform-origin: center top; }
 }
 </style>
 </head>
 
 <body>
 <div id="app">
-  <!-- 上半：主活動卡 -->
   <div id="main-area">
     <div class="main-card" id="mission-card">
       <h1>🕧闖關任務🕧</h1>
@@ -269,48 +217,33 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
     </div>
   </div>
 
-  <!-- 下半：排行榜 + 地圖 -->
   <div id="bottom-area">
-    <!-- 排行榜（左下） -->
     <div id="leaderboard">
-      <!-- ✅ 與標題同一行的右側提示框 -->
-      <div class="head-row">
-        <h2>🏆 排行榜</h2>
-        <div class="tip-inline-right">👉 往左滑為地圖</div>
-      </div>
+      <h2>🏆 排行榜 <span class="hint">👉 往左滑為地圖</span></h2>
       <table>
-        <thead>
-          <tr><th>名次</th><th>暱稱</th><th>分數</th></tr>
-        </thead>
+        <thead><tr><th>名次</th><th>暱稱</th><th>分數</th></tr></thead>
         <tbody id="rank-body"></tbody>
       </table>
     </div>
 
-    <!-- 地圖（右下） -->
     <div id="map">
-      <!-- ✅ 左上提示框：提升層級不被遮住 -->
-      <div class="tip-left">👈 往右滑為排行榜</div>
-      <!-- ✅ 右下角 MYs 標示（保留顯示） -->
-      <div class="map-badge">💍 MYs Map © 2025-10</div>
+      <div id="map-hint">👈 往右滑為排行榜</div>
+      <div id="mys-mark">💍 MYs Map © 2025-10</div>
     </div>
   </div>
 </div>
 
-<!-- 通知浮窗（已移至最上方置中） -->
 <div id="notif"></div>
 
-<!-- 外部套件：Leaflet -->
+<!-- ✅ Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
-/* =========================================================
-   //* --------任務流程（六關：純前端示意）--------*//
-   說明：
-   - 目前為展示用，每按一次「下一關」切換文案
-   - 接後端（Apps Script）時，以 nextAllowedStep 控制
-========================================================= */
-let step = 0; // 目前關卡索引（從 0 開始）
+/* ============================================================
+   🎯 任務流程
+   ============================================================ */
+let step = 0;
 const missions = [
   "1️⃣ 簽到：請完成簽到並輸入暱稱！",
   "2️⃣ 簽名：請上傳您的簽名或照片！",
@@ -322,151 +255,92 @@ const missions = [
 function nextMission() {
   const card = document.getElementById("mission-card");
   if (step < missions.length) {
-    card.innerHTML = `
-      <h1>🎯 第 ${step + 1} 關</h1>
-      <p>${missions[step]}</p>
-      <button onclick="nextMission()">下一關 ▶</button>
-    `;
+    card.innerHTML = `<h1>🎯 第 ${step + 1} 關</h1><p>${missions[step]}</p><button onclick="nextMission()">下一關 ▶</button>`;
     step++;
   } else {
     card.innerHTML = `<h1>🎉 恭喜完成所有任務！</h1><p>感謝參與婚禮互動～</p>`;
   }
 }
 
-/* =========================================================
-   //* --------排行榜（前4 + ... + 後2）--------*//
-   說明：
-   - players：預設玩家清單（可接後端回傳後重繪）
-   - 名次變動彈出通知，2 秒自動消失
-   - 容器啟用 iOS 惯性滾動，放手後也能滾動到底
-========================================================= */
+/* ============================================================
+   🏆 排行榜
+   ============================================================ */
 let players = [
   { name: "變態人林阿軒", score: 101 },
-  { name: "Alice", score: 95 },
-  { name: "Bob", score: 90 },
+  { name: "吃香蕉王小慧", score: 95 },
+  { name: "屋~~", score: 90 },
   { name: "背鍋俠張咩揚", score: 85 },
-  { name: "吃香蕉王小慧", score: 80 },
-  { name: "大王", score: 70 },
-  { name: "新人新娘", score: 60 }
+  { name: "喵喵", score: 80 },
+  { name: "貓咪", score: 70 },
+  { name: "我覺得吼..", score: 60 }
 ];
-let lastRanks = {}; // 上次排名快照（用於判斷名次變化）
+let lastRanks = {};
 
-/** 顯示置中通知（type: 'up' | 'down'）— 已移到最上方置中並拉長一點 */
 function showNotif(text, type) {
   const n = document.getElementById("notif");
   n.innerHTML = text;
-  n.style.background = type === "up" ? "rgba(209,255,209,0.95)" : "rgba(255,230,230,0.95)";
+  n.style.background = type === "up" ? "#d1ffd1" : "#ffe6e6";
   n.classList.add("show");
-  clearTimeout(showNotif._t);
-  showNotif._t = setTimeout(() => n.classList.remove("show"), 2000);
+  setTimeout(() => n.classList.remove("show"), 3000);
 }
 
-/** 重新渲染排行榜（Top4 + ... + 倒數2） */
 function renderLeaderboard() {
-  players.sort((a, b) => b.score - a.score);
+  players.sort((a,b)=>b.score-a.score);
   const tbody = document.getElementById("rank-body");
   tbody.innerHTML = "";
 
-  // 名次變動通知
-  players.forEach((p, i) => {
+  players.forEach((p,i)=>{
     const prev = lastRanks[p.name];
-    if (prev !== undefined && prev !== i) {
-      if (prev > i) showNotif(`⬆️ ${p.name} 上升至第 ${i + 1} 名！🎉`, "up");
-      else showNotif(`⬇️ ${p.name} 下降至第 ${i + 1} 名～😅`, "down");
+    if(prev!==undefined && prev!==i){
+      if(prev>i) showNotif(`⬆️ ${p.name} 上升至第 ${i+1} 名！🎉`,"up");
+      else showNotif(`⬇️ ${p.name} 下降至第 ${i+1} 名～😅`,"down");
     }
-    lastRanks[p.name] = i;
+    lastRanks[p.name]=i;
   });
 
-  const len = players.length;
-  if (len <= 6) {
-    players.forEach((p, i) => {
-      const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1;
-      tbody.innerHTML += `<tr><td>${medal}</td><td>${p.name}</td><td>${p.score}</td></tr>`;
+  const len=players.length;
+  if(len<=6){
+    players.forEach((p,i)=>{
+      const medal=i===0?"🥇":i===1?"🥈":i===2?"🥉":i+1;
+      tbody.innerHTML+=`<tr><td>${medal}</td><td>${p.name}</td><td>${p.score}</td></tr>`;
     });
-  } else {
-    const top = players.slice(0, 4);
-    const bottom = players.slice(-2);
-    [...top, { name: "...", score: "..." }, ...bottom].forEach((p, i) => {
-      if (p.name === "...") {
-        tbody.innerHTML += `<tr class="ellipsis"><td colspan="3">...</td></tr>`;
-      } else {
-        // rank 顯示：前四顯示 1~4；後兩名顯示正確名次
-        const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "";
-        const rankNum = medal || (i < 4 ? i + 1 : len - 1 + i - 5);
-        tbody.innerHTML += `<tr><td>${rankNum}</td><td>${p.name}</td><td>${p.score}</td></tr>`;
+  }else{
+    const top=players.slice(0,4);
+    const bottom=players.slice(-2);
+    [...top,{name:"...",score:"..."},...bottom].forEach((p,i)=>{
+      if(p.name==="...") tbody.innerHTML+=`<tr class="ellipsis"><td colspan="3">...</td></tr>`;
+      else{
+        const medal=i===0?"🥇":i===1?"🥈":i===2?"🥉":"";
+        tbody.innerHTML+=`<tr><td>${medal||i+1}</td><td>${p.name}</td><td>${p.score}</td></tr>`;
       }
     });
   }
 }
 
-// 模擬分數波動（每 2 秒）
-setInterval(() => {
-  const randomPlayer = players[Math.floor(Math.random() * players.length)];
-  randomPlayer.score += Math.floor(Math.random() * 7 - 3); // -3 ~ +3
-  if (randomPlayer.score < 0) randomPlayer.score = 0;
+/* ✅ 模擬動態更新 */
+setInterval(()=>{
+  const r=players[Math.floor(Math.random()*players.length)];
+  r.score+=Math.floor(Math.random()*7-3);
+  if(r.score<0)r.score=0;
   renderLeaderboard();
-}, 2000);
-
-// 第一次渲染
+},2000);
 renderLeaderboard();
 
-/* =========================================================
-   //* --------Leaflet 地圖（A4 比例 + 提示層級 + MYs 標示）--------*//
-   說明：
-   - 使用 L.CRS.Simple 以像素為座標（左上 0,0；右下 h,w）
-   - aspect-ratio: 210/297 固定顯示比例
-   - 禁止拖動，避免誤滑
-========================================================= */
-const map = L.map("map", {
-  crs: L.CRS.Simple,
-  minZoom: -2,
-  maxZoom: 4,
-  attributionControl: false, // 自訂右下角 MYs badge 已補上
-  dragging: false,           // 固定中心，不讓地圖誤滑
-  zoomControl: false
-});
-
-const imageUrl = "assets/WL-平面場圖-4.png"; // 地圖底圖路徑
-const img = new Image();
-img.src = imageUrl;
-img.onload = function () {
-  const w = img.width;
-  const h = img.height;
-  const bounds = [[0, 0], [h, w]];
-
-  // 疊圖並貼齊
-  L.imageOverlay(imageUrl, bounds).addTo(map);
-  map.setMaxBounds(bounds);                 // 限制拖出邊界
-  map.fitBounds(bounds, { animate: false }); // 初始顯示整張圖
-
-  // 手機略縮小；桌機維持先前比例
-  const zoomAdjust = window.innerWidth < 768 ? -1.2 : -0.6;
-  map.setZoom(map.getZoom() + zoomAdjust);
-
-  // 標記：六關 + 三彩蛋（完整保留）
-  const points = [
-    { name: "關卡一",      coords: [h * 0.45, w * 0.45], color: "red"   },
-    { name: "關卡二",      coords: [h * 0.35, w * 0.70], color: "red"   },
-    { name: "關卡三",      coords: [h * 0.55, w * 0.30], color: "red"   },
-    { name: "關卡四",      coords: [h * 0.25, w * 0.80], color: "red"   },
-    { name: "關卡五",      coords: [h * 0.20, w * 0.20], color: "red"   },
-    { name: "關卡六",      coords: [h * 0.40, w * 0.10], color: "red"   },
-    { name: "🎁 Bonus A", coords: [h * 0.55, w * 0.65], color: "gold"  },
-    { name: "🎁 Bonus B", coords: [h * 0.40, w * 0.60], color: "gold"  },
-    { name: "🎁 Bonus C", coords: [h * 0.75, w * 0.50], color: "gold"  }
-  ];
-
-  // 建立標記（小圓點）
-  points.forEach((p) => {
-    L.circleMarker(p.coords, {
-      radius: 4,
-      color: p.color,
-      fillColor: p.color,
-      fillOpacity: 0.9
-    })
-      .addTo(map)
-      .bindTooltip(p.name, { direction: "top", offset: [0, -4] }); /* 提示泡 */
-  });
+/* ============================================================
+   🗺️ 地圖設定（A4固定比例）
+   ============================================================ */
+const map=L.map("map",{crs:L.CRS.Simple,minZoom:-2,maxZoom:4,attributionControl:false,dragging:false,zoomControl:false});
+const imageUrl="assets/WL-平面場圖-4.png";
+const img=new Image();
+img.src=imageUrl;
+img.onload=function(){
+  const w=img.width,h=img.height;
+  const bounds=[[0,0],[h,w]];
+  L.imageOverlay(imageUrl,bounds).addTo(map);
+  map.setMaxBounds(bounds);
+  map.fitBounds(bounds,{animate:false});
+  const zoomAdjust=window.innerWidth<768?-1.2:-0.6;
+  map.setZoom(map.getZoom()+zoomAdjust);
 };
 </script>
 </body>
