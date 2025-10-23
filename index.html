@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>🎮闖關任務</title>
 
+<!-- ✅ 全站字體 -->
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
@@ -65,39 +66,37 @@ button {
 }
 button:hover { background-color: #ffd166; }
 
-/* ================== 🔽 底部容器 ================== */
-#bottom-wrap {
-  flex-shrink: 0;
+/* ================== 🔽 底部區域（排行榜⇄地圖） ================== */
+#bottom-area {
+  display: flex;
   height: 45%;
+  border-top: 4px solid #fff;
   overflow-x: auto;
   overflow-y: hidden;
-  white-space: nowrap;
-  display: flex;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-x;
-  border-top: 4px solid #fff;
 }
 
-/* ================== 🏆 排行榜 ================== */
-.section {
-  display: inline-block;
-  vertical-align: top;
+#leaderboard, #map {
+  flex: none;
   width: 100vw;
   height: 100%;
   scroll-snap-align: start;
 }
 
+/* ================== 🏆 排行榜 ================== */
 #leaderboard {
   background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%);
   overflow-y: auto;
-  position: relative;
+  overflow-x: hidden;
+  padding-bottom: 60px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding-bottom: 60px;
+  position: relative;
 }
 #leaderboard h2 {
   font-size: 26px;
@@ -107,17 +106,19 @@ button:hover { background-color: #ffd166; }
   align-items: center;
   justify-content: center;
 }
+
+/* ✅ 排行榜提示：右上角靠內對齊（對稱於地圖） */
 #leaderboard .hint-box {
   position: absolute;
   top: 10px;
   right: 10px;
-  background: rgba(220,220,220,0.92);
+  background: rgba(220,220,220,0.9);
   border-radius: 8px;
   padding: 4px 10px;
   font-size: 14px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   white-space: nowrap;
-  z-index: 10;
+  z-index: 99;
 }
 
 table {
@@ -145,21 +146,21 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 
 /* ================== 🗺️ 地圖 ================== */
 #map {
-  background: linear-gradient(180deg, #b8a9a9 0%, #d1bb90 50%, #f7d868 100%);
   position: relative;
+  border-left: 4px solid #fff;
   overflow: hidden;
 }
-.map-hint-box {
+#map .map-hint-box {
   position: absolute;
   top: 10px;
   left: 10px;
-  background: rgba(220,220,220,0.92);
+  background: rgba(220,220,220,0.9);
   border-radius: 8px;
   padding: 4px 10px;
   font-size: 14px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   white-space: nowrap;
-  z-index: 10;
+  z-index: 99;
 }
 .leaflet-container {
   width: 100%;
@@ -203,8 +204,8 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
     </div>
   </div>
 
-  <div id="bottom-wrap">
-    <div class="section" id="leaderboard">
+  <div id="bottom-area">
+    <div id="leaderboard">
       <h2>🏆 排行榜</h2>
       <span class="hint-box">👉 往左滑為地圖</span>
       <table>
@@ -213,9 +214,8 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
       </table>
     </div>
 
-    <div class="section" id="map">
+    <div id="map">
       <div class="map-hint-box">👈 往右滑為排行榜</div>
-      <div id="mapContainer" class="leaflet-container"></div>
     </div>
   </div>
 </div>
@@ -329,7 +329,8 @@ setInterval(() => {
 }, 2000);
 renderLeaderboard();
 
-const map = L.map("mapContainer", {
+/* ✅ Leaflet 地圖初始化 */
+const map = L.map("map", {
   crs: L.CRS.Simple,
   minZoom: -2,
   maxZoom: 4,
@@ -350,6 +351,27 @@ img.onload = function () {
   map.setZoom(map.getZoom() - 0.6);
   L.control.attribution({ prefix: false })
     .addAttribution("💍 MYs Map © 2025").addTo(map);
+
+  /* ✅ 標記所有關卡與彩蛋 */
+  const points = [
+    { name: "關卡一", coords: [h * 0.45, w * 0.45], color: "red" },
+    { name: "關卡二", coords: [h * 0.35, w * 0.70], color: "red" },
+    { name: "關卡三", coords: [h * 0.55, w * 0.30], color: "red" },
+    { name: "關卡四", coords: [h * 0.25, w * 0.80], color: "red" },
+    { name: "關卡五", coords: [h * 0.20, w * 0.20], color: "red" },
+    { name: "關卡六", coords: [h * 0.40, w * 0.10], color: "red" },
+    { name: "🎁 Bonus A", coords: [h * 0.55, w * 0.65], color: "gold" },
+    { name: "🎁 Bonus B", coords: [h * 0.40, w * 0.60], color: "gold" },
+    { name: "🎁 Bonus C", coords: [h * 0.75, w * 0.50], color: "gold" }
+  ];
+  points.forEach(p => {
+    L.circleMarker(p.coords, {
+      radius: 4,
+      color: p.color,
+      fillColor: p.color,
+      fillOpacity: 0.9
+    }).addTo(map).bindTooltip(p.name, { direction: "top", offset: [0, -4] });
+  });
 };
 </script>
 </body>
