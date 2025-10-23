@@ -94,17 +94,18 @@ button:hover { background-color: #ffd166; }
   align-items: center;
   justify-content: center;
 }
-/* ✅ 排行榜提示：右上角靠內對齊（與地圖提示對稱） */
+/* ✅ 修正提示對稱：右上角靠內（略深灰） */
 #leaderboard .hint-box {
   position: absolute;
   top: 10px;
   right: 10px;
-  background: rgba(220,220,220,0.92);
+  background: rgba(200,200,200,0.92); /* 比原稍深 */
   border-radius: 8px;
   padding: 4px 10px;
   font-size: 14px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   white-space: nowrap;
+  z-index: 9999;
 }
 table {
   width: 95%;
@@ -137,12 +138,12 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   position: relative;
   overflow: hidden;
 }
-/* ✅ 地圖提示：左上角靠內對齊（對稱） */
+/* ✅ 修正提示對稱：左上角靠內（略深灰） */
 #map .map-hint-box {
   position: absolute;
   top: 10px;
   left: 10px;
-  background: rgba(220,220,220,0.92);
+  background: rgba(200,200,200,0.92); /* 同色調 */
   border-radius: 8px;
   padding: 4px 10px;
   font-size: 14px;
