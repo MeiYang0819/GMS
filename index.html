@@ -37,7 +37,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 55vh; /* ✅ 保證垂直置中，不再貼頂 */
+  min-height: 55vh;
 }
 
 .main-card {
@@ -138,7 +138,6 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   position: relative;
   overflow: hidden;
 }
-/* ✅ 地圖提示固定左上角，永不被蓋住 */
 #map .map-hint-box {
   position: absolute;
   top: 8px;
@@ -186,10 +185,10 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 }
 #notif.show {
   opacity: 1;
-  transform: translate(-50%, -10px); /* ✅ 顯示時稍微往上滑 */
+  transform: translate(-50%, -10px);
 }
 #notif:not(.show) {
-  transform: translate(-50%, 30px); /* ✅ 隱藏時往下收回 */
+  transform: translate(-50%, 30px);
   opacity: 0;
 }
 
@@ -266,15 +265,15 @@ function nextMission() {
 
 let players = [
   { name: "大變態林阿軒", score: 100 },
-  { name: "愛逃避姜新禹", score: 95 },
-  { name: "吃香蕉王小慧", score: 90 },
-  { name: "背鍋俠張咩揚", score: 85 },
-  { name: "雙面人陳大姐", score: 70 },
-  { name: "誰是你謝老闆", score: 60 },
-  { name: "碎碎念周大佑", score: 55 },
-  { name: "愛裸拍辜阿銓", score: 50 },
-  { name: "雖阿郎莊告白", score: 45 },
-  { name: "狗牛屎楊紐約", score: 40 }
+  { name: "愛逃避姜新禹", score: 96 },
+  { name: "吃香蕉王小慧", score: 94 },
+  { name: "背鍋俠張咩揚", score: 92 },
+  { name: "雙面人陳大姐", score: 90 },
+  { name: "誰是你謝老闆", score: 87 },
+  { name: "碎碎念周大佑", score: 83 },
+  { name: "愛裸拍辜阿銓", score: 81 },
+  { name: "雖阿郎莊告白", score: 78 },
+  { name: "狗牛屎楊紐約", score: 76 }
 ];
 let lastRanks = {};
 let notifCounter = 0;
@@ -322,7 +321,8 @@ function renderLeaderboard() {
         row.innerHTML = `<td colspan="3">...</td>`;
       } else {
         const rankNum = i < 4 ? i + 1 : len - 2 + i - 5;
-        row.innerHTML = `<td>${rankNum}</td><td>${p.name}</td><td>${p.score}</td>`;
+        const medal = rankNum === 1 ? "🥇" : rankNum === 2 ? "🥈" : rankNum === 3 ? "🥉" : rankNum; /* ✅ 新增這行 */
+        row.innerHTML = `<td>${medal}</td><td>${p.name}</td><td>${p.score}</td>`; /* ✅ 修改這行 */
       }
       tbody.appendChild(row);
     });
@@ -366,7 +366,6 @@ img.onload = function () {
   map.fitBounds(bounds, { animate: false });
   map.setZoom(map.getZoom() - 1);
 
-  /* ✅ 標記所有關卡與彩蛋 */
   const points = [
     { name: "關卡一", coords: [h * 0.45, w * 0.45], color: "red" },
     { name: "關卡二", coords: [h * 0.35, w * 0.70], color: "red" },
@@ -387,12 +386,9 @@ img.onload = function () {
     }).addTo(map).bindTooltip(p.name, { direction: "top", offset: [0, -4] });
   });
 
-  /* ✅ MYs Map 標示 */
   L.control.attribution({ prefix: false })
     .addAttribution("💍 MYs Map © 2025").addTo(map);
 };
 </script>
 </body>
 </html>
-
-
