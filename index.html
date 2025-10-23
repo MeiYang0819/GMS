@@ -5,23 +5,37 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>🎮闖關任務</title>
 
+<!-- ✅ 婚禮風格書法感字體：Tai Heritage Pro -->
+<link href="https://fonts.googleapis.com/css2?family=Tai+Heritage+Pro:wght@400;700&display=swap" rel="stylesheet">
+
 <style>
+/* ============================================================
+   🎨 全域字體與大小設定（可自行調整）
+   ------------------------------------------------------------
+   - --font-family-main : 主字體（婚禮書法風）
+   - --font-base : 一般文字大小
+   - --font-lg   : 小標題大小
+   - --font-xl   : 主標題大小
+   ============================================================ */
 :root {
-  --font-base: 22px;
-  --font-lg: 30px;
-  --font-xl: 40px;
+  --font-family-main: 'Tai Heritage Pro', 'Noto Sans TC', serif; /* 主字體：婚禮風格書法感 */
+  --font-base: 22px;  /* 一般文字大小 */
+  --font-lg: 30px;    /* 小標題大小 */
+  --font-xl: 40px;    /* 主標題大小 */
   --muted: #6b7280;
   --ink: #111827;
   --card-w: 880px;
-  --top-banner: 120px;
 }
 
+/* ============================================================
+   🪄 全域背景與版面配置
+   ============================================================ */
 body {
   margin: 0;
-  font-family: 'Noto Sans TC', sans-serif;
+  font-family: var(--font-family-main);
   background: linear-gradient(0deg, #ebb3a9 0%, #f5a28c 45%, #ff906e 100%);
-  overflow: hidden;
   color: var(--ink);
+  overflow: hidden;
 }
 
 #app {
@@ -30,6 +44,9 @@ body {
   height: 100vh;
 }
 
+/* ============================================================
+   🎴 上半主卡（固定區塊）
+   ============================================================ */
 #main-area {
   flex: 1;
   display: flex;
@@ -47,14 +64,9 @@ body {
   backdrop-filter: blur(6px);
   transition: all 0.6s ease;
 }
-.main-card h1 {
-  font-size: var(--font-xl);
-  margin: 10px 0;
-}
-.main-card p {
-  font-size: var(--font-base);
-  color: var(--muted);
-}
+.main-card h1 { font-size: var(--font-xl); margin: 10px 0; }
+.main-card p { font-size: var(--font-base); color: var(--muted); }
+
 button {
   background-color: #ffb703;
   border: none;
@@ -67,17 +79,21 @@ button {
 }
 button:hover { background-color: #ffd166; }
 
+/* ============================================================
+   📊 下半分區：排行榜 + 地圖
+   ============================================================ */
 #bottom-area {
   display: flex;
   height: 45%;
   border-top: 4px solid #fff;
 }
 
+/* ================== 🏆 排行榜 ================== */
 #leaderboard {
   flex: 1;
   background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%);
-  padding: 10px 20px;
-  overflow-y: auto;
+  padding: 10px 0; /* ✅ 移除左右 padding，讓表格貼齊容器邊緣 */
+  overflow-y: auto; /* ✅ 可上下滑動，不會被卡死 */
 }
 #leaderboard h2 {
   text-align: center;
@@ -91,11 +107,12 @@ table {
   font-size: 18px;
   color: #111;
 }
-th, td { text-align: center; padding: 6px; }
+th, td { text-align: center; padding: 6px 0; } /* ✅ 左右貼齊容器邊界 */
 th { background-color: rgba(255, 255, 255, 0.4); }
 tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 .ellipsis td { text-align: center; color: #555; font-style: italic; }
 
+/* ================== 🗺️ 地圖 ================== */
 #map {
   flex: 1;
   height: 100%;
@@ -108,7 +125,14 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   height: 100%;
   background: #f5f5f5;
 }
+.leaflet-control-attribution {
+  background: rgba(180, 180, 180, 0.9);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 13px;
+}
 
+/* ================== 🔔 通知彈出 ================== */
 #notif {
   position: fixed;
   top: 20px;
@@ -125,14 +149,12 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 }
 #notif.show { opacity: 1; transform: translateY(0); }
 
-.leaflet-control-attribution {
-  background: rgba(180, 180, 180, 0.9);
-  border-radius: 6px;
-  padding: 2px 8px;
-  font-size: 13px;
-}
-
-/* ============= 手機版（直式）專用設定 ============= */
+/* ============================================================
+   📱 手機版（直式）專用設定
+   ------------------------------------------------------------
+   - 改為橫向滑動：排行榜 ←→ 地圖
+   - 移除紅框空白、固定中心點、略縮小地圖
+   ============================================================ */
 @media (max-width: 768px) {
   #bottom-area {
     flex-direction: row;
@@ -153,7 +175,7 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   #leaderboard { border-bottom: 2px solid #fff; }
   #map {
     border-left: none;
-    transform: scale(0.9);
+    transform: scale(0.85); /* ✅ 再縮小一點 */
     transform-origin: center top;
   }
   table { font-size: 16px; }
@@ -186,10 +208,14 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 
 <div id="notif"></div>
 
+<!-- ✅ Leaflet 套件 -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
+/* ============================================================
+   🎯 任務流程
+   ============================================================ */
 let step = 0;
 const missions = [
   "1️⃣ 簽到：請完成簽到並輸入暱稱！",
@@ -211,14 +237,21 @@ function nextMission() {
   }
 }
 
+/* ============================================================
+   🏆 排行榜邏輯
+   - 顯示「前4 + ... + 後2」
+   - 若總數 ≤ 6 顯示全部
+   ============================================================ */
 let players = [
   { name: "變態人林阿軒", score: 101 },
   { name: "Alice", score: 95 },
   { name: "Bob", score: 90 },
   { name: "背鍋俠張咩揚", score: 85 },
-  { name: "吃香蕉王小慧", score: 80 }
+  { name: "吃香蕉王小慧", score: 80 },
+  { name: "大王", score: 70 },
+  { name: "新人新娘", score: 60 }
 ];
-let lastRanks = {};
+let lastRanks = {}; // 紀錄上次名次變動用於通知
 
 function showNotif(text, type) {
   const n = document.getElementById("notif");
@@ -232,6 +265,8 @@ function renderLeaderboard() {
   players.sort((a, b) => b.score - a.score);
   const tbody = document.getElementById("rank-body");
   tbody.innerHTML = "";
+
+  // 名次變動通知
   players.forEach((p, i) => {
     const prev = lastRanks[p.name];
     if (prev !== undefined && prev !== i) {
@@ -240,11 +275,29 @@ function renderLeaderboard() {
     }
     lastRanks[p.name] = i;
   });
-  players.slice(0, 5).forEach((p, i) => {
-    const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1;
-    tbody.innerHTML += `<tr><td>${medal}</td><td>${p.name}</td><td>${p.score}</td></tr>`;
-  });
+
+  const len = players.length;
+  if (len <= 6) {
+    players.forEach((p, i) => {
+      const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1;
+      tbody.innerHTML += `<tr><td>${medal}</td><td>${p.name}</td><td>${p.score}</td></tr>`;
+    });
+  } else {
+    const top = players.slice(0, 4);
+    const bottom = players.slice(-2);
+    [...top, { name: "...", score: "..." }, ...bottom].forEach((p, i) => {
+      if (p.name === "...") {
+        tbody.innerHTML += `<tr class="ellipsis"><td colspan="3">...</td></tr>`;
+      } else {
+        const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "";
+        const rankNum = medal || (i < 4 ? i + 1 : len - 1 + i - 5);
+        tbody.innerHTML += `<tr><td>${rankNum}</td><td>${p.name}</td><td>${p.score}</td></tr>`;
+      }
+    });
+  }
 }
+
+/* 模擬分數變動（測試用） */
 setInterval(() => {
   const randomPlayer = players[Math.floor(Math.random() * players.length)];
   randomPlayer.score += Math.floor(Math.random() * 7 - 3);
@@ -253,12 +306,19 @@ setInterval(() => {
 }, 2000);
 renderLeaderboard();
 
+/* ============================================================
+   🗺️ 地圖設定（Leaflet）
+   - 移除橫滑空白、固定中心、略縮小
+   ============================================================ */
 const map = L.map("map", {
   crs: L.CRS.Simple,
   minZoom: -2,
   maxZoom: 4,
-  attributionControl: false
+  attributionControl: false,
+  dragging: false, /* ✅ 禁止拖動，固定中心點 */
+  zoomControl: false
 });
+
 const imageUrl = "assets/WL-平面場圖-4.png";
 const img = new Image();
 img.src = imageUrl;
@@ -268,14 +328,26 @@ img.onload = function () {
   L.imageOverlay(imageUrl, bounds).addTo(map);
   map.setMaxBounds(bounds);
   map.fitBounds(bounds, { animate: false });
-  const zoomAdjust = window.innerWidth < 768 ? -1 : -0.6;
+
+  /* ✅ 調整縮放：手機版更小（-1.2） */
+  const zoomAdjust = window.innerWidth < 768 ? -1.2 : -0.6;
   map.setZoom(map.getZoom() + zoomAdjust);
+
+  /* ✅ 底部浮水印樣式（偏深灰） */
   L.control.attribution({ prefix: false })
     .addAttribution("💍 MYs Map © 2025-10").addTo(map);
+
+  /* ✅ 標記所有關卡與彩蛋 */
   const points = [
     { name: "關卡一", coords: [h * 0.45, w * 0.45], color: "red" },
     { name: "關卡二", coords: [h * 0.35, w * 0.70], color: "red" },
-    { name: "🎁 Bonus", coords: [h * 0.55, w * 0.65], color: "gold" }
+    { name: "關卡三", coords: [h * 0.55, w * 0.30], color: "red" },
+    { name: "關卡四", coords: [h * 0.25, w * 0.80], color: "red" },
+    { name: "關卡五", coords: [h * 0.20, w * 0.20], color: "red" },
+    { name: "關卡六", coords: [h * 0.40, w * 0.10], color: "red" },
+    { name: "🎁 Bonus A", coords: [h * 0.55, w * 0.65], color: "gold" },
+    { name: "🎁 Bonus B", coords: [h * 0.40, w * 0.60], color: "gold" },
+    { name: "🎁 Bonus C", coords: [h * 0.75, w * 0.50], color: "gold" }
   ];
   points.forEach(p => {
     L.circleMarker(p.coords, {
