@@ -37,6 +37,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 55vh; /* ✅ 保證垂直置中，不再貼頂 */
 }
 
 .main-card {
@@ -180,7 +181,17 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   pointer-events: none;
   white-space: nowrap;
 }
-#notif.show { opacity: 1; transform: translate(-50%, 0); }
+#notif {
+  transition: all 0.6s ease;
+}
+#notif.show {
+  opacity: 1;
+  transform: translate(-50%, -10px); /* ✅ 顯示時稍微往上滑 */
+}
+#notif:not(.show) {
+  transform: translate(-50%, 30px); /* ✅ 隱藏時往下收回 */
+  opacity: 0;
+}
 
 @media (max-width: 768px) {
   #bottom-area {
@@ -254,16 +265,16 @@ function nextMission() {
 }
 
 let players = [
-  { name: "大變態林阿軒", score: 101 },
+  { name: "大變態林阿軒", score: 100 },
   { name: "愛逃避姜新禹", score: 95 },
   { name: "吃香蕉王小慧", score: 90 },
   { name: "背鍋俠張咩揚", score: 85 },
   { name: "雙面人陳大姐", score: 70 },
   { name: "誰是你謝老闆", score: 60 },
-  { name: "碎碎念周大佑", score: 45 },
-  { name: "愛裸拍辜阿銓", score: 32 },
-  { name: "雖阿郎莊告白", score: 20 },
-  { name: "狗牛屎楊紐約", score: 5 }
+  { name: "碎碎念周大佑", score: 55 },
+  { name: "愛裸拍辜阿銓", score: 50 },
+  { name: "雖阿郎莊告白", score: 45 },
+  { name: "狗牛屎楊紐約", score: 40 }
 ];
 let lastRanks = {};
 let notifCounter = 0;
@@ -273,7 +284,7 @@ function showNotif(text, type) {
   n.innerHTML = text;
   n.style.background = type === "up" ? "#d1ffd1" : "#ffe6e6";
   n.classList.add("show");
-  setTimeout(() => n.classList.remove("show"), 2500);
+  setTimeout(() => n.classList.remove("show"), 2000);
 }
 
 function renderLeaderboard() {
@@ -383,3 +394,4 @@ img.onload = function () {
 </script>
 </body>
 </html>
+
