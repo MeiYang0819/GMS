@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>🎮闖關任務</title>
 
-<!-- ✅ 全站字體 -->
+<!-- ✅ 全站字體：Zen Maru Gothic（圓潤婚禮風） -->
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
@@ -17,6 +17,7 @@
   --muted: #6b7280;
   --ink: #111827;
 }
+
 body {
   margin: 0;
   font-family: var(--font-family-main);
@@ -25,17 +26,20 @@ body {
   overflow: hidden;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
 }
+
 #app {
   display: flex;
   flex-direction: column;
   height: 100vh;
 }
+
 #main-area {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 .main-card {
   background: linear-gradient(0deg, rgba(247, 237, 143, 1) 0%, rgba(241, 223, 57, 1) 71%, rgba(237, 214, 5, 1) 100%);
   border-radius: 24px;
@@ -45,6 +49,7 @@ body {
   max-width: 880px;
   padding: 30px 20px;
   backdrop-filter: blur(6px);
+  transition: all 0.6s ease;
 }
 .main-card h1 { font-size: var(--font-xl); margin: 10px 0; }
 .main-card p { font-size: var(--font-base); color: var(--muted); }
@@ -67,7 +72,7 @@ button:hover { background-color: #ffd166; }
   border-top: 4px solid #fff;
 }
 
-/* 🏆 排行榜 */
+/* ================== 🏆 排行榜 ================== */
 #leaderboard {
   flex: 1;
   background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%);
@@ -78,6 +83,7 @@ button:hover { background-color: #ffd166; }
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
+  position: relative; /* ✅ 為提示框定位 */
 }
 #leaderboard h2 {
   font-size: 26px;
@@ -88,44 +94,42 @@ button:hover { background-color: #ffd166; }
   align-items: center;
   justify-content: center;
 }
-.hint-box, .map-hint-box {
-  background: rgba(210,210,210,0.9);
-  border-radius: 8px;
-  padding: 4px 10px;
-  font-size: 14px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-/* ✅ 排行榜提示固定右上角一行 */
+/* ✅ 排行榜提示：右上角靠內對齊（與地圖提示對稱） */
 #leaderboard .hint-box {
-  position: fixed;
-  top: calc(55% + 10px); /* 對應地圖上方位置 */
-  right: 12px;
-  z-index: 9999;
-  background: rgba(210,210,210,0.9);
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(220,220,220,0.92);
   border-radius: 8px;
   padding: 4px 10px;
   font-size: 14px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   white-space: nowrap;
 }
-
 table {
   width: 95%;
   border-collapse: collapse;
   font-size: 18px;
   color: #111;
 }
-th, td { text-align: center; padding: 6px 0; }
-th { background-color: rgba(255,255,255,0.4); }
-tr:nth-child(even) { background-color: rgba(255,255,255,0.2); }
-.ellipsis td { text-align: center; color: #555; font-style: italic; }
+th, td {
+  text-align: center;
+  padding: 6px 0;
+}
+th { background-color: rgba(255, 255, 255, 0.4); }
+tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
+.ellipsis td {
+  text-align: center;
+  color: #555;
+  font-style: italic;
+}
 @keyframes scoreFlash {
   0% { background-color: rgba(255,255,150,0.7); }
   100% { background-color: transparent; }
 }
 .flash { animation: scoreFlash 1s ease; }
 
-/* 🗺️ 地圖 */
+/* ================== 🗺️ 地圖 ================== */
 #map {
   flex: 1;
   height: 100%;
@@ -133,16 +137,26 @@ tr:nth-child(even) { background-color: rgba(255,255,255,0.2); }
   position: relative;
   overflow: hidden;
 }
-.leaflet-container { width: 100%; height: 100%; background: #f5f5f5; }
-/* ✅ 地圖提示靠左上角 */
-.map-hint-box {
+/* ✅ 地圖提示：左上角靠內對齊（對稱） */
+#map .map-hint-box {
   position: absolute;
-  left: 10px;
   top: 10px;
+  left: 10px;
+  background: rgba(220,220,220,0.92);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  white-space: nowrap;
   z-index: 9999;
 }
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  background: #f5f5f5;
+}
 .leaflet-control-attribution {
-  background: rgba(180,180,180,0.9);
+  background: rgba(180, 180, 180, 0.9);
   border-radius: 6px;
   padding: 2px 8px;
   font-size: 13px;
@@ -153,7 +167,7 @@ tr:nth-child(even) { background-color: rgba(255,255,255,0.2); }
   top: 8%;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(255,255,255,0.95);
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 12px;
   padding: 12px 25px;
   box-shadow: 0 4px 14px rgba(0,0,0,0.2);
@@ -240,7 +254,6 @@ let players = [
   { name: "愛逃避姜新禹", score: 95 },
   { name: "吃香蕉王小慧", score: 90 },
   { name: "背鍋俠張咩揚", score: 85 },
-  { name: "吃香蕉王小慧", score: 80 },
   { name: "雙面人陳大姐", score: 70 },
   { name: "誰是你謝老闆", score: 60 },
   { name: "碎碎念周大佑", score: 45 },
@@ -268,8 +281,7 @@ function renderLeaderboard() {
     const prev = lastRanks[p.name];
     if (prev !== undefined && prev !== i) {
       notifCounter++;
-      const trigger = Math.floor(Math.random() * 3) + 5; // 5～7次觸發
-      if (notifCounter % trigger === 0) {
+      if (notifCounter % Math.floor(Math.random() * 3 + 5) === 0) {
         if (prev > i) showNotif(`⬆️ ${p.name} 上升至第 ${i + 1} 名！🎉`, "up");
         else showNotif(`⬇️ ${p.name} 下降至第 ${i + 1} 名～😅`, "down");
       }
@@ -301,6 +313,7 @@ function renderLeaderboard() {
     });
   }
 }
+
 setInterval(() => {
   const randomPlayer = players[Math.floor(Math.random() * players.length)];
   const delta = Math.floor(Math.random() * 7 - 3);
@@ -326,6 +339,7 @@ const map = L.map("map", {
   dragging: false,
   zoomControl: false
 });
+
 const imageUrl = "assets/WL-平面場圖-4.png";
 const img = new Image();
 img.src = imageUrl;
@@ -336,10 +350,9 @@ img.onload = function () {
   map.setMaxBounds(bounds);
   map.fitBounds(bounds, { animate: false });
   map.setZoom(map.getZoom() - 1);
-  L.control.attribution({ prefix: false }).addAttribution("💍 MYs Map © 2025").addTo(map);
+  L.control.attribution({ prefix: false })
+    .addAttribution("💍 MYs Map © 2025").addTo(map);
 };
 </script>
 </body>
 </html>
-
-
