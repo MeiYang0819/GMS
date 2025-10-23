@@ -5,13 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>🎮闖關任務</title>
 
-<!-- ✅ 全站字體：Zen Maru Gothic（圓潤婚禮風） -->
+<!-- ✅ 全站字體 -->
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-/* ============================================================
-   🎨 全域變數（保持一致）
-   ============================================================ */
 :root {
   --font-family-main: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif;
   --font-base: 22px;
@@ -20,10 +17,6 @@
   --muted: #6b7280;
   --ink: #111827;
 }
-
-/* ============================================================
-   🌈 全域背景與版面
-   ============================================================ */
 body {
   margin: 0;
   font-family: var(--font-family-main);
@@ -32,23 +25,17 @@ body {
   overflow: hidden;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
 }
-
 #app {
   display: flex;
   flex-direction: column;
   height: 100vh;
 }
-
-/* ============================================================
-   🎴 主卡（闖關任務區）
-   ============================================================ */
 #main-area {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
 }
-
 .main-card {
   background: linear-gradient(0deg, rgba(247, 237, 143, 1) 0%, rgba(241, 223, 57, 1) 71%, rgba(237, 214, 5, 1) 100%);
   border-radius: 24px;
@@ -58,7 +45,6 @@ body {
   max-width: 880px;
   padding: 30px 20px;
   backdrop-filter: blur(6px);
-  transition: all 0.6s ease;
 }
 .main-card h1 { font-size: var(--font-xl); margin: 10px 0; }
 .main-card p { font-size: var(--font-base); color: var(--muted); }
@@ -75,16 +61,13 @@ button {
 }
 button:hover { background-color: #ffd166; }
 
-/* ============================================================
-   📊 下半分區（排行榜 + 地圖）
-   ============================================================ */
 #bottom-area {
   display: flex;
   height: 45%;
   border-top: 4px solid #fff;
 }
 
-/* ================== 🏆 排行榜 ================== */
+/* 🏆 排行榜 */
 #leaderboard {
   flex: 1;
   background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%);
@@ -105,45 +88,39 @@ button:hover { background-color: #ffd166; }
   align-items: center;
   justify-content: center;
 }
-/* ✅ 排行榜提示靠右 */
-#leaderboard .hint-box {
-  position: absolute;
-  right: 10px;
-  top: 0;
-  margin-left: 0;
-}
 .hint-box, .map-hint-box {
-  background: rgba(210,210,210,0.9); /* 顏色稍深 */
+  background: rgba(210,210,210,0.9);
   border-radius: 8px;
   padding: 4px 10px;
   font-size: 14px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
+/* ✅ 排行榜提示固定右上角一行 */
+#leaderboard .hint-box {
+  position: absolute;
+  right: 10px;
+  top: 0;
+  margin: 0;
+  white-space: nowrap;
+}
+
 table {
   width: 95%;
   border-collapse: collapse;
   font-size: 18px;
   color: #111;
 }
-th, td {
-  text-align: center;
-  padding: 6px 0;
-}
-th { background-color: rgba(255, 255, 255, 0.4); }
-tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
-.ellipsis td {
-  text-align: center;
-  color: #555;
-  font-style: italic;
-}
-/* ✅ 分數閃爍動畫 */
+th, td { text-align: center; padding: 6px 0; }
+th { background-color: rgba(255,255,255,0.4); }
+tr:nth-child(even) { background-color: rgba(255,255,255,0.2); }
+.ellipsis td { text-align: center; color: #555; font-style: italic; }
 @keyframes scoreFlash {
   0% { background-color: rgba(255,255,150,0.7); }
   100% { background-color: transparent; }
 }
 .flash { animation: scoreFlash 1s ease; }
 
-/* ================== 🗺️ 地圖 ================== */
+/* 🗺️ 地圖 */
 #map {
   flex: 1;
   height: 100%;
@@ -151,12 +128,8 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   position: relative;
   overflow: hidden;
 }
-.leaflet-container {
-  width: 100%;
-  height: 100%;
-  background: #f5f5f5;
-}
-/* ✅ 地圖提示靠左 */
+.leaflet-container { width: 100%; height: 100%; background: #f5f5f5; }
+/* ✅ 地圖提示靠左上角 */
 .map-hint-box {
   position: absolute;
   left: 10px;
@@ -164,19 +137,18 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   z-index: 9999;
 }
 .leaflet-control-attribution {
-  background: rgba(180, 180, 180, 0.9);
+  background: rgba(180,180,180,0.9);
   border-radius: 6px;
   padding: 2px 8px;
   font-size: 13px;
 }
 
-/* ================== 🔔 通知彈出 ================== */
 #notif {
   position: fixed;
   top: 8%;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255,255,255,0.95);
   border-radius: 12px;
   padding: 12px 25px;
   box-shadow: 0 4px 14px rgba(0,0,0,0.2);
@@ -189,9 +161,6 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 }
 #notif.show { opacity: 1; transform: translate(-50%, 0); }
 
-/* ============================================================
-   📱 手機版（橫滑）
-   ============================================================ */
 @media (max-width: 768px) {
   #bottom-area {
     flex-direction: row;
@@ -240,9 +209,6 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
-/* ============================================================
-   🎯 任務邏輯
-   ============================================================ */
 let step = 0;
 const missions = [
   "1️⃣ 簽到：請完成簽到並輸入暱稱！",
@@ -264,9 +230,6 @@ function nextMission() {
   }
 }
 
-/* ============================================================
-   🏆 排行榜
-   ============================================================ */
 let players = [
   { name: "大變態林阿軒", score: 101 },
   { name: "愛逃避姜新禹", score: 95 },
@@ -300,7 +263,7 @@ function renderLeaderboard() {
     const prev = lastRanks[p.name];
     if (prev !== undefined && prev !== i) {
       notifCounter++;
-      const trigger = Math.floor(Math.random() * 3) + 5; // 🎯 5～7次觸發一次
+      const trigger = Math.floor(Math.random() * 3) + 5; // 5～7次觸發
       if (notifCounter % trigger === 0) {
         if (prev > i) showNotif(`⬆️ ${p.name} 上升至第 ${i + 1} 名！🎉`, "up");
         else showNotif(`⬇️ ${p.name} 下降至第 ${i + 1} 名～😅`, "down");
@@ -333,8 +296,6 @@ function renderLeaderboard() {
     });
   }
 }
-
-/* ✅ 模擬分數變化（含閃爍動畫） */
 setInterval(() => {
   const randomPlayer = players[Math.floor(Math.random() * players.length)];
   const delta = Math.floor(Math.random() * 7 - 3);
@@ -352,9 +313,6 @@ setInterval(() => {
 }, 2000);
 renderLeaderboard();
 
-/* ============================================================
-   🗺️ 地圖設定
-   ============================================================ */
 const map = L.map("map", {
   crs: L.CRS.Simple,
   minZoom: -2,
@@ -363,7 +321,6 @@ const map = L.map("map", {
   dragging: false,
   zoomControl: false
 });
-
 const imageUrl = "assets/WL-平面場圖-4.png";
 const img = new Image();
 img.src = imageUrl;
