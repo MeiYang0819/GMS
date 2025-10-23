@@ -9,14 +9,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
+/* === 🌈 全域變數 === */
 :root {
-  --font-main: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif;
-  --main-bg: linear-gradient(180deg, #ebb3a9, #ff906e);
-  --card-bg: linear-gradient(180deg, #f7d868, #d1bb90, #b8a9a9);
-  --text-shadow: 1px 1px 2px rgba(0,0,0,0.25);
+  --font-main: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif; /* 主字體：圓潤婚禮風格 */
+  --main-bg: linear-gradient(180deg, #ebb3a9, #ff906e); /* 粉橘漸層背景 */
+  --card-bg: linear-gradient(180deg, #f7d868, #d1bb90, #b8a9a9); /* 黃金漸層卡片背景 */
+  --text-shadow: 1px 1px 2px rgba(0,0,0,0.25); /* 柔陰影 */
 }
 
-/* === 基礎設定 === */
+/* === 🧭 頁面基本設定 === */
 body {
   font-family: var(--font-main);
   margin: 0;
@@ -30,7 +31,7 @@ body {
   overflow-x: hidden;
 }
 
-/* === 主卡區塊 === */
+/* === 🎴 主卡區塊 === */
 .main-card {
   background: var(--card-bg);
   border-radius: 24px;
@@ -52,6 +53,7 @@ body {
   text-shadow: var(--text-shadow);
 }
 
+/* === ▶️ 開始任務按鈕 === */
 .main-btn {
   background: #f7d868;
   border: none;
@@ -63,7 +65,7 @@ body {
   box-shadow: 0 3px 6px rgba(0,0,0,0.15);
 }
 
-/* === 排行榜區 === */
+/* === 📊 排行榜與地圖滑動容器 === */
 .leaderboard-container {
   display: flex;
   overflow-x: scroll;
@@ -71,6 +73,7 @@ body {
   scroll-snap-type: x mandatory;
 }
 
+/* 📦 各分頁區塊（排行榜／地圖） */
 .section {
   flex: 0 0 100%;
   scroll-snap-align: start;
@@ -78,9 +81,10 @@ body {
   flex-direction: column;
   align-items: center;
   padding: 10px 0;
+  position: relative;
 }
 
-/* 📊 排行榜主體 */
+/* === 🏆 排行榜主體 === */
 .leaderboard {
   width: 90%;
   background: rgba(255,255,255,0.6);
@@ -91,6 +95,7 @@ body {
   text-align: center;
 }
 
+/* 📋 表格設定 */
 .leaderboard table {
   border-collapse: collapse;
   width: 100%;
@@ -106,7 +111,7 @@ body {
   text-shadow: var(--text-shadow);
 }
 
-/* 📍排行榜左右提示框 */
+/* === 🪶 排行榜左右提示框 === */
 .tip-box {
   position: absolute;
   background: rgba(255,255,255,0.8);
@@ -125,10 +130,10 @@ body {
   right: 8px;
 }
 
-/* === 地圖區 === */
+/* === 🗺 地圖區塊（固定A4比例）=== */
 .map-container {
   width: 100%;
-  aspect-ratio: 1 / 1.414; /* ✅ A4 比例 */
+  aspect-ratio: 1 / 1.414; /* ✅ A4 直向比例 */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -138,20 +143,20 @@ body {
 .map-container img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: contain; /* ✅ 使地圖完整顯示不變形 */
   border-radius: 12px;
 }
 
-/* === 通知彈出框 === */
+/* === 💬 通知彈出框 === */
 .toast {
   position: fixed;
-  top: 50%;
-  left: 50%;
+  top: 50%; /* ✅ 垂直置中 */
+  left: 50%; /* ✅ 水平置中 */
   transform: translate(-50%, -50%);
   background: rgba(255,230,230,0.95);
   color: #333;
   padding: 12px 20px;
-  border-radius: 16px;
+  border-radius: 16px; /* ✅ 圓角柔和 */
   box-shadow: 0 4px 10px rgba(0,0,0,0.25);
   font-size: 1rem;
   text-align: center;
@@ -159,6 +164,7 @@ body {
   z-index: 9999;
 }
 
+/* ✨ 淡入＋上浮動畫 */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -185,14 +191,14 @@ body {
     
     <!-- ✅ 排行榜區 -->
     <div class="section">
-      <div class="tip-right tip-box">👉 往左滑為地圖</div>
+      <div class="tip-right tip-box">👉 往左滑為地圖</div> <!-- 📌 右上提示 -->
       <div class="leaderboard">
         <table>
           <thead>
             <tr><th>名次</th><th>暱稱</th><th>分數</th></tr>
           </thead>
           <tbody id="leaderboard-body">
-            <!-- JS 動態插入前4+後2 -->
+            <!-- JS 動態插入前4+後2名 -->
           </tbody>
         </table>
       </div>
@@ -200,50 +206,54 @@ body {
 
     <!-- ✅ 地圖區 -->
     <div class="section">
-      <div class="tip-left tip-box">👈 往右滑為排行榜</div>
+      <div class="tip-left tip-box">👈 往右滑為排行榜</div> <!-- 📌 左上提示 -->
       <div class="map-container">
         <img src="map.jpg" alt="婚禮地圖">
       </div>
     </div>
   </div>
 
-  <!-- 💬 通知範例 -->
+  <!-- 💬 通知範例（置中） -->
   <div class="toast" id="toast" style="display:none;">⬇️ Bob 下降至第 4 名～😅</div>
 
 <script>
-/* === 模擬排行榜資料 === */
+/* === 🧮 模擬排行榜資料 === */
 const players = [
-  {name: '阿軒', score: 101},
-  {name: '小羊', score: 96},
-  {name: '阿揚', score: 86},
-  {name: 'Bob', score: 85},
-  {name: '小新', score: 70},
-  {name: '小美', score: 69},
-  {name: '阿德', score: 60},
-  {name: '阿米', score: 59}
+  {name: '心臟病林阿軒', score: 101},
+  {name: '背鍋俠張咩揚', score: 96},
+  {name: '屋~~~', score: 86},
+  {name: '吃香蕉王小慧', score: 85},
+  {name: '貓咪', score: 70},
+  {name: '你肚子痛喔', score: 69},
+  {name: '就是說吼~~', score: 60},
+  {name: '我覺得...', score: 59}
 ];
 
-/* === 顯示前4 + 後2 名 === */
+/* === 🪄 顯示前4 + 後2名 === */
 function renderLeaderboard() {
   const tbody = document.getElementById("leaderboard-body");
   tbody.innerHTML = "";
-  const top = players.slice(0, 4);
-  const bottom = players.slice(-2);
+  const top = players.slice(0, 4); // 取前四名
+  const bottom = players.slice(-2); // 取最後兩名
   [...top, {name:"...", score:"..."}, ...bottom].forEach((p, i) => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${i < 4 ? i+1 : (p.name==="..."?"":players.length-2+i-5)}</td><td>${p.name}</td><td>${p.score}</td>`;
+    // 計算名次顯示
+    tr.innerHTML = `<td>${i < 4 ? i+1 : (p.name==="..."?"":players.length-2+i-5)}</td>
+                    <td>${p.name}</td><td>${p.score}</td>`;
     tbody.appendChild(tr);
   });
 }
 renderLeaderboard();
 
-/* === 通知彈出 === */
+/* === 🔔 通知彈出效果 === */
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.style.display = 'block';
   setTimeout(()=>t.style.display='none', 2500);
 }
+
+/* === 🚀 測試顯示通知 === */
 showToast("⬇️ Bob 下降至第 4 名～😅");
 </script>
 </body>
