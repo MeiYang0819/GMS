@@ -271,35 +271,102 @@ const quizData = [
 ];
 let quizIndex = 0;
 
+/* 🚀 開始測驗 */
 function startQuiz() {
   showQuestion();
 }
 
+/* 顯示題目 */
 function showQuestion() {
   const card = document.getElementById("mission-card");
   const q = quizData[quizIndex];
+  // 題目主體
   let html = `<h1>💡 第 ${quizIndex + 1} 題</h1><p>${q.q}</p>`;
+  // 產生四選一（兩列兩欄）
+  html += `<div class="quiz-options">`;
   q.o.forEach((opt, i) => {
-    html += `<button onclick="checkAnswer(${i})">${opt}</button><br>`;
+    html += `<button class="quiz-option" onclick="checkAnswer(this, ${i})">${opt}</button>`;
   });
+  html += `</div>`;
   card.innerHTML = html;
 }
 
-function checkAnswer(choice) {
-  const card = document.getElementById("mission-card");
+/* 檢查答案 */
+function checkAnswer(btn, choice) {
   const correct = quizData[quizIndex].a;
-  const result = choice === correct ? "✅ 答對！" : "❌ 答錯！";
-  card.innerHTML += `<p style="font-size:28px;">${result}</p>`;
+  const options = document.querySelectorAll(".quiz-option");
+  options.forEach(b => b.disabled = true); // 鎖定按鈕避免重點
+
+  if (choice === correct) {
+    btn.classList.add("correct"); // 顯示✔️
+  } else {
+    btn.classList.add("wrong"); // 顯示❌
+    options[correct].classList.add("correct"); // 標出正確答案
+  }
+
   quizIndex++;
   if (quizIndex < quizData.length) {
-    setTimeout(showQuestion, 1500); // 每題間隔1.5秒
+    setTimeout(showQuestion, 1500); // 每題間隔 1.5 秒
   } else {
     setTimeout(() => {
-      card.innerHTML = `<h1>🎉 測驗完成！</h1><p>你已完成第六關！</p>`;
+      document.getElementById("mission-card").innerHTML =
+        `<h1>🎉 測驗完成！</h1><p>你已完成第六關！</p>`;
     }, 1500);
   }
 }
 
+/* ==========================================================
+   🧩 四選一按鈕排列設定區（新增，可自行微調）
+   ========================================================== */
+.quiz-options {
+  display: grid;                     /* 使用 grid 排版 */
+  grid-template-columns: repeat(2, 1fr); /* 每列兩格 */
+  gap: 14px;                         /* 格子間距，可自行調整 */
+  margin-top: 25px;                  /* 與題目距離，可自行調整 */
+}
+
+/* ==========================================================
+   🧱 四選一按鈕外觀固定設定區（新增，可自行微調）
+   ========================================================== */
+.quiz-option {
+  width: 100%;                       /* 按鈕寬度占滿格，可保留不動 */
+  height: 90px;                      /* 按鈕固定高度，可自行調整（建議 80–110px） */
+  background-color: #fff6b7;         /* 按鈕底色，可自行更換色碼 */
+  color: #333;                       /* 按鈕內文字顏色，可自行調整 */
+  font-size: 22px;                   /* 按鈕內文字大小，可自行調整（對應整體視覺） */
+  font-weight: 600;                  /* 文字粗細，可自行調整 */
+  border-radius: 14px;               /* 邊角圓滑程度，可自行調整 */
+  border: 2px solid #f0d97a;         /* 邊框顏色與粗細，可自行調整 */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15); /* 陰影深度，可自行調整 */
+  display: flex;                     /* 固定置中用，請勿刪除 */
+  align-items: center;               /* 垂直置中文字，請勿刪除 */
+  justify-content: center;           /* 水平置中文字，請勿刪除 */
+  text-align: center;                /* 文字置中，請勿刪除 */
+  transition: all 0.25s ease;        /* 滑動、點擊動畫時間，可自行調整 */
+  cursor: pointer;                   /* 保留指標狀態 */
+}
+
+/* 滑鼠移上去顏色（可調） */
+.quiz-option:hover {
+  background-color: #ffe48b;         /* 滑過時底色，可自行調整 */
+}
+
+/* 答對顯示 ✔️ 樣式（可調） */
+.quiz-option.correct::after {
+  content: " ✔️";                    /* 答對符號，可更換為其他符號 */
+  color: #2e7d32;                    /* 綠色符號顏色，可調整 */
+  font-size: 24px;                   /* 符號大小，可自行調整 */
+  margin-left: 6px;                  /* 與文字間距，可自行調整 */
+}
+
+/* 答錯顯示 ❌ 樣式（可調） */
+.quiz-option.wrong::after {
+  content: " ❌";                    /* 答錯符號，可更換為其他符號 */
+  color: #c62828;                    /* 紅色符號顏色，可調整 */
+  font-size: 24px;                   /* 符號大小，可自行調整 */
+  margin-left: 6px;                  /* 與文字間距，可自行調整 */
+}
+   
 /* ==========================================================
    🏆 排行榜邏輯
    ========================================================== */
@@ -396,4 +463,5 @@ img.onload=function(){
 </script>
 </body>
 </html>
+
 
