@@ -222,7 +222,7 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 <div id="app">
   <div id="main-area">
     <div class="main-card" id="mission-card">
-      !-- ✅ 通知列：固定佔位 -->
+      <!!-- ✅ 通知列：固定佔位 -->
       <div id="missionNotice"
            style="height:28px;
                   line-height:28px;
@@ -379,18 +379,35 @@ function nextMission() {
   const card = document.getElementById("mission-card");
   const notice = document.getElementById("missionNotice");
   if (step < baseMissions.length - 1) {
-    notice.style.display = "none";
+    // 只更新文字，不覆蓋通知列
     card.innerHTML = `<h1>🎯 第 ${step + 1} 關</h1>
-      <div id="missionNotice"></div>
+      ${getNoticeHTML()}
       <p>${baseMissions[step]}</p>
       <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
     step++;
   } else if (step === baseMissions.length - 1) {
-    startQuiz(); step++;
+    startQuiz();
+    step++;
   } else {
-    notice.style.display = "none";
-    card.innerHTML = `<h1>🎉 恭喜完成所有任務</h1><p>感謝一起讓雙面陳往生</p>`;
+    card.innerHTML = `<h1>🎉 恭喜完成所有任務</h1>
+      ${getNoticeHTML()}
+      <p>感謝一起讓雙面陳往生</p>`;
   }
+}
+
+function showQuestion() {
+  answered = false;
+  const card = document.getElementById("mission-card");
+  const q = quizData[quizIndex];
+  let html = `<h1>💡 第 ${quizIndex + 1} 題</h1>
+              ${getNoticeHTML()}
+              <p>${q.q}</p>
+              <div class="option-grid">`;
+  q.o.forEach((opt, i) => {
+    html += `<button id="opt${i}" onclick="checkAnswer(${i})">${opt}<span class="mark"></span></button>`;
+  });
+  html += `</div>`;
+  card.innerHTML = html;
 }
 
 /* ==========================================================
@@ -516,6 +533,7 @@ renderLeaderboard();
 </script>
 </body>
 </html>
+
 
 
 
