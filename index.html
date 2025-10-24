@@ -9,15 +9,15 @@
 
 <style>
 /* ==========================================================
-   🎨 基本配色與字級設定區（完整保留）
+   🎨 基本配色與字級設定區（可自行微調）
    ========================================================== */
 :root {
   --font-family-main: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif;
-  --font-base: 22px;
-  --font-lg: 30px;
-  --font-xl: 42px;
-  --muted: #6b7280;
-  --ink: #111827;
+  --font-base: 22px;  /* 一般說明文字大小，可自行調整 */
+  --font-lg: 30px;    /* 闖關活動標題文字大小，可自行調整 */
+  --font-xl: 42px;    /* 首頁主標題文字大小，可自行調整 */
+  --muted: #6b7280;   /* 排行榜副文字顏色，可自行調整 */
+  --ink: #111827;     /* 主文字顏色，可自行調整 */
 }
 
 body {
@@ -35,9 +35,6 @@ body {
   height: 100vh;
 }
 
-/* ==========================================================
-   📍 上半部主卡區域
-   ========================================================== */
 #main-area {
   flex: 1;
   display: flex;
@@ -46,6 +43,7 @@ body {
   min-height: 55vh;
 }
 
+/* 主卡固定高度（以第1題為準） */
 .main-card {
   background: linear-gradient(0deg, rgba(247, 237, 143, 1) 0%, rgba(241, 223, 57, 1) 71%, rgba(237, 214, 5, 1) 100%);
   border-radius: 24px;
@@ -53,57 +51,35 @@ body {
   text-align: center;
   width: 90vw;
   max-width: 880px;
-  padding: 30px 20px 100px 20px;
-  min-height: 380px;
+  padding: 30px 20px;
+  min-height: 380px; /* ✅ 固定主卡高度 */
   backdrop-filter: blur(6px);
   transition: all 0.6s ease;
   position: relative;
 }
-
-.main-card h1 {
-  font-size: var(--font-xl);
-  margin: 10px 0;
-}
-.main-card p {
-  font-size: var(--font-base);
-  color: var(--muted);
-}
-
-/* ==========================================================
-   🚀 底部固定按鈕（開始任務／下一關）
-   ========================================================== */
-.fixed-btn {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60%;
-  max-width: 300px;
-}
+.main-card h1 { font-size: var(--font-xl); margin: 10px 0; }
+.main-card p { font-size: var(--font-base); color: var(--muted); }
 
 button {
-  background-color: #ffb703;
+  background-color: #ffb703;  /* 按鈕背景顏色，可自行調整 */
   border: none;
-  border-radius: 10px;
-  color: #111;
+  border-radius: 10px;         /* 按鈕圓角，可自行調整 */
+  color: #111;                 /* 按鈕文字顏色，可自行調整 */
   font-size: var(--font-base);
-  padding: 10px 25px;
+  padding: 10px 25px;          /* 按鈕大小，可自行調整 */
   cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  margin-top: 15px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* 陰影，可自行調整 */
 }
-button:hover {
-  background-color: #ffd166;
-}
+button:hover { background-color: #ffd166; }
 
-/* ==========================================================
-   📍 下半部排行榜與地圖區
-   ========================================================== */
 #bottom-area {
   display: flex;
   height: 45%;
   border-top: 4px solid #fff;
 }
 
+/* ================== 🏆 排行榜 ================== */
 #leaderboard {
   flex: 1;
   background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%);
@@ -116,7 +92,6 @@ button:hover {
   justify-content: flex-start;
   position: relative;
 }
-
 #leaderboard h2 {
   font-size: 26px;
   margin: 8px 0 12px;
@@ -139,23 +114,29 @@ button:hover {
   z-index: 9999;
 }
 
+#map .hint-box {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(220,220,220,0.92);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  white-space: nowrap;
+  z-index: 9999;
+}
+
 table {
   width: 95%;
   border-collapse: collapse;
   font-size: 18px;
   color: #111;
 }
-th, td {
-  text-align: center;
-  padding: 6px 0;
-}
+th, td { text-align: center; padding: 6px 0; }
 th { background-color: rgba(255, 255, 255, 0.4); }
 tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
-.ellipsis td {
-  text-align: center;
-  color: #555;
-  font-style: italic;
-}
+.ellipsis td { text-align: center; color: #555; font-style: italic; }
 
 @keyframes scoreFlash {
   0% { background-color: rgba(255,255,150,0.7); }
@@ -163,17 +144,14 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 }
 .flash { animation: scoreFlash 1s ease; }
 
+/* ================== 🗺️ 地圖樣式 ================== */
 #map {
   flex: 1;
   border-left: 4px solid #fff;
   position: relative;
   overflow: hidden;
 }
-.leaflet-container {
-  width: 100%;
-  height: 100%;
-  background: #f5f5f5;
-}
+.leaflet-container { width: 100%; height: 100%; background: #f5f5f5; }
 .leaflet-control-attribution {
   background: rgba(180,180,180,0.9);
   border-radius: 6px;
@@ -181,15 +159,13 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   font-size: 13px;
 }
 
-/* ==========================================================
-   🔘 四選一格子（下移、固定比例）
-   ========================================================== */
+/* 四選一格子 */
 .option-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   justify-items: center;
-  margin-top: 40px;
+  margin-top: 25px; /* ✅ 四選一下移 */
 }
 .option-grid button {
   width: 90%;
@@ -198,14 +174,13 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 }
 .option-grid button .mark {
   position: absolute;
-  right: 10px;
-  top: 5px;
-  font-size: 24px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 28px;
+  pointer-events: none;
 }
 
-/* ==========================================================
-   📱 手機版自動縮放（排行榜與地圖橫滑）
-   ========================================================== */
 @media (max-width: 768px) {
   #bottom-area {
     flex-direction: row;
@@ -225,22 +200,20 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 }
 </style>
 </head>
-
-   <body>
+<body>
 <div id="app">
   <div id="main-area">
     <div class="main-card" id="mission-card">
       <h1>🕙闖關任務🕒</h1>
+      <div id="notif" style="display:none;font-size:20px;font-weight:700;margin-top:4px;white-space:nowrap;"></div>
       <p>歡迎參加幹掉雙面陳闖關活動～<br>請點擊開始進行挑戰！</p>
-      <div class="fixed-btn">
-        <button onclick="nextMission()">開始任務 ▶</button>
-      </div>
+      <button onclick="nextMission()">開始任務 ▶</button>
     </div>
   </div>
 
   <div id="bottom-area">
      <!-- 🧾 通知固定區（預留空間） -->
-    <div id="rankNotice" style="height:60px;"></div>
+  <div id="rankNotice" style="height:60px;"></div
     <div id="leaderboard">
       <h2>🏆 排行榜</h2>
       <span class="hint-box">👉 往左滑為地圖</span>
@@ -249,31 +222,26 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
         <tbody id="rank-body"></tbody>
       </table>
     </div>
-    <div id="map"></div>
+    <div id="map">
+      <span class="hint-box">👉 往右滑為排行榜</span>
+    </div>
   </div>
 </div>
-
-<div id="notif" style="position:fixed;top:10px;left:50%;transform:translateX(-50%);padding:8px 16px;border-radius:8px;display:none;transition:all 0.4s;"></div>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
 /* ==========================================================
-   🗺️ 地圖設定區（圖片底圖 + 手勢縮放 + MYs 浮水印）
+   🗺️ 地圖設定區（移除 Leaflet 官方連結）
    ========================================================== */
 const map = L.map("map", {
   crs: L.CRS.Simple,
-  minZoom: -3,
+  minZoom: -2,
   maxZoom: 4,
   zoomControl: false,
-  attributionControl: true,
-  dragging: true,
-  touchZoom: true,
-  scrollWheelZoom: true,
-  doubleClickZoom: true,
+  attributionControl: true
 });
-
 const imageUrl = "assets/WL-平面場圖-4.png";
 const img = new Image();
 img.src = imageUrl;
@@ -283,14 +251,7 @@ img.onload = function () {
   L.imageOverlay(imageUrl, bounds).addTo(map);
   map.setMaxBounds(bounds);
   map.fitBounds(bounds, { animate: false });
-
-  /* ✅ 桌機與手機自動縮小比例 */
-  if (window.innerWidth <= 768) {
-    map.setZoom(map.getZoom() - 1.6); // 手機更小
-  } else {
-    map.setZoom(map.getZoom() - 1.2); // 桌機略縮
-  }
-
+  map.setZoom(map.getZoom() - 1.2);
   const points = [
     { name: "關卡一", coords: [h * 0.45, w * 0.45], color: "red" },
     { name: "關卡二", coords: [h * 0.35, w * 0.70], color: "red" },
@@ -316,7 +277,7 @@ img.onload = function () {
 };
 
 /* ==========================================================
-   🎯 任務流程控制區（含隨機順序與按鈕固定）
+   🎯 任務流程控制區
    ========================================================== */
 let step = 0;
 const baseMissions = [
@@ -330,13 +291,13 @@ const baseMissions = [
 if (Math.random() > 0.5) {
   [baseMissions[3], baseMissions[4]] = [baseMissions[4], baseMissions[3]];
 }
-
 function nextMission() {
   const card = document.getElementById("mission-card");
   if (step < baseMissions.length - 1) {
     card.innerHTML = `<h1>🎯 第 ${step + 1} 關</h1>
+      <div id="notif" style="display:none;font-size:20px;font-weight:700;margin-top:4px;white-space:nowrap;"></div>
       <p>${baseMissions[step]}</p>
-      <div class="fixed-btn"><button style="background-color:#ffb703;" onclick="nextMission()">下一關 ▶</button></div>`;
+      <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
     step++;
   } else if (step === baseMissions.length - 1) {
     startQuiz(); step++;
@@ -346,7 +307,7 @@ function nextMission() {
 }
 
 /* ==========================================================
-   📘 第6關：婚禮趣味問答（六題四選一）
+   📘 第6關：婚禮趣味問答（符號置中）
    ========================================================== */
 const quizData = [
   { q: "💍 新人第一次約會去哪裡？", o: ["海邊", "電影院", "夜市", "健身房"], a: 1 },
@@ -356,22 +317,20 @@ const quizData = [
   { q: "🎁 伴手禮是什麼？", o: ["餅乾", "紅豆糕", "巧克力", "手工皂"], a: 2 },
   { q: "💐 新娘最喜歡的花？", o: ["玫瑰", "百合", "鬱金香", "向日葵"], a: 3 }
 ];
-let quizIndex = 0; 
-let answered = false;
+let quizIndex = 0; let answered = false;
 function startQuiz() { showQuestion(); }
-
 function showQuestion() {
   answered = false;
   const card = document.getElementById("mission-card");
   const q = quizData[quizIndex];
-  let html = `<h1>💡 第 ${quizIndex + 1} 題</h1><p>${q.q}</p><div class="option-grid">`;
-  q.o.forEach((opt, i) => {
-    html += `<button id="opt${i}" onclick="checkAnswer(${i})">${opt}<span class="mark"></span></button>`;
-  });
+  let html = `<h1>💡 第 ${quizIndex + 1} 題</h1>
+  <div id="notif" style="display:none;font-size:20px;font-weight:700;margin-top:4px;white-space:nowrap;"></div>
+  <p>${q.q}</p>
+  <div class="option-grid">`;
+  q.o.forEach((opt, i) => { html += `<button id="opt${i}" onclick="checkAnswer(${i})">${opt}<span class="mark"></span></button>`; });
   html += `</div>`;
   card.innerHTML = html;
 }
-
 function checkAnswer(choice) {
   if (answered) return;
   const q = quizData[quizIndex];
@@ -382,17 +341,14 @@ function checkAnswer(choice) {
     answered = true;
     quizIndex++;
     if (quizIndex < quizData.length) setTimeout(showQuestion, 1200);
-    else setTimeout(() => {
-      document.getElementById("mission-card").innerHTML =
-        `<h1>🎉 測驗完成！</h1><p>你已完成第六關！</p>`;
-    }, 1200);
+    else setTimeout(()=>{document.getElementById("mission-card").innerHTML=`<h1>🎉 測驗完成！</h1><p>你已完成第六關！</p>`;},1200);
   } else {
     clickedBtn.querySelector(".mark").textContent = "❌";
   }
 }
 
-   /* ==========================================================
-   🏆 排行榜邏輯（當行閃爍＋升降通知）
+/* ==========================================================
+   🏆 排行榜邏輯（僅變動行閃爍＋升降通知修復）
    ========================================================== */
 let players = [
   { name: "大變態林阿軒", score: 100 },
@@ -408,66 +364,43 @@ let players = [
 ];
 
 let lastRanks = {};
-let notifCounter = 0;
-
 function showNotif(text, type) {
   const notif = document.getElementById("notif");
-  if (!notif) return;
   notif.textContent = text;
-  notif.style.background = type === "up" ? "#d1ffd1" : "#ffe6e6";
   notif.style.display = "block";
+  notif.style.color = "#222";
+  notif.style.background = type === "up" ? "#d1ffd1" : "#ffe6e6";
+  notif.style.padding = "6px 12px";
+  notif.style.borderRadius = "8px";
   notif.style.opacity = "1";
-  setTimeout(() => {
-    notif.style.opacity = "0";
-    setTimeout(() => { notif.style.display = "none"; }, 400);
-  }, 2500);
+  notif.style.marginTop = "4px";
+  notif.style.whiteSpace = "nowrap";
+  setTimeout(() => { notif.style.opacity = "0"; }, 2200);
 }
 
 function renderLeaderboard() {
   players.sort((a, b) => b.score - a.score);
   const tbody = document.getElementById("rank-body");
-  if (!tbody) return;
   tbody.innerHTML = "";
-
   players.forEach((p, i) => {
     const prev = lastRanks[p.name];
-    if (prev !== undefined && prev !== i) {
-      notifCounter++;
-      if (notifCounter % 3 === 0) {
-        if (prev > i)
-          showNotif(`⬆️ ${p.name} 上升至第 ${i + 1} 名！🎉`, "up");
-        else
-          showNotif(`⬇️ ${p.name} 下降至第 ${i + 1} 名～😅`, "down");
-      }
-    }
-    lastRanks[p.name] = i;
-  });
-
-  const len = players.length;
-  const top = players.slice(0, 4);
-  const bottom = players.slice(-2);
-  const showList = [...top, { name: "...", score: "..." }, ...bottom];
-
-  showList.forEach((p, i) => {
     const tr = document.createElement("tr");
-    if (p.name === "...") {
-      tr.classList.add("ellipsis");
-      tr.innerHTML = "<td colspan='3'>...</td>";
-    } else {
-      const rank = i < 4 ? i + 1 : len - 2 + i - 5;
-      const medal =
-        rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : rank;
-      tr.innerHTML = `<td>${medal}</td><td>${p.name}</td><td>${p.score}</td>`;
-      // ✅ 當行閃爍效果
-      const tdScore = tr.querySelector("td:last-child");
-      tdScore.classList.add("flash");
-      setTimeout(() => tdScore.classList.remove("flash"), 1000);
-    }
+    const rank = i + 1;
+    const medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : rank;
+    tr.innerHTML = `<td>${medal}</td><td>${p.name}</td><td>${p.score}</td>`;
     tbody.appendChild(tr);
+
+    // 僅針對有異動者閃爍
+    if (prev && prev !== rank) {
+      tr.classList.add("flash");
+      setTimeout(() => tr.classList.remove("flash"), 1000);
+      if (prev > rank) showNotif(`${p.name} ⬆️ 上升至第 ${rank} 名！`, "up");
+      else if (prev < rank) showNotif(`${p.name} ⬇️ 降至第 ${rank} 名！`, "down");
+    }
+    lastRanks[p.name] = rank;
   });
 }
 
-// 模擬分數變化
 setInterval(() => {
   const target = players[Math.floor(Math.random() * players.length)];
   const diff = Math.floor(Math.random() * 9 - 4);
@@ -478,37 +411,6 @@ setInterval(() => {
 }, 2500);
 
 renderLeaderboard();
-
-/* ==========================================================
-   ✨ 通知提示樣式（完整保留）
-   ========================================================== */
-const notifBox = document.createElement("div");
-notifBox.id = "notif";
-notifBox.style.position = "fixed";
-notifBox.style.top = "15px";
-notifBox.style.left = "50%";
-notifBox.style.transform = "translateX(-50%)";
-notifBox.style.padding = "10px 20px";
-notifBox.style.borderRadius = "12px";
-notifBox.style.fontSize = "20px";
-notifBox.style.fontWeight = "700";
-notifBox.style.color = "#222";
-notifBox.style.boxShadow = "0 3px 10px rgba(0,0,0,0.2)";
-notifBox.style.opacity = "0";
-notifBox.style.transition = "opacity 0.3s ease";
-notifBox.classList.add("notif-hidden");
-document.body.appendChild(notifBox);
-
-const notifStyle = document.createElement("style");
-notifStyle.innerHTML = `
-  #notif.show { opacity: 1 !important; }
-  @keyframes scoreFlash {
-    0% { background-color: rgba(255,255,150,0.7); }
-    100% { background-color: transparent; }
-  }
-  .flash { animation: scoreFlash 1s ease; }
-`;
-document.head.appendChild(notifStyle);
 </script>
 </body>
 </html>
