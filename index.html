@@ -308,22 +308,21 @@ function showQuestion() {
 function checkAnswer(choice) {
   const q = quizData[quizIndex];
   const correct = q.a;
-  const card = document.getElementById("mission-card");
-  const correctBtn = document.getElementById("opt" + correct);
   const clickedBtn = document.getElementById("opt" + choice);
-  // 標記勾叉
-  if (clickedBtn) clickedBtn.querySelector(".mark").textContent = choice === correct ? "✔️" : "❌";
-  if (correctBtn && choice !== correct) correctBtn.querySelector(".mark").textContent = "✔️";
+  const correctBtn = document.getElementById("opt" + correct);
 
-  const result = choice === correct ? "✅ 答對！" : "❌ 答錯！";
-  card.innerHTML += `<p style="font-size:28px;">${result}</p>`;
-  quizIndex++;
-  if (quizIndex < quizData.length) {
-    setTimeout(showQuestion, 1500);
+  if (choice === correct) {
+    if (clickedBtn) clickedBtn.querySelector(".mark").textContent = "✔️";
+    quizIndex++;
+    if (quizIndex < quizData.length) {
+      setTimeout(showQuestion, 1000);
+    } else {
+      setTimeout(() => {
+        document.getElementById("mission-card").innerHTML = `<h1>🎉 測驗完成！</h1><p>你已完成第六關！</p>`;
+      }, 800);
+    }
   } else {
-    setTimeout(() => {
-      card.innerHTML = `<h1>🎉 測驗完成！</h1><p>你已完成第六關！</p>`;
-    }, 1500);
+    if (clickedBtn) clickedBtn.querySelector(".mark").textContent = "❌";
   }
 }
 
@@ -387,39 +386,52 @@ setInterval(()=>{
   if(d!==0){r.score=Math.max(0,r.score+d);renderLeaderboard();}
 },2000);
 renderLeaderboard();
-
 /* ==========================================================
    🗺️ 地圖設定區
    ========================================================== */
-const map=L.map("map",{crs:L.CRS.Simple,minZoom:-2,maxZoom:4,attributionControl:true});
-const imageUrl="assets/WL-平面場圖-4.png";
-const img=new Image(); img.src=imageUrl;
-img.onload=function(){
-  const w=img.width,h=img.height;
-  const bounds=[[0,0],[h,w]];
-  L.imageOverlay(imageUrl,bounds).addTo(map);
-  map.setMaxBounds(bounds);
-  map.fitBounds(bounds,{animate:false});
-  map.setZoom(map.getZoom()-0.6);
-  const points=[
-    {name:"關卡一",coords:[h*0.45,w*0.45],color:"red"},
-    {name:"關卡二",coords:[h*0.35,w*0.70],color:"red"},
-    {name:"關卡三",coords:[h*0.55,w*0.30],color:"red"},
-    {name:"關卡四",coords:[h*0.25,w*0.80],color:"red"},
-    {name:"關卡五",coords:[h*0.20,w*0.20],color:"red"},
-    {name:"關卡六",coords:[h*0.40,w*0.10],color:"red"},
-    {name:"🎁 Bonus A",coords:[h*0.55,w*0.65],color:"gold"},
-    {name:"🎁 Bonus B",coords:[h*0.40,w*0.60],color:"gold"},
-    {name:"🎁 Bonus C",coords:[h*0.75,w*0.50],color:"gold"}
-  ];
-  points.forEach(p=>{
-    L.circleMarker(p.coords,{radius:4,color:p.color,fillColor:p.color,fillOpacity:0.9})
-    .addTo(map).bindTooltip(p.name,{direction:"top",offset:[0,-4]});
-  });
+const map = L.map("map", {
+  crs: L.CRS.Simple,
+  minZoom: -2,
+  maxZoom: 4,
+  attributionControl: true
+});
 
-  L.control.attribution({prefix:false}).addAttribution("💍 MYs Map © 2025").addTo(map);
+const imageUrl = "assets/WL-平面場圖-4.png";
+const img = new Image();
+img.src = imageUrl;
+
+img.onload = function () {
+  const w = img.width, h = img.height;
+  const bounds = [[0, 0], [h, w]];
+  L.imageOverlay(imageUrl, bounds).addTo(map);
+  map.setMaxBounds(bounds);
+  map.fitBounds(bounds, { animate: false });
+  map.setView([h / 2, w / 2], 0);
+  map.setZoom(map.getZoom() - 0.6);
+
+  const points = [
+    { name: "簽到處", xy: [h * 0.72, w * 0.25] },
+    { name: "甜點區", xy: [h * 0.70, w * 0.55] },
+    { name: "合照點", xy: [h * 0.50, w * 0.38] },
+    { name: "新人桌", xy: [h * 0.48, w * 0.62] },
+    { name: "主舞台", xy: [h * 0.42, w * 0.80] },
+    { name: "洗手間", xy: [h * 0.30, w * 0.15] }
+  ];
+
+  points.forEach(p => {
+    const m = L.circleMarker(p.xy, {
+      radius: 9,
+      color: "#ff6600",
+      fillColor: "#ffcc00",
+      fillOpacity: 0.9
+    }).addTo(map);
+    m.bindTooltip(p.name, { permanent: false, direction: "top" });
+  });
 };
+
+map.on("click", function (e) {
+  console.log("Clicked map at", e.latlng);
+});
 </script>
 </body>
 </html>
-
