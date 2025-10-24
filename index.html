@@ -223,7 +223,25 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   <div id="main-area">
     <div class="main-card" id="mission-card">
       <h1>🕙闖關任務🕒</h1>
-      <div id="missionNotice"></div> <!-- ✅ 通知列在標題下方（有才出現） -->
+      <!-- ✅ 通知列（固定浮層，不推文字） -->
+      <div id="missionNotice"
+           style="display:none;
+                  position:absolute;
+                  top:72px; left:50%;
+                  transform:translateX(-50%);
+                  background:rgba(255,240,240,0.96);
+                  border:2px solid #f8dada;
+                  border-radius:10px;
+                  padding:6px 14px;
+                  font-weight:700;
+                  color:#111;
+                  font-size:17px;
+                  text-align:center;
+                  box-shadow:0 2px 6px rgba(0,0,0,0.15);
+                  z-index:99;
+                  opacity:0;
+                  transition:opacity 0.5s ease;">
+      </div>
       <p>歡迎參加幹掉雙面陳闖關活動～<br>請點擊開始進行挑戰！</p>
       <button onclick="nextMission()">開始任務 ▶</button>
     </div>
@@ -401,9 +419,16 @@ let lastRanks = {};
 function showMissionNotice(text) {
   const notice = document.getElementById("missionNotice");
   if (!notice) return;
+
   notice.textContent = text;
   notice.style.display = "block";
-  setTimeout(() => { notice.style.display = "none"; }, 3000);
+  requestAnimationFrame(() => { notice.style.opacity = "1"; });
+
+  clearTimeout(window._noticeTimer);
+  window._noticeTimer = setTimeout(() => {
+    notice.style.opacity = "0";
+    setTimeout(() => { notice.style.display = "none"; }, 600);
+  }, 3000);
 }
 
 function renderLeaderboard() {
@@ -454,3 +479,4 @@ renderLeaderboard();
 </script>
 </body>
 </html>
+
