@@ -239,6 +239,8 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   </div>
 
   <div id="bottom-area">
+     <!-- 🧾 通知固定區（預留空間） -->
+    <div id="rankNotice" style="height:60px;"></div>
     <div id="leaderboard">
       <h2>🏆 排行榜</h2>
       <span class="hint-box">👉 往左滑為地圖</span>
@@ -281,7 +283,14 @@ img.onload = function () {
   L.imageOverlay(imageUrl, bounds).addTo(map);
   map.setMaxBounds(bounds);
   map.fitBounds(bounds, { animate: false });
-  map.setZoom(map.getZoom() - 1.4); // ✅ 手機版再縮小一點
+
+  /* ✅ 桌機與手機自動縮小比例 */
+  if (window.innerWidth <= 768) {
+    map.setZoom(map.getZoom() - 1.6); // 手機更小
+  } else {
+    map.setZoom(map.getZoom() - 1.2); // 桌機略縮
+  }
+
   const points = [
     { name: "關卡一", coords: [h * 0.45, w * 0.45], color: "red" },
     { name: "關卡二", coords: [h * 0.35, w * 0.70], color: "red" },
