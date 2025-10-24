@@ -20,6 +20,9 @@
   --ink: #111827;     /* 主文字顏色，可自行調整 */
 }
 
+/* ==========================================================
+   🧱 全域樣式
+   ========================================================== */
 body {
   margin: 0;
   font-family: var(--font-family-main);
@@ -113,6 +116,28 @@ button:hover { background-color: #ffd166; }
   z-index: 9999;
 }
 
+/* --------通知固定列與分數閃爍區（新增）-------- */
+#rankNotice {
+  height: 48px;                 /* 通知列固定高度，可自行調整 */
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 12px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #111;
+  margin: 6px auto 0;
+  line-height: 48px;
+  width: 92%;
+  max-width: 860px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+}
+#rankNotice.flash { animation: noticeFlash 0.8s ease; }
+@keyframes noticeFlash {
+  0% { background-color: rgba(255,255,150,0.9); }
+  100% { background-color: rgba(255,255,255,0.75); }
+}
+
 table {
   width: 95%;
   border-collapse: collapse;
@@ -143,6 +168,20 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   border-radius: 6px;
   padding: 2px 8px;
   font-size: 13px;
+}
+
+/* 地圖提示（往右滑為排行） */
+#map .hint-box.right {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(220,220,220,0.92);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  white-space: nowrap;
+  z-index: 9999;
 }
 
 /* 四選一格子 */
@@ -195,27 +234,25 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   </div>
 
   <div id="bottom-area">
-<!-- 🧾 通知固定區（預留空間） -->
-  <div id="rankNotice" style="height:60px;"></div>
     <div id="leaderboard">
       <h2>🏆 排行榜</h2>
       <span class="hint-box">👉 往左滑為地圖</span>
+      <div id="rankNotice"></div> <!-- ✅ 通知固定列（新增） -->
       <table>
         <thead><tr><th>名次</th><th>暱稱</th><th>分數</th></tr></thead>
         <tbody id="rank-body"></tbody>
       </table>
     </div>
-    <div id="map"></div>
+    <div id="map">
+      <span class="hint-box right">👉 往右滑為排行</span> <!-- ✅ 新增地圖提示 -->
+    </div>
   </div>
 </div>
-
-<div id="notif" style="position:fixed;top:10px;left:50%;transform:translateX(-50%);padding:8px 16px;border-radius:8px;display:none;transition:all 0.4s;"></div>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
-
 /* ==========================================================
    🗺️ 地圖設定區（圖片底圖 + 手勢縮放 + MYs 浮水印）
    ========================================================== */
@@ -241,11 +278,10 @@ img.onload = function () {
   map.setMaxBounds(bounds);
   map.fitBounds(bounds, { animate: false });
 
-  /* ✅ 桌機與手機自動縮小比例 */
   if (window.innerWidth <= 768) {
-    map.setZoom(map.getZoom() - 1.6); // 手機更小
+    map.setZoom(map.getZoom() - 1.6);
   } else {
-    map.setZoom(map.getZoom() - 1.2); // 桌機略縮
+    map.setZoom(map.getZoom() - 1.2);
   }
 
   const points = [
@@ -272,9 +308,8 @@ img.onload = function () {
    .addTo(map);
 };
 
-
 /* ==========================================================
-   🎯 任務流程控制區（含4/5關隨機、6關問答）
+   🎯 任務流程控制區
    ========================================================== */
 let step = 0;
 const baseMissions = [
@@ -342,7 +377,7 @@ function checkAnswer(choice) {
 }
 
 /* ==========================================================
-   🏆 排行榜邏輯（閃爍＋升降通知）
+   🏆 排行榜邏輯（閃爍＋升降通知＋分數變化提示）
    ========================================================== */
 let players = [
   { name: "大變態林阿軒", score: 100 },
@@ -358,15 +393,18 @@ let players = [
 ];
 
 let lastRanks = {};
-let notifCounter = 0;
+let notifTimer;
 
-function showNotif(text, type) {
-  const notif = document.getElementById("notif");
-  if (!notif) return;
-  notif.textContent = text;
-  notif.style.background = type === "up" ? "#d1ffd1" : "#ffe6e6";
-  notif.classList.add("show");
-  setTimeout(() => notif.classList.remove("show"), 3000);
+/* ✅ 新版通知顯示（固定列單行閃爍） */
+function showNotifFixed(text) {
+  const box = document.getElementById("rankNotice");
+  if (!box) return;
+  box.textContent = text;
+  box.classList.remove("flash");
+  void box.offsetWidth; // reset animation
+  box.classList.add("flash");
+  clearTimeout(notifTimer);
+  notifTimer = setTimeout(() => { box.textContent = ""; }, 4000);
 }
 
 function renderLeaderboard() {
@@ -378,12 +416,10 @@ function renderLeaderboard() {
   players.forEach((p, i) => {
     const prev = lastRanks[p.name];
     if (prev !== undefined && prev !== i) {
-      notifCounter++;
-      if (notifCounter % 3 === 0) {
-        if (prev > i)
-          showNotif(`⬆️ ${p.name} 上升至第 ${i + 1} 名！🎉`, "up");
-        else showNotif(`⬇️ ${p.name} 下降至第 ${i + 1} 名～😅`, "down");
-      }
+      if (prev > i)
+        showNotifFixed(`⬆️ ${p.name} 上升至第 ${i + 1} 名！🎉`);
+      else
+        showNotifFixed(`⬇️ ${p.name} 降至第 ${i + 1} 名～😅`);
     }
     lastRanks[p.name] = i;
   });
@@ -400,56 +436,28 @@ function renderLeaderboard() {
       tr.innerHTML = "<td colspan='3'>...</td>";
     } else {
       const rank = i < 4 ? i + 1 : len - 2 + i - 5;
-      const medal =
-        rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : rank;
+      const medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : rank;
       tr.innerHTML = `<td>${medal}</td><td>${p.name}</td><td class="flash">${p.score}</td>`;
     }
     tbody.appendChild(tr);
   });
 }
 
-// 模擬分數變化與閃爍動畫
+/* 模擬分數變化與通知 */
 setInterval(() => {
   const target = players[Math.floor(Math.random() * players.length)];
   const diff = Math.floor(Math.random() * 9 - 4);
   if (diff !== 0) {
     target.score = Math.max(0, target.score + diff);
+    if (diff > 0)
+      showNotifFixed(`🔼 ${target.name} 上升 ${diff} 分！`);
+    else
+      showNotifFixed(`🔽 ${target.name} 下降 ${Math.abs(diff)} 分～`);
     renderLeaderboard();
   }
 }, 2500);
 
 renderLeaderboard();
-
-/* ==========================================================
-   ✨ 通知提示樣式
-   ========================================================== */
-const notifBox = document.createElement("div");
-notifBox.id = "notif";
-notifBox.style.position = "fixed";
-notifBox.style.top = "15px";
-notifBox.style.left = "50%";
-notifBox.style.transform = "translateX(-50%)";
-notifBox.style.padding = "10px 20px";
-notifBox.style.borderRadius = "12px";
-notifBox.style.fontSize = "20px";
-notifBox.style.fontWeight = "700";
-notifBox.style.color = "#222";
-notifBox.style.boxShadow = "0 3px 10px rgba(0,0,0,0.2)";
-notifBox.style.opacity = "0";
-notifBox.style.transition = "opacity 0.3s ease";
-notifBox.classList.add("notif-hidden");
-document.body.appendChild(notifBox);
-
-const notifStyle = document.createElement("style");
-notifStyle.innerHTML = `
-  #notif.show { opacity: 1 !important; }
-  @keyframes scoreFlash {
-    0% { background-color: rgba(255,255,150,0.7); }
-    100% { background-color: transparent; }
-  }
-  .flash { animation: scoreFlash 1s ease; }
-`;
-document.head.appendChild(notifStyle);
 </script>
 </body>
 </html>
