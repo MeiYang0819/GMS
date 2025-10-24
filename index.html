@@ -5,243 +5,408 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>🎮闖關任務</title>
 
+<!-- ✅ 字型：可自行更換或調整 -->
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
+/* ============================================================
+   🎨 配色與字級設定區（可自行微調）
+   ============================================================ */
 :root {
   --font-base: 18px;  /* 一般說明文字大小，可自行調整。例：主卡內的任務說明「歡迎參加幹掉雙面陳闖關活動～」即使用此大小 */
-  --font-lg: 24px;    /* 闖關活動標題文字大小，可自行調整。例：「第1關」、「第2關」這些標題字即使用此大小 */
-  --font-xl: 24px;    /* 首頁主標題文字大小，可自行調整。例：首頁「🕙闖關任務🕒」這行主標題即使用此大小 */
+  --font-lg: 25px;    /* 闖關活動標題文字大小，可自行調整。例：「第1關」、「第2關」這些標題字即使用此大小 */
+  --font-xl: 30px;    /* 首頁主標題文字大小，可自行調整。例：首頁「🕙闖關任務🕒」這行主標題即使用此大小 */
   --muted: #6b7280;   /* 排行榜副文字顏色，可自行調整。例：卡片內灰色的提示文字或副標題皆用此色 */
   --ink: #111827;     /* 主文字顏色，可自行調整。例：排行榜姓名、分數、地圖提示框主字體即使用此顏色 */
 }
-}
 
+/* ============================================================
+   🖼️ 頁面整體設定
+   ============================================================ */
 body {
   margin: 0;
   font-family: var(--font-family-main);
-  background: linear-gradient(0deg, #ebb3a9 0%, #f5a28c 45%, #ff906e 100%); /* 主背景粉橘漸層，可調整三色 */
+  background: linear-gradient(0deg, #ebb3a9 0%, #f5a28c 45%, #ff906e 100%); /* 主背景漸層，可自行調整顏色比例 */
   color: var(--ink);
-  overflow: hidden;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.15); /* 文字陰影，可自行調整濃淡 */
+  overflow: hidden; /* 固定整頁不捲動 */
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.15); /* 主文字陰影，可調整深度 */
 }
 
+/* ============================================================
+   📱 主容器與版面分區
+   ============================================================ */
 #app {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100vh; /* 高度全螢幕 */
 }
 
+/* 上半部主任務卡片區 */
 #main-area {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 55vh; /* 上方主區域佔高比例，可調整 */
+  min-height: 55vh; /* 主卡區高度比例，可自行微調 */
 }
 
+/* 主任務卡片樣式 */
 .main-card {
-  background: linear-gradient(0deg, rgba(247, 237, 143, 1) 0%, rgba(241, 223, 57, 1) 71%, rgba(237, 214, 5, 1) 100%); /* 主卡黃金漸層，可調整色值 */
-  border-radius: 24px; /* 卡片圓角，可調整 */
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); /* 卡片陰影，可調整模糊度與深淺 */
+  background: linear-gradient(0deg, rgba(247, 237, 143, 1) 0%, rgba(241, 223, 57, 1) 71%, rgba(237, 214, 5, 1) 100%); /* 黃金漸層，可調 */
+  border-radius: 24px; /* 卡片圓角，可調 */
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2); /* 卡片陰影，可調 */
   text-align: center;
-  width: 90vw; /* 卡片寬度，可調整 */
-  max-width: 880px; /* 卡片最大寬度，可調整 */
-  padding: 30px 20px; /* 內距，可調整 */
-  backdrop-filter: blur(6px); /* 模糊效果，可調整強度 */
-  transition: all 0.6s ease; /* 動畫速度，可調整 */
+  width: 90vw; /* 寬度占螢幕比例，可調 */
+  max-width: 880px; /* 最大寬度限制，可調 */
+  padding: 30px 20px; /* 內距，可調 */
+  backdrop-filter: blur(6px); /* 模糊背景，可調 */
+  transition: all 0.6s ease; /* 動畫速度，可調 */
 }
-.main-card h1 { font-size: var(--font-xl); margin: 10px 0; } /* 首頁大標題，可調整大小 */
-.main-card p { font-size: var(--font-base); color: var(--muted); } /* 副文字樣式，可調整字色與大小 */
 
+/* 主卡內文字大小 */
+.main-card h1 { font-size: var(--font-xl); margin: 10px 0; }
+.main-card p { font-size: var(--font-base); color: var(--muted); }
+
+/* ============================================================
+   🟡 通用按鈕樣式
+   ============================================================ */
 button {
-  background-color: #ffb703;  /* 主按鈕背景色，可自行調整 */
-  border: none; 
-  border-radius: 10px;   /* 按鈕圓角，可自行調整 */
-  color: #111;    /* 按鈕文字顏色，可自行調整 */
+  background-color: #ffb703;  /* 按鈕底色，可調 */
+  border: none;
+  border-radius: 10px;  /* 圓角大小，可調 */
+  color: #111;  /* 按鈕文字顏色，可調 */
   font-size: var(--font-base);
-  padding: 10px 25px;    /* 按鈕內距（上下／左右），可自行調整 */
-  cursor: pointer; 
-  margin-top: 15px;    /* 按鈕與上方距離，可自行調整 */
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* 按鈕陰影，可調整深淺 */
+  padding: 10px 25px;  /* 內距，可調 */
+  cursor: pointer;
+  margin-top: 15px;  /* 與上方間距，可調 */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* 陰影強度，可調 */
 }
-button:hover { background-color: #ffd166; } /* 滑過按鈕時顏色，可調整 */
+button:hover { background-color: #ffd166; } /* 滑過顏色，可調 */
 
+/* ============================================================
+   ⬇️ 下半部：排行榜＋地圖雙區塊
+   ============================================================ */
 #bottom-area {
   display: flex;
-  height: 45%; /* 下方地圖+排行榜區高度比例，可調整 */
-  border-top: 4px solid #fff; /* 上邊線，可調整粗細與顏色 */
+  height: 45%;  /* 高度比例，可調 */
+  border-top: 4px solid #fff; /* 白色分隔線，可調顏色與粗細 */
 }
 
 /* ================== 🏆 排行榜 ================== */
 #leaderboard {
   flex: 1;
-  background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%); /* 排行榜藍色漸層背景，可調整 */
+  background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%); /* 排行榜背景漸層，可調 */
   overflow-y: auto;
   overflow-x: hidden;
-  padding-bottom: 60px; /* 下方預留空間，可調整 */
+  padding-bottom: 60px; /* 底部空間，可調 */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   position: relative;
 }
+
+/* 排行榜標題 */
 #leaderboard h2 {
-  font-size: 26px; /* 排行榜標題文字大小，可調整 */
-  margin: 8px 0 12px; /* 標題上下距離，可調整 */
-  color: #111; /* 標題顏色，可調整 */
+  font-size: 26px; /* 排行榜標題文字大小，可調 */
+  margin: 8px 0 12px;
+  color: #111;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
+/* 排行榜提示：右上角 👉 往左滑為地圖 */
 #leaderboard .hint-box {
   position: absolute;
-  top: 10px; /* 提示框距上方距離，可調整 */
-  right: 10px; /* 提示框距右邊距離，可調整 */
-  background: rgba(220,220,220,0.92); /* 提示框背景顏色，可調整 */
-  border-radius: 8px; /* 提示框圓角，可調整 */
-  padding: 4px 10px; /* 提示框內距，可調整 */
-  font-size: 14px; /* 提示文字大小，可調整 */
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1); /* 陰影可調整 */
+  top: 10px;
+  right: 10px;
+  background: rgba(220,220,220,0.92); /* 提示框底色，可調 */
+  border-radius: 8px;
+  padding: 4px 10px; /* 提示框內距，可調 */
+  font-size: 14px; /* 提示文字大小，可調 */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   white-space: nowrap;
   z-index: 9999;
 }
 
+/* 排行榜表格樣式 */
 table {
-  width: 95%; /* 表格寬度，可調整 */
+  width: 95%;
   border-collapse: collapse;
-  font-size: 18px; /* 表格文字大小，可調整 */
+  font-size: 18px; /* 表格字體大小，可調 */
   color: #111;
 }
 th, td {
   text-align: center;
-  padding: 6px 0; /* 儲存格內距，可調整 */
+  padding: 6px 0; /* 儲存格內距，可調 */
 }
-th { background-color: rgba(255, 255, 255, 0.4); } /* 標頭背景色，可調整 */
-tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); } /* 偶數列底色，可調整 */
-.ellipsis td {
-  text-align: center;
-  color: #555; /* 省略列文字顏色，可調整 */
-  font-style: italic;
-}
-@keyframes scoreFlash {
-  0% { background-color: rgba(255,255,150,0.7); } /* 分數閃爍起始色，可調整 */
-  100% { background-color: transparent; }
-}
-.flash { animation: scoreFlash 1s ease; } /* 閃爍動畫時間可調整 */
+th { background-color: rgba(255, 255, 255, 0.4); } /* 表頭底色，可調 */
+tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); } /* 交錯列底色，可調 */
 
-/* ================== 🗺️ 地圖 ================== */
+  /* ============================================================
+   🪶 排名動畫（上升／下降）效果
+   ============================================================ */
+.rank-up {
+  animation: rankUp 1s ease; /* 排名上升動畫時間，可調 */
+}
+.rank-down {
+  animation: rankDown 1s ease; /* 排名下降動畫時間，可調 */
+}
+@keyframes rankUp {
+  0% { transform: translateY(20px); opacity: 0.4; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes rankDown {
+  0% { transform: translateY(-20px); opacity: 0.4; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* ============================================================
+   🗺️ 地圖區域設定
+   ============================================================ */
 #map {
-  flex: 1;
-  height: 100%;
-  border-left: 4px solid #fff; /* 左邊框，可調整顏色與粗細 */
+  flex: 1.2; /* 占比，可調 */
+  height: 100%; 
   position: relative;
-  overflow: hidden;
+  background-color: #f0f0f0; /* 地圖背景底色，可調 */
 }
-#map .map-hint-box {
-  position: absolute;
-  top: 8px; /* 地圖提示距上距離，可調整 */
-  left: 10px; /* 地圖提示距左距離，可調整 */
-  background: rgba(220,220,220,0.92); /* 提示背景色，可調整 */
-  border-radius: 8px; /* 提示圓角，可調整 */
-  padding: 4px 10px; /* 內距，可調整 */
-  font-size: 14px; /* 字體大小，可調整 */
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1); /* 陰影可調整 */
-  white-space: nowrap;
-  z-index: 9999;
-}
+
+/* Leaflet 地圖容器設定 */
 .leaflet-container {
   width: 100%;
   height: 100%;
-  background: #f5f5f5; /* 地圖預設背景，可調整 */
   z-index: 1;
+  border-left: 4px solid #fff; /* 分隔線，可調顏色與粗細 */
 }
+
+/* ============================================================
+   📍 Leaflet 浮水印（右下角）
+   ============================================================ */
 .leaflet-control-attribution {
-  background: rgba(180, 180, 180, 0.9); /* 地圖浮水印底色，可調整 */
-  border-radius: 6px; /* 圓角可調整 */
-  padding: 2px 8px; /* 內距可調整 */
-  font-size: 13px; /* 字體大小可調整 */
-  z-index: 9999;
+  background-color: rgba(180, 180, 180, 0.9); /* 浮水印底色，可調 */
+  color: #fff; /* 浮水印文字顏色，可調 */
+  border-radius: 4px; /* 浮水印圓角，可調 */
+  font-size: 12px; /* 浮水印文字大小，可調 */
+  padding: 3px 8px; /* 浮水印內距，可調 */
+  text-align: right;
+}
+.leaflet-control-attribution::after {
+  content: " | MYs Map © 2025"; /* 浮水印文字，可自訂但請勿移除年份 */
+  color: #fff;
 }
 
-#notif {
-  position: fixed;
-  top: 8%; /* 提示框距上方位置，可調整 */
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.95); /* 提示底色，可調整 */
-  border-radius: 12px; /* 提示圓角，可調整 */
-  padding: 12px 25px; /* 提示內距，可調整 */
-  box-shadow: 0 4px 14px rgba(0,0,0,0.2); /* 提示陰影可調整 */
-  font-size: 20px; /* 提示文字大小，可調整 */
-  color: #111; /* 文字顏色可調整 */
-  opacity: 0;
-  transition: all 0.4s ease; /* 顯示速度可調整 */
-  pointer-events: none;
-  white-space: nowrap;
-}
-#notif.show {
-  opacity: 1;
-  transform: translate(-50%, -10px);
-}
-#notif:not(.show) {
-  transform: translate(-50%, 30px);
-  opacity: 0;
-}
-
-/* 手機版調整區 */
+/* ============================================================
+   📱 響應式：手機優化版面
+   ============================================================ */
 @media (max-width: 768px) {
-  #bottom-area {
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    touch-action: pan-x;
-  }
-  #leaderboard, #map {
-    flex: none;
-    width: 100vw; /* 手機寬度佔滿，可調整 */
-    height: 100%;
-    scroll-snap-align: start;
-  }
+  #bottom-area { flex-direction: column; height: 48%; } /* 改成上下排列，可調 */
+  #leaderboard { order: 2; height: 52%; }
+  #map { order: 1; height: 48%; }
+  table { font-size: 16px; } /* 手機表格字體大小，可調 */
 }
 </style>
 </head>
+
 <body>
 <div id="app">
-  <div id="main-area">
-    <div class="main-card" id="mission-card">
-      <h1>🕙闖關任務🕒</h1>
-      <p>歡迎參加幹掉雙面陳闖關活動～<br>請點擊開始進行挑戰！</p>
-      <button onclick="nextMission()">開始任務 ▶</button>
+  <!-- ========================== 上半部：主卡 ========================== -->
+  <section id="main-area">
+    <div class="main-card" id="mainCard">
+      <h1>🎮 婚禮闖關任務</h1>
+      <p>完成任務即可獲得積分，挑戰排行榜！</p>
+      <button id="startBtn">開始挑戰</button>
     </div>
-  </div>
+  </section>
 
-  <div id="bottom-area">
+  <!-- ========================== 下半部：排行榜＋地圖 ========================== -->
+  <section id="bottom-area">
+    <!-- 🏆 排行榜區 -->
     <div id="leaderboard">
-      <h2>🏆 排行榜</h2>
-      <span class="hint-box">👉 往左滑為地圖</span>
-      <table>
-        <thead><tr><th>名次</th><th>暱稱</th><th>分數</th></tr></thead>
-        <tbody id="rank-body"></tbody>
+      <div class="hint-box">👉 往左滑查看地圖</div>
+      <h2>🏆 即時排行榜</h2>
+      <table id="rankTable">
+        <thead>
+          <tr><th>名次</th><th>玩家</th><th>分數</th></tr>
+        </thead>
+        <tbody id="rankBody">
+          <tr><td>🥇</td><td>馬小程</td><td>120</td></tr>
+          <tr><td>🥈</td><td>阿珊</td><td>115</td></tr>
+          <tr><td>🥉</td><td>威利</td><td>110</td></tr>
+          <tr><td>4</td><td>小雨</td><td>95</td></tr>
+          <tr><td>5</td><td>阿志</td><td>80</td></tr>
+        </tbody>
       </table>
     </div>
-    <div id="map">
-      <div class="map-hint-box">👈 往右滑為排行榜</div>
-    </div>
-  </div>
+
+    <!-- 🗺️ 地圖區 -->
+    <div id="map"></div>
+  </section>
 </div>
 
-<div id="notif"></div>
+<!-- ✅ 引入 Leaflet 地圖 -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<!-- JS 保留原樣功能，CSS 可依註解微調 -->
 <script>
-/* JS 部分保持原樣，如需我幫註解JS內可調數字也可繼續做 */
+/* ============================================================
+   <======== 檔案用途：系統常數、地圖初始化、闖關邏輯 ======== >
+   ============================================================ */
+
+/* -------- Leaflet 地圖初始化設定 -------- */
+const map = L.map('map', {
+  zoomControl: false, /* 隱藏預設縮放按鈕 */
+  attributionControl: true /* 顯示右下浮水印 */
+}).setView([25.034, 121.5645], 17.4); /* 地圖初始中心座標，可調整位置與縮放層級 */
+
+/* -------- 使用預設 OpenStreetMap 圖資 -------- */
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: ''
+}).addTo(map);
+
+/* -------- 任務點資料 -------- */
+const missions = [
+  { id: 1, name: "迎賓打卡", coords: [25.0341, 121.5643] },
+  { id: 2, name: "祝福留言", coords: [25.0342, 121.5641] },
+  { id: 3, name: "互動拍照", coords: [25.0343, 121.5640] },
+  { id: 4, name: "找新人拍照", coords: [25.0340, 121.5644] },
+  { id: 5, name: "小遊戲挑戰", coords: [25.0345, 121.5647] },
+  { id: 6, name: "最終問答挑戰", coords: [25.0346, 121.5649] } /* 第六關地圖座標，可調 */
+];
+
+/* -------- 在地圖上加入標記 -------- */
+missions.forEach(m => {
+  const marker = L.marker(m.coords).addTo(map);
+  marker.bindPopup(`<b>${m.name}</b>`);
+});
+
+/* ============================================================
+   🏆 排行榜邏輯與動畫
+   ============================================================ */
+const rankBody = document.getElementById('rankBody');
+
+/* 模擬排行榜資料（可與後端串接） */
+let leaderboardData = [
+  { name: "馬小程", score: 120 },
+  { name: "阿珊", score: 115 },
+  { name: "威利", score: 110 },
+  { name: "小雨", score: 95 },
+  { name: "阿志", score: 80 }
+];
+
+/* -------- 更新排行榜函式 -------- */
+function updateLeaderboard() {
+  /* 排序高分在前 */
+  leaderboardData.sort((a, b) => b.score - a.score);
+
+  rankBody.innerHTML = "";
+  leaderboardData.forEach((p, i) => {
+    const rankNum = i + 1;
+    /* 🏅 名次顯示前三名特殊圖示 */
+    const medal = rankNum === 1 ? "🥇" : rankNum === 2 ? "🥈" : rankNum === 3 ? "🥉" : rankNum;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${medal}</td><td>${p.name}</td><td>${p.score}</td>`;
+    rankBody.appendChild(tr);
+  });
+}
+
+/* 初始化顯示一次 */
+updateLeaderboard();
+
+/* ============================================================
+   🎯 第4關／第5關 隨機分流邏輯
+   ============================================================ */
+/* true: 4->5；false: 5->4 */
+const routeOrder = Math.random() > 0.5; // 隨機分配，可改為固定 true/false 測試
+
+if (routeOrder) {
+  console.log("👣 路線A：先第4關→第5關");
+} else {
+  console.log("👣 路線B：先第5關→第4關");
+}
+
+/* ============================================================
+   🧩 第6關：婚禮趣味問答（四選一）
+   ============================================================ */
+const quizData = [
+  {
+    q: "🎩 問題1：新郎第一次見到新娘時的反應是？",
+    opts: ["A. 緊張到講不出話", "B. 馬上告白", "C. 當作沒看到", "D. 認錯人"],
+    ans: 0
+  },
+  {
+    q: "💍 問題2：他們的第一次約會地點是？",
+    opts: ["A. 電影院", "B. 咖啡廳", "C. 夜市", "D. 書店"],
+    ans: 1
+  },
+  {
+    q: "🍰 問題3：婚禮蛋糕的口味是？",
+    opts: ["A. 草莓", "B. 巧克力", "C. 抹茶", "D. 香草"],
+    ans: 2
+  },
+  {
+    q: "📸 問題4：婚禮上有特別設計的互動是哪個？",
+    opts: ["A. NFC 任務卡", "B. QR 抽獎", "C. KTV 挑戰", "D. 大合照拼圖"],
+    ans: 0
+  },
+  {
+    q: "🎵 問題5：新郎最擅長的樂器是？",
+    opts: ["A. 吉他", "B. 鼓", "C. 鋼琴", "D. 小提琴"],
+    ans: 0
+  },
+  {
+    q: "🎁 問題6：最後送出的神秘禮物是什麼？",
+    opts: ["A. NFC 紀念卡", "B. DIY 手環", "C. 拍立得照片", "D. 驚喜影片"],
+    ans: 3
+  }
+];
+
+/* -------- 問答區顯示與互動 -------- */
+const mainCard = document.getElementById("mainCard");
+const startBtn = document.getElementById("startBtn");
+
+let currentQ = 0;
+let score = 0;
+
+function showQuestion() {
+  const q = quizData[currentQ];
+  let html = `<h1>第 ${currentQ + 1} 題</h1><p>${q.q}</p>`;
+  q.opts.forEach((opt, i) => {
+    html += `<button onclick="checkAnswer(${i})">${opt}</button>`;
+  });
+  mainCard.innerHTML = html;
+}
+
+/* -------- 檢查答案 -------- */
+function checkAnswer(i) {
+  const correct = quizData[currentQ].ans;
+  const buttons = mainCard.querySelectorAll("button");
+  buttons.forEach(btn => btn.disabled = true);
+
+  if (i === correct) {
+    score += 10; /* 答對加分，可調 */
+    mainCard.innerHTML += "<p style='font-size:28px; color:green;'>✅ 答對！</p>";
+  } else {
+    mainCard.innerHTML += "<p style='font-size:28px; color:red;'>❌ 答錯！</p>";
+  }
+
+  /* 下一題延遲切換 */
+  setTimeout(() => {
+    currentQ++;
+    if (currentQ < quizData.length) {
+      showQuestion();
+    } else {
+      mainCard.innerHTML = `<h1>🎉 全部完成！</h1><p>你的得分：${score} 分</p>`;
+      leaderboardData.push({ name: "玩家", score });
+      updateLeaderboard();
+    }
+  }, 1500); // 延遲切換秒數，可調
+}
+
+/* -------- 開始答題 -------- */
+startBtn.addEventListener("click", showQuestion);
 </script>
 </body>
 </html>
