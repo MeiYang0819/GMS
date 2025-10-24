@@ -43,6 +43,7 @@ body {
   min-height: 55vh;
 }
 
+/* 主卡固定高度（以第1題為準） */
 .main-card {
   background: linear-gradient(0deg, rgba(247, 237, 143, 1) 0%, rgba(241, 223, 57, 1) 71%, rgba(237, 214, 5, 1) 100%);
   border-radius: 24px;
@@ -51,6 +52,7 @@ body {
   width: 90vw;
   max-width: 880px;
   padding: 30px 20px;
+  min-height: 380px; /* ✅ 固定主卡高度 */
   backdrop-filter: blur(6px);
   transition: all 0.6s ease;
 }
@@ -135,6 +137,7 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   border-left: 4px solid #fff;
   position: relative;
   overflow: hidden;
+  touch-action: pan-x pinch-zoom; /* ✅ 可手勢縮放 */
 }
 #map .map-hint-box {
   position: absolute;
@@ -157,24 +160,6 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   z-index: 9999;
 }
 
-#notif {
-  position: fixed;
-  top: 8%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 12px;
-  padding: 12px 25px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.2);
-  font-size: 20px;
-  color: #111;
-  opacity: 0;
-  transition: all 0.4s ease;
-  pointer-events: none;
-  white-space: nowrap;
-}
-#notif.show { opacity: 1; transform: translate(-50%, -10px); }
-
 /* ===== 新增：2×2 選項網格 ===== */
 .option-grid {
   display: grid;
@@ -185,6 +170,7 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 .option-grid button {
   width: 90%;
   position: relative;
+  background-color: #ffb703; /* ✅ 統一顏色 */
 }
 .option-grid button .mark {
   position: absolute;
@@ -203,7 +189,7 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
     height: 45vh;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
-    touch-action: pan-x;
+    touch-action: pan-x pinch-zoom; /* ✅ 左右滑順暢 */
   }
   #leaderboard, #map {
     flex: none;
@@ -243,7 +229,49 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-<script>
+   <script>
+/* ==========================================================
+   🗺️ 地圖設定區
+   ========================================================== */
+const map = L.map("map", {
+  crs: L.CRS.Simple,
+  minZoom: -2,
+  maxZoom: 4,
+  zoomControl: false, // ✅ 移除 + / - 控制按鈕
+  attributionControl: true
+});
+const imageUrl = "assets/WL-平面場圖-4.png";
+const img = new Image();
+img.src = imageUrl;
+img.onload = function () {
+  const w = img.width, h = img.height;
+  const bounds = [[0, 0], [h, w]];
+  L.imageOverlay(imageUrl, bounds).addTo(map);
+  map.setMaxBounds(bounds);
+  map.fitBounds(bounds, { animate: false });
+  map.setZoom(map.getZoom() - 0.6);
+  const points = [
+    { name: "關卡一", coords: [h * 0.45, w * 0.45], color: "red" },
+    { name: "關卡二", coords: [h * 0.35, w * 0.70], color: "red" },
+    { name: "關卡三", coords: [h * 0.55, w * 0.30], color: "red" },
+    { name: "關卡四", coords: [h * 0.25, w * 0.80], color: "red" },
+    { name: "關卡五", coords: [h * 0.20, w * 0.20], color: "red" },
+    { name: "關卡六", coords: [h * 0.40, w * 0.10], color: "red" },
+    { name: "🎁 Bonus A", coords: [h * 0.55, w * 0.65], color: "gold" },
+    { name: "🎁 Bonus B", coords: [h * 0.40, w * 0.60], color: "gold" },
+    { name: "🎁 Bonus C", coords: [h * 0.75, w * 0.50], color: "gold" }
+  ];
+  points.forEach(p => {
+    L.circleMarker(p.coords, {
+      radius: 4,
+      color: p.color,
+      fillColor: p.color,
+      fillOpacity: 0.9
+    }).addTo(map).bindTooltip(p.name, { direction: "top", offset: [0, -4] });
+  });
+  L.control.attribution({ prefix: false }).addAttribution("💍 MYs Map © 2025").addTo(map);
+};
+
 /* ==========================================================
    🎯 任務流程控制區（含4/5關隨機、6關問答）
    ========================================================== */
@@ -289,12 +317,14 @@ const quizData = [
   { q: "💐 新娘最喜歡的花？", o: ["玫瑰", "百合", "鬱金香", "向日葵"], a: 3 }
 ];
 let quizIndex = 0;
+let answered = false;
 
 function startQuiz() {
   showQuestion();
 }
 
 function showQuestion() {
+  answered = false;
   const card = document.getElementById("mission-card");
   const q = quizData[quizIndex];
   let html = `<h1>💡 第 ${quizIndex + 1} 題</h1><p>${q.q}</p><div class="option-grid">`;
@@ -306,6 +336,7 @@ function showQuestion() {
 }
 
 function checkAnswer(choice) {
+  if (answered) return; // ✅ 防止重複點擊
   const q = quizData[quizIndex];
   const correct = q.a;
   const clickedBtn = document.getElementById("opt" + choice);
@@ -313,13 +344,14 @@ function checkAnswer(choice) {
 
   if (choice === correct) {
     if (clickedBtn) clickedBtn.querySelector(".mark").textContent = "✔️";
+    answered = true;
     quizIndex++;
     if (quizIndex < quizData.length) {
-      setTimeout(showQuestion, 1000);
+      setTimeout(showQuestion, 1200);
     } else {
       setTimeout(() => {
         document.getElementById("mission-card").innerHTML = `<h1>🎉 測驗完成！</h1><p>你已完成第六關！</p>`;
-      }, 800);
+      }, 1200);
     }
   } else {
     if (clickedBtn) clickedBtn.querySelector(".mark").textContent = "❌";
@@ -386,52 +418,6 @@ setInterval(()=>{
   if(d!==0){r.score=Math.max(0,r.score+d);renderLeaderboard();}
 },2000);
 renderLeaderboard();
-/* ==========================================================
-   🗺️ 地圖設定區
-   ========================================================== */
-const map = L.map("map", {
-  crs: L.CRS.Simple,
-  minZoom: -2,
-  maxZoom: 4,
-  attributionControl: true
-});
-
-const imageUrl = "assets/WL-平面場圖-4.png";
-const img = new Image();
-img.src = imageUrl;
-
-img.onload = function () {
-  const w = img.width, h = img.height;
-  const bounds = [[0, 0], [h, w]];
-  L.imageOverlay(imageUrl, bounds).addTo(map);
-  map.setMaxBounds(bounds);
-  map.fitBounds(bounds, { animate: false });
-  map.setView([h / 2, w / 2], 0);
-  map.setZoom(map.getZoom() - 0.6);
-
-  const points = [
-    { name: "簽到處", xy: [h * 0.72, w * 0.25] },
-    { name: "甜點區", xy: [h * 0.70, w * 0.55] },
-    { name: "合照點", xy: [h * 0.50, w * 0.38] },
-    { name: "新人桌", xy: [h * 0.48, w * 0.62] },
-    { name: "主舞台", xy: [h * 0.42, w * 0.80] },
-    { name: "洗手間", xy: [h * 0.30, w * 0.15] }
-  ];
-
-  points.forEach(p => {
-    const m = L.circleMarker(p.xy, {
-      radius: 9,
-      color: "#ff6600",
-      fillColor: "#ffcc00",
-      fillOpacity: 0.9
-    }).addTo(map);
-    m.bindTooltip(p.name, { permanent: false, direction: "top" });
-  });
-};
-
-map.on("click", function (e) {
-  console.log("Clicked map at", e.latlng);
-});
 </script>
 </body>
 </html>
