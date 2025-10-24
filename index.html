@@ -62,33 +62,25 @@ body {
 .main-card h1 { font-size: var(--font-xl); margin: 10px 0; }
 .main-card p { font-size: var(--font-base); color: var(--muted); }
 
-/* --------通知浮現區（放在主卡中間；無訊息時隱形）-------- */
-#rankNotice {
-  display: none; /* 無訊息時完全隱藏 */
-  background: rgba(255,255,255,0.85);
-  border-radius: 12px;
-  margin: 6px auto;
-  padding: 6px 14px;
-  width: fit-content;
+/* --------通知列（主卡中間；有才出現）-------- */
+#missionNotice {
+  display: none;          /* 無通知時隱藏 */
+  background: transparent;
   font-size: 22px;
   font-weight: 700;
   color: #111;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  animation: fadeSlide 0.4s ease;
+  margin: 6px 0;
+  line-height: 1.4;
+  animation: fadeInOut 3s ease;
 }
-#rankNotice.flash {
-  animation: noticeFlash 0.8s ease;
-}
-@keyframes fadeSlide {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes noticeFlash {
-  0% { background-color: rgba(255,255,150,0.9); }
-  100% { background-color: rgba(255,255,255,0.85); }
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
-button {
+   button {
   background-color: #ffb703;  /* 按鈕背景顏色，可自行調整 */
   border: none;
   border-radius: 10px;         /* 按鈕圓角，可自行調整 */
@@ -173,18 +165,17 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   padding: 2px 8px;
   font-size: 13px;
 }
-
-/* 地圖提示（往右滑為排行） */
-#map .hint-box.right {
+/* 地圖提示：固定左上角 👉 往右滑為排行 */
+#map::before {
+  content: "👉 往右滑為排行";
   position: absolute;
-  top: 10px;
+  top: 8px;
   left: 10px;
-  background: rgba(220,220,220,0.92);
+  background: rgba(240,240,240,0.9);
+  padding: 3px 10px;
   border-radius: 8px;
-  padding: 4px 10px;
   font-size: 14px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  white-space: nowrap;
+  color: #111;
   z-index: 9999;
 }
 
@@ -232,13 +223,15 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   <div id="main-area">
     <div class="main-card" id="mission-card">
       <h1>🕙闖關任務🕒</h1>
-      <div id="rankNotice"></div> <!-- ✅ 通知列：在主卡標題與說明之間 -->
+      <div id="missionNotice"></div> <!-- ✅ 通知列在標題下方（有才出現） -->
       <p>歡迎參加幹掉雙面陳闖關活動～<br>請點擊開始進行挑戰！</p>
       <button onclick="nextMission()">開始任務 ▶</button>
     </div>
   </div>
 
   <div id="bottom-area">
+<!-- 🧾 通知固定區（預留空間） -->
+  <div id="rankNotice" style="height:60px;"></div>
     <div id="leaderboard">
       <h2>🏆 排行榜</h2>
       <span class="hint-box">👉 往左滑為地圖</span>
@@ -247,16 +240,17 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
         <tbody id="rank-body"></tbody>
       </table>
     </div>
-    <div id="map">
-      <span class="hint-box right">👉 往右滑為排行</span>
-    </div>
+    <div id="map"></div>
   </div>
 </div>
+
+   <div id="notif" style="position:fixed;top:10px;left:50%;transform:translateX(-50%);padding:8px 16px;border-radius:8px;display:none;transition:all 0.4s;"></div>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
+
 /* ==========================================================
    🗺️ 地圖設定區（圖片底圖 + 手勢縮放 + MYs 浮水印）
    ========================================================== */
@@ -282,10 +276,11 @@ img.onload = function () {
   map.setMaxBounds(bounds);
   map.fitBounds(bounds, { animate: false });
 
+  /* ✅ 桌機與手機自動縮小比例 */
   if (window.innerWidth <= 768) {
-    map.setZoom(map.getZoom() - 1.6);
+    map.setZoom(map.getZoom() - 1.6); // 手機更小
   } else {
-    map.setZoom(map.getZoom() - 1.2);
+    map.setZoom(map.getZoom() - 1.2); // 桌機略縮
   }
 
   const points = [
@@ -312,8 +307,9 @@ img.onload = function () {
    .addTo(map);
 };
 
+
 /* ==========================================================
-   🎯 任務流程控制區
+   🎯 任務流程控制區（含4/5關隨機、6關問答）
    ========================================================== */
 let step = 0;
 const baseMissions = [
@@ -329,15 +325,18 @@ if (Math.random() > 0.5) {
 }
 function nextMission() {
   const card = document.getElementById("mission-card");
+  const notice = document.getElementById("missionNotice");
   if (step < baseMissions.length - 1) {
+    notice.style.display = "none";
     card.innerHTML = `<h1>🎯 第 ${step + 1} 關</h1>
-      <div id="rankNotice"></div>
+      <div id="missionNotice"></div>
       <p>${baseMissions[step]}</p>
       <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
     step++;
   } else if (step === baseMissions.length - 1) {
     startQuiz(); step++;
   } else {
+    notice.style.display = "none";
     card.innerHTML = `<h1>🎉 恭喜完成所有任務</h1><p>感謝一起讓雙面陳往生</p>`;
   }
 }
@@ -359,7 +358,7 @@ function showQuestion() {
   answered = false;
   const card = document.getElementById("mission-card");
   const q = quizData[quizIndex];
-  let html = `<h1>💡 第 ${quizIndex + 1} 題</h1><div id="rankNotice"></div><p>${q.q}</p>
+  let html = `<h1>💡 第 ${quizIndex + 1} 題</h1><p>${q.q}</p>
   <div class="option-grid">`;
   q.o.forEach((opt, i) => { html += `<button id="opt${i}" onclick="checkAnswer(${i})">${opt}<span class="mark"></span></button>`; });
   html += `</div>`;
@@ -382,7 +381,7 @@ function checkAnswer(choice) {
 }
 
 /* ==========================================================
-   🏆 排行榜邏輯（升降＋分數提示在主卡通知列）
+   🏆 排行榜邏輯（單行閃爍＋名次通知）
    ========================================================== */
 let players = [
   { name: "大變態林阿軒", score: 100 },
@@ -398,26 +397,15 @@ let players = [
 ];
 
 let lastRanks = {};
-let notifTimer;
 
-/* 🪄 固定通知區更新（顯示在主卡 rankNotice） */
-function showNotifFixed(text) {
-  const box = document.querySelector("#mission-card #rankNotice");
-  if (!box) return;
-  box.textContent = text;
-  box.style.display = "inline-block"; // 顯示通知列
-  box.classList.remove("flash");
-  void box.offsetWidth; // 重新觸發動畫
-  box.classList.add("flash");
-
-  clearTimeout(notifTimer);
-  notifTimer = setTimeout(() => {
-    box.style.display = "none";  // 顯示完後再隱藏
-    box.textContent = "";
-  }, 4000);
+function showMissionNotice(text) {
+  const notice = document.getElementById("missionNotice");
+  if (!notice) return;
+  notice.textContent = text;
+  notice.style.display = "block";
+  setTimeout(() => { notice.style.display = "none"; }, 3000);
 }
 
-/* 🧮 排行榜重繪 + 升降判斷 */
 function renderLeaderboard() {
   players.sort((a, b) => b.score - a.score);
   const tbody = document.getElementById("rank-body");
@@ -427,49 +415,42 @@ function renderLeaderboard() {
   players.forEach((p, i) => {
     const prev = lastRanks[p.name];
     if (prev !== undefined && prev !== i) {
-      if (prev > i)
-        showNotifFixed(`⬆️ ${p.name} 上升至第 ${i + 1} 名！🎉`);
-      else
-        showNotifFixed(`⬇️ ${p.name} 降至第 ${i + 1} 名～😅`);
+      if (prev > i) {
+        showMissionNotice(`⬆️ ${p.name} 上升至第 ${i + 1} 名！🎉`);
+      } else {
+        showMissionNotice(`⬇️ ${p.name} 下降至第 ${i + 1} 名～😅`);
+      }
     }
     lastRanks[p.name] = i;
   });
 
-  const len = players.length;
-  const top = players.slice(0, 4);
-  const bottom = players.slice(-2);
-  const showList = [...top, { name: "...", score: "..." }, ...bottom];
-
-  showList.forEach((p, i) => {
+  players.forEach((p, i) => {
     const tr = document.createElement("tr");
-    if (p.name === "...") {
-      tr.classList.add("ellipsis");
-      tr.innerHTML = "<td colspan='3'>...</td>";
-    } else {
-      const rank = i < 4 ? i + 1 : len - 2 + i - 5;
-      const medal =
-        rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : rank;
-      tr.innerHTML = `<td>${medal}</td><td>${p.name}</td><td class="flash">${p.score}</td>`;
-    }
+    const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1;
+    tr.innerHTML = `<td>${medal}</td><td>${p.name}</td><td>${p.score}</td>`;
     tbody.appendChild(tr);
   });
 }
 
-/* 🔁 模擬分數變化（含升降提示與分數上升／下降提示） */
+// 模擬分數變化與閃爍動畫
 setInterval(() => {
   const target = players[Math.floor(Math.random() * players.length)];
-  const diff = Math.floor(Math.random() * 9 - 4); // -4～+4
+  const diff = Math.floor(Math.random() * 9 - 4);
   if (diff !== 0) {
     target.score = Math.max(0, target.score + diff);
-    if (diff > 0)
-      showNotifFixed(`🔼 ${target.name} 上升 ${diff} 分！`);
-    else
-      showNotifFixed(`🔽 ${target.name} 下降 ${Math.abs(diff)} 分～`);
     renderLeaderboard();
+    const trs = document.querySelectorAll("#rank-body tr");
+    trs.forEach(tr => {
+      if (tr.textContent.includes(target.name)) {
+        tr.classList.add("flash");
+        setTimeout(() => tr.classList.remove("flash"), 1000);
+      }
+    });
   }
 }, 2500);
 
 renderLeaderboard();
+
 </script>
 </body>
 </html>
