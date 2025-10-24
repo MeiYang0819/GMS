@@ -130,106 +130,7 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 }
 .flash { animation: scoreFlash 1s ease; }
 
-/* ================== 🗺️ 地圖 ================== */
-#map {
-  flex: 1;
-  height: 100%;
-  border-left: 4px solid #fff;
-  position: relative;
-  overflow: hidden;
-  touch-action: pan-x pinch-zoom; /* ✅ 可手勢縮放 */
-}
-#map .map-hint-box {
-  position: absolute;
-  top: 8px;
-  left: 10px;
-  background: rgba(220,220,220,0.92);
-  border-radius: 8px;
-  padding: 4px 10px;
-  font-size: 14px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  white-space: nowrap;
-  z-index: 9999;
-}
-.leaflet-container { width: 100%; height: 100%; background: #f5f5f5; z-index: 1; }
-.leaflet-control-attribution {
-  background: rgba(180, 180, 180, 0.9);
-  border-radius: 6px;
-  padding: 2px 8px;
-  font-size: 13px;
-  z-index: 9999;
-}
-
-/* ===== 新增：2×2 選項網格 ===== */
-.option-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  justify-items: center;
-}
-.option-grid button {
-  width: 90%;
-  position: relative;
-  background-color: #ffb703; /* ✅ 統一顏色 */
-}
-.option-grid button .mark {
-  position: absolute;
-  right: 10px;
-  top: 5px;
-  font-size: 24px;
-  pointer-events: none;
-}
-
-@media (max-width: 768px) {
-  #bottom-area {
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
-    white-space: nowrap;
-    height: 45vh;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    touch-action: pan-x pinch-zoom; /* ✅ 左右滑順暢 */
-  }
-  #leaderboard, #map {
-    flex: none;
-    width: 100vw;
-    height: 100%;
-    scroll-snap-align: start;
-    display: inline-block;
-  }
-}
-</style>
-</head>
-
-<body>
-<div id="app">
-  <div id="main-area">
-    <div class="main-card" id="mission-card">
-      <h1>🕙闖關任務🕒</h1>
-      <p>歡迎參加幹掉雙面陳闖關活動～<br>請點擊開始進行挑戰！</p>
-      <button onclick="nextMission()">開始任務 ▶</button>
-    </div>
-  </div>
-
-  <div id="bottom-area">
-    <div id="leaderboard">
-      <h2>🏆 排行榜</h2>
-      <span class="hint-box">👉 往左滑為地圖</span>
-      <table>
-        <thead><tr><th>名次</th><th>暱稱</th><th>分數</th></tr></thead>
-        <tbody id="rank-body"></tbody>
-      </table>
-    </div>
-    <div id="map"><div class="map-hint-box">👈 往右滑為排行榜</div></div>
-  </div>
-</div>
-<div id="notif"></div>
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-   <script>
+<script>
 /* ==========================================================
    🗺️ 地圖設定區
    ========================================================== */
@@ -237,7 +138,7 @@ const map = L.map("map", {
   crs: L.CRS.Simple,
   minZoom: -2,
   maxZoom: 4,
-  zoomControl: false, // ✅ 移除 + / - 控制按鈕
+  zoomControl: false,
   attributionControl: true
 });
 const imageUrl = "assets/WL-平面場圖-4.png";
@@ -249,7 +150,7 @@ img.onload = function () {
   L.imageOverlay(imageUrl, bounds).addTo(map);
   map.setMaxBounds(bounds);
   map.fitBounds(bounds, { animate: false });
-  map.setZoom(map.getZoom() - 0.6);
+  map.setZoom(map.getZoom() - 1.2); // ✅ 縮小整體比例
   const points = [
     { name: "關卡一", coords: [h * 0.45, w * 0.45], color: "red" },
     { name: "關卡二", coords: [h * 0.35, w * 0.70], color: "red" },
@@ -269,7 +170,9 @@ img.onload = function () {
       fillOpacity: 0.9
     }).addTo(map).bindTooltip(p.name, { direction: "top", offset: [0, -4] });
   });
-  L.control.attribution({ prefix: false }).addAttribution("💍 MYs Map © 2025").addTo(map);
+  L.control.attribution({ prefix: false })
+   .addAttribution("💍 MYs Map © 2025")
+   .addTo(map);
 };
 
 /* ==========================================================
@@ -295,10 +198,10 @@ function nextMission() {
   if (step < baseMissions.length - 1) {
     card.innerHTML = `<h1>🎯 第 ${step + 1} 關</h1>
       <p>${baseMissions[step]}</p>
-      <button onclick="nextMission()">下一關 ▶</button>`;
+      <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`; /* ✅ 下移並統一顏色 */
     step++;
   } else if (step === baseMissions.length - 1) {
-    startQuiz(); // 進入第六關測驗
+    startQuiz();
     step++;
   } else {
     card.innerHTML = `<h1>🎉 恭喜完成所有任務</h1><p>感謝一起讓雙面陳往生</p>`;
@@ -327,7 +230,8 @@ function showQuestion() {
   answered = false;
   const card = document.getElementById("mission-card");
   const q = quizData[quizIndex];
-  let html = `<h1>💡 第 ${quizIndex + 1} 題</h1><p>${q.q}</p><div class="option-grid">`;
+  let html = `<h1>💡 第 ${quizIndex + 1} 題</h1><p>${q.q}</p>
+  <div class="option-grid" style="margin-top:25px;">`; /* ✅ 下移 */
   q.o.forEach((opt, i) => {
     html += `<button id="opt${i}" onclick="checkAnswer(${i})">${opt}<span class="mark"></span></button>`;
   });
@@ -336,7 +240,7 @@ function showQuestion() {
 }
 
 function checkAnswer(choice) {
-  if (answered) return; // ✅ 防止重複點擊
+  if (answered) return;
   const q = quizData[quizIndex];
   const correct = q.a;
   const clickedBtn = document.getElementById("opt" + choice);
@@ -359,7 +263,7 @@ function checkAnswer(choice) {
 }
 
 /* ==========================================================
-   🏆 排行榜邏輯
+   🏆 排行榜邏輯（修復動畫閃爍）
    ========================================================== */
 let players = [
   { name: "大變態林阿軒", score: 100 },
@@ -380,7 +284,7 @@ function showNotif(text, type) {
   n.innerHTML = text;
   n.style.background = type === "up" ? "#d1ffd1" : "#ffe6e6";
   n.classList.add("show");
-  setTimeout(() => n.classList.remove("show"), 6000);
+  setTimeout(() => n.classList.remove("show"), 4000);
 }
 
 function renderLeaderboard() {
@@ -391,7 +295,7 @@ function renderLeaderboard() {
     const prev = lastRanks[p.name];
     if (prev!==undefined && prev!==i){
       notifCounter++;
-      if (notifCounter%Math.floor(Math.random()*4+5)===0){
+      if (notifCounter%4===0){
         if (prev>i) showNotif(`⬆️ ${p.name} 上升至第 ${i+1} 名！🎉`,"up");
         else showNotif(`⬇️ ${p.name} 下降至第 ${i+1} 名～😅`,"down");
       }
@@ -407,7 +311,7 @@ function renderLeaderboard() {
     else{
       const rankNum=i<4?i+1:len-2+i-5;
       const medal=rankNum===1?"🥇":rankNum===2?"🥈":rankNum===3?"🥉":rankNum;
-      row.innerHTML=`<td>${medal}</td><td>${p.name}</td><td>${p.score}</td>`;
+      row.innerHTML=`<td>${medal}</td><td>${p.name}</td><td class="flash">${p.score}</td>`; /* ✅ 分數閃爍修復 */
     }
     tbody.appendChild(row);
   });
