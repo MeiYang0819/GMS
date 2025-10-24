@@ -250,6 +250,12 @@ img.onload = function () {
   map.setMaxBounds(bounds);
   map.fitBounds(bounds, { animate: false });
   map.setZoom(map.getZoom() - 1.2);
+
+  /* ✅ 手機版再額外縮小，確保完整顯示（A4 橫版） */
+  if (window.innerWidth <= 768) {
+    map.setZoom(map.getZoom() - 1.0); // 手機再縮小一階
+  }
+
   const points = [
     { name: "關卡一", coords: [h * 0.45, w * 0.45], color: "red" },
     { name: "關卡二", coords: [h * 0.35, w * 0.70], color: "red" },
@@ -273,7 +279,7 @@ img.onload = function () {
    .addAttribution("💍 MYs Map © 2025")
    .addTo(map);
 };
-
+   
 /* ==========================================================
    🎯 任務流程控制區
    ========================================================== */
@@ -348,7 +354,11 @@ function checkAnswer(choice) {
 /* ==========================================================
    🏆 排行榜邏輯（僅變動行閃爍＋升降通知修復）
    ========================================================== */
-let players = [
+   /* ✅ 預留通知空間，不再推動排行榜 */
+const leaderboard = document.getElementById("leaderboard");
+leaderboard.style.paddingTop = "60px";
+   
+   let players = [
   { name: "大變態林阿軒", score: 100 },
   { name: "愛逃避姜新禹", score: 96 },
   { name: "吃香蕉王小慧", score: 94 },
@@ -412,3 +422,4 @@ renderLeaderboard();
 </script>
 </body>
 </html>
+
