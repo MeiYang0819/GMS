@@ -222,23 +222,22 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 <div id="app">
   <div id="main-area">
     <div class="main-card" id="mission-card">
-      <h1>🕙闖關任務🕒</h1>
-      <!-- ✅ 通知列（固定浮層，不推文字） -->
+      !-- ✅ 通知列：固定佔位 -->
       <div id="missionNotice"
-           style="display:none;
-                  position:absolute;
-                  top:72px; left:50%;
-                  transform:translateX(-50%);
+           style="height:28px;
+                  line-height:28px;
                   background:rgba(255,240,240,0.96);
                   border:2px solid #f8dada;
                   border-radius:10px;
-                  padding:6px 14px;
+                  padding:0 14px;
                   font-weight:700;
                   color:#111;
                   font-size:17px;
                   text-align:center;
+                  margin:6px auto 10px;
                   box-shadow:0 2px 6px rgba(0,0,0,0.15);
-                  z-index:99;
+                  width:fit-content;
+                  min-width:200px;
                   opacity:0;
                   transition:opacity 0.5s ease;">
       </div>
@@ -341,6 +340,41 @@ const baseMissions = [
 if (Math.random() > 0.5) {
   [baseMissions[3], baseMissions[4]] = [baseMissions[4], baseMissions[3]];
 }
+
+/* ✅ 新增固定通知列函式 */
+function getNoticeHTML() {
+  return `<div id="missionNotice"
+              style="height:28px;
+                     line-height:28px;
+                     background:rgba(255,240,240,0.96);
+                     border:2px solid #f8dada;
+                     border-radius:10px;
+                     padding:0 14px;
+                     font-weight:700;
+                     color:#111;
+                     font-size:17px;
+                     text-align:center;
+                     margin:6px auto 10px;
+                     box-shadow:0 2px 6px rgba(0,0,0,0.15);
+                     width:fit-content;
+                     min-width:200px;
+                     opacity:0;
+                     transition:opacity 0.5s ease;"></div>`;
+}
+
+/* ✅ 通知文字淡入淡出（任務內共用） */
+function showMissionNotice(text) {
+  const notice = document.getElementById("missionNotice");
+  if (!notice) return;
+  notice.textContent = text;
+  notice.style.opacity = "1";
+  clearTimeout(window._noticeTimer);
+  window._noticeTimer = setTimeout(() => {
+    notice.style.opacity = "0";
+    setTimeout(() => { notice.textContent = ""; }, 600);
+  }, 3000);
+}
+   
 function nextMission() {
   const card = document.getElementById("mission-card");
   const notice = document.getElementById("missionNotice");
@@ -482,5 +516,6 @@ renderLeaderboard();
 </script>
 </body>
 </html>
+
 
 
