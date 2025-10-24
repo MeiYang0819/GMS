@@ -175,13 +175,32 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 }
 #notif.show { opacity: 1; transform: translate(-50%, -10px); }
 
+/* ===== 新增：2×2 選項網格 ===== */
+.option-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  justify-items: center;
+}
+.option-grid button {
+  width: 90%;
+  position: relative;
+}
+.option-grid button .mark {
+  position: absolute;
+  right: 10px;
+  top: 5px;
+  font-size: 24px;
+  pointer-events: none;
+}
+
 @media (max-width: 768px) {
   #bottom-area {
     flex-direction: row;
     overflow-x: auto;
-    overflow-y: hidden;        /* ✅ 避免上下滑動 */
+    overflow-y: hidden;
     white-space: nowrap;
-    height: 45vh;              /* ✅ 固定高度，避免內容撐開 */
+    height: 45vh;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     touch-action: pan-x;
@@ -191,7 +210,7 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
     width: 100vw;
     height: 100%;
     scroll-snap-align: start;
-    display: inline-block;     /* ✅ 保持橫向排列 */
+    display: inline-block;
   }
 }
 </style>
@@ -278,21 +297,29 @@ function startQuiz() {
 function showQuestion() {
   const card = document.getElementById("mission-card");
   const q = quizData[quizIndex];
-  let html = `<h1>💡 第 ${quizIndex + 1} 題</h1><p>${q.q}</p>`;
+  let html = `<h1>💡 第 ${quizIndex + 1} 題</h1><p>${q.q}</p><div class="option-grid">`;
   q.o.forEach((opt, i) => {
-    html += `<button onclick="checkAnswer(${i})">${opt}</button><br>`;
+    html += `<button id="opt${i}" onclick="checkAnswer(${i})">${opt}<span class="mark"></span></button>`;
   });
+  html += `</div>`;
   card.innerHTML = html;
 }
 
 function checkAnswer(choice) {
+  const q = quizData[quizIndex];
+  const correct = q.a;
   const card = document.getElementById("mission-card");
-  const correct = quizData[quizIndex].a;
+  const correctBtn = document.getElementById("opt" + correct);
+  const clickedBtn = document.getElementById("opt" + choice);
+  // 標記勾叉
+  if (clickedBtn) clickedBtn.querySelector(".mark").textContent = choice === correct ? "✔️" : "❌";
+  if (correctBtn && choice !== correct) correctBtn.querySelector(".mark").textContent = "✔️";
+
   const result = choice === correct ? "✅ 答對！" : "❌ 答錯！";
   card.innerHTML += `<p style="font-size:28px;">${result}</p>`;
   quizIndex++;
   if (quizIndex < quizData.length) {
-    setTimeout(showQuestion, 1500); // 每題間隔1.5秒
+    setTimeout(showQuestion, 1500);
   } else {
     setTimeout(() => {
       card.innerHTML = `<h1>🎉 測驗完成！</h1><p>你已完成第六關！</p>`;
@@ -364,7 +391,7 @@ renderLeaderboard();
 /* ==========================================================
    🗺️ 地圖設定區
    ========================================================== */
-const map=L.map("map",{crs:L.CRS.Simple,minZoom:-2,maxZoom:4,attributionControl:true,dragging:false,zoomControl:false});
+const map=L.map("map",{crs:L.CRS.Simple,minZoom:-2,maxZoom:4,attributionControl:true});
 const imageUrl="assets/WL-平面場圖-4.png";
 const img=new Image(); img.src=imageUrl;
 img.onload=function(){
@@ -373,8 +400,7 @@ img.onload=function(){
   L.imageOverlay(imageUrl,bounds).addTo(map);
   map.setMaxBounds(bounds);
   map.fitBounds(bounds,{animate:false});
-  map.setZoom(map.getZoom()-1);
-
+  map.setZoom(map.getZoom()-0.6);
   const points=[
     {name:"關卡一",coords:[h*0.45,w*0.45],color:"red"},
     {name:"關卡二",coords:[h*0.35,w*0.70],color:"red"},
@@ -396,3 +422,4 @@ img.onload=function(){
 </script>
 </body>
 </html>
+
