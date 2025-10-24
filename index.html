@@ -8,14 +8,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-/* ==========================================================
-   🎨 基本配色與字級設定區（恢復原狀）
-   ========================================================== */
 :root {
   --font-family-main: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif;
-  --font-base: 18px;
-  --font-lg: 25px;
-  --font-xl: 30px;
+  --font-base: 22px;
+  --font-lg: 30px;
+  --font-xl: 42px;
   --muted: #6b7280;
   --ink: #111827;
 }
@@ -41,12 +38,10 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 55vh;
-  position: relative;
-  z-index: 20;
 }
 
 .main-card {
-  background: linear-gradient(0deg, #f7d868 0%, #d1bb90 45%, #b8a9a9 100%);
+  background: linear-gradient(0deg, rgba(247, 237, 143, 1) 0%, rgba(241, 223, 57, 1) 71%, rgba(237, 214, 5, 1) 100%);
   border-radius: 24px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
   text-align: center;
@@ -58,7 +53,6 @@ body {
 }
 .main-card h1 { font-size: var(--font-xl); margin: 10px 0; }
 .main-card p { font-size: var(--font-base); color: var(--muted); }
-
 button {
   background-color: #ffb703;
   border: none;
@@ -76,7 +70,6 @@ button:hover { background-color: #ffd166; }
   display: flex;
   height: 45%;
   border-top: 4px solid #fff;
-  z-index: 10;
 }
 
 /* ================== 🏆 排行榜 ================== */
@@ -120,11 +113,17 @@ table {
   font-size: 18px;
   color: #111;
 }
-th, td { text-align: center; padding: 6px 0; }
+th, td {
+  text-align: center;
+  padding: 6px 0;
+}
 th { background-color: rgba(255, 255, 255, 0.4); }
 tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
-.ellipsis td { text-align: center; color: #555; font-style: italic; }
-
+.ellipsis td {
+  text-align: center;
+  color: #555;
+  font-style: italic;
+}
 @keyframes scoreFlash {
   0% { background-color: rgba(255,255,150,0.7); }
   100% { background-color: transparent; }
@@ -151,7 +150,12 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   white-space: nowrap;
   z-index: 9999;
 }
-.leaflet-container { width: 100%; height: 100%; background: #f5f5f5; z-index: 1; }
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  background: #f5f5f5;
+  z-index: 1;
+}
 .leaflet-control-attribution {
   background: rgba(180, 180, 180, 0.9);
   border-radius: 6px;
@@ -176,15 +180,23 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   pointer-events: none;
   white-space: nowrap;
 }
-#notif.show { opacity: 1; transform: translate(-50%, -10px); }
+#notif {
+  transition: all 0.6s ease;
+}
+#notif.show {
+  opacity: 1;
+  transform: translate(-50%, -10px);
+}
+#notif:not(.show) {
+  transform: translate(-50%, 30px);
+  opacity: 0;
+}
 
 @media (max-width: 768px) {
   #bottom-area {
     flex-direction: row;
     overflow-x: auto;
     overflow-y: hidden;
-    white-space: nowrap;
-    height: 45vh;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     touch-action: pan-x;
@@ -194,14 +206,8 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
     width: 100vw;
     height: 100%;
     scroll-snap-align: start;
-    display: inline-block;
   }
 }
-
-/* ==========================================================
-   ✅ 洞悉模組（保留）
-   ========================================================== */
-/* 這段不動 */
 </style>
 </head>
 
@@ -209,8 +215,8 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 <div id="app">
   <div id="main-area">
     <div class="main-card" id="mission-card">
-      <h1>🕧 尋寶任務 🕧</h1>
-      <p>歡迎參加🎮任務遊戲～請點擊開始挑戰！</p>
+      <h1>🕙闖關任務🕒</h1>
+      <p>歡迎參加幹掉雙面陳闖關活動～<br>請點擊開始進行挑戰！</p>
       <button onclick="nextMission()">開始任務 ▶</button>
     </div>
   </div>
@@ -224,382 +230,12 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
         <tbody id="rank-body"></tbody>
       </table>
     </div>
-    <div id="map"><div class="map-hint-box">👈 往右滑為排行榜</div></div>
-  </div>
-</div>
-<div id="notif"></div>
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<script>
-/* ==========================================================
-   🎯 任務流程
-   ========================================================== */
-let step = 0;
-const baseMissions = [
-  "簽到：請完成簽到並輸入暱稱！",
-  "簽名：請上傳您的簽名或照片！",
-  "找招待：請找現場工作人員確認",
-  "找新人拍照：與新人合照 📸",
-  "小遊戲：完成拼圖挑戰！",
-  "測驗：回答婚禮小問題 💡"
-];
-if (Math.random() > 0.5) [baseMissions[3], baseMissions[4]] = [baseMissions[4], baseMissions[3]];
-
-function nextMission() {
-  const card = document.getElementById("mission-card");
-  if (step < baseMissions.length - 1) {
-    card.innerHTML = `<h1>🎯 第 ${step + 1} 關</h1>
-      <p>${baseMissions[step]}</p>
-      <button onclick="nextMission()">下一關 ▶</button>`;
-    step++;
-  } else if (step === baseMissions.length - 1) {
-    startQuiz();
-    step++;
-  } else {
-    card.innerHTML = `<h1>🎉 恭喜完成所有任務</h1><p>感謝參與！</p>`;
-  }
-}
-
-/* ==========================================================
-   📘 第6關：四選一問答（恢復正常顯示）
-   ========================================================== */
-const quizData = [
-  { q: "💍 新人第一次約會去哪裡？", o: ["海邊", "電影院", "夜市", "健身房"], a: 1 },
-  { q: "🍰 婚禮蛋糕幾層？", o: ["1層", "2層", "3層", "4層"], a: 2 },
-  { q: "🎵 婚禮主題曲是哪一首？", o: ["小幸運", "Perfect", "告白氣球", "Marry You"], a: 3 },
-  { q: "🐶 新人養了哪種寵物？", o: ["狗", "貓", "兔子", "鳥"], a: 0 },
-  { q: "🎁 伴手禮是什麼？", o: ["餅乾", "紅豆糕", "巧克力", "手工皂"], a: 2 },
-  { q: "💐 新娘最喜歡的花？", o: ["玫瑰", "百合", "鬱金香", "向日葵"], a: 3 }
-];
-let quizIndex = 0;
-
-function startQuiz() { showQuestion(); }
-function showQuestion() {
-  const q = quizData[quizIndex];
-  const card = document.getElementById("mission-card");
-  let html = `<h1>💡 第 ${quizIndex + 1} 題</h1><p>${q.q}</p><div class="quiz-options">`;
-  q.o.forEach((opt, i) => html += `<button class="quiz-option" onclick="checkAnswer(this,${i})">${opt}</button>`);
-  html += `</div>`;
-  card.innerHTML = html;
-}
-function checkAnswer(btn, choice) {
-  const correct = quizData[quizIndex].a;
-  const options = document.querySelectorAll(".quiz-option");
-  options.forEach(b => b.disabled = true);
-  if (choice === correct) btn.classList.add("correct");
-  else { btn.classList.add("wrong"); options[correct].classList.add("correct"); }
-  quizIndex++;
-  if (quizIndex < quizData.length) setTimeout(showQuestion, 1200);
-  else setTimeout(() => {
-    document.getElementById("mission-card").innerHTML = `<h1>🎉 測驗完成！</h1><p>你已完成第六關！</p>`;
-  }, 1200);
-}
-
-.quiz-options { display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:25px;}
-.quiz-option {
-  width:100%;height:90px;background:#fff6b7;color:#333;font-size:22px;font-weight:600;
-  border-radius:14px;border:2px solid #f0d97a;box-shadow:0 4px 8px rgba(0,0,0,0.15);
-  display:flex;align-items:center;justify-content:center;text-align:center;transition:all .25s ease;
-}
-.quiz-option.correct::after{content:" ✔️";color:#2e7d32;font-size:24px;margin-left:6px;}
-.quiz-option.wrong::after{content:" ❌";color:#c62828;font-size:24px;margin-left:6px;}
-
-/* ==========================================================
-   🏆 排行榜動畫
-   ========================================================== */
-let players=[
-  {name:"大變態林阿軒",score:100},
-  {name:"愛逃避姜新禹",score:96},
-  {name:"吃香蕉王小慧",score:94},
-  {name:"背鍋俠張咩揚",score:92},
-  {name:"雙面人陳大姐",score:90},
-  {name:"誰是你謝老闆",score:87},
-  {name:"碎碎念周大佑",score:83},
-  {name:"愛裸拍辜阿銓",score:81},
-  {name:"雖阿郎莊告白",score:78},
-  {name:"狗牛屎楊紐約",score:76}
-];
-let lastRanks={},notifCounter=0;
-
-function showNotif(text,type){
-  const n=document.getElementById("notif");
-  n.innerHTML=text;
-  n.style.background=type==="up"?"#d1ffd1":"#ffe6e6";
-  n.classList.add("show");
-  setTimeout(()=>n.classList.remove("show"),6000);
-}
-function renderLeaderboard(){
-  players.sort((a,b)=>b.score-a.score);
-  const tbody=document.getElementById("rank-body");
-  tbody.innerHTML="";
-  players.forEach((p,i)=>{
-    const prev=lastRanks[p.name];
-    if(prev!==undefined&&prev!==i){
-      notifCounter++;
-      if(notifCounter%Math.floor(Math.random()*4+5)===0){
-        if(prev>i)showNotif(`⬆️ ${p.name} 上升至第 ${i+1} 名！🎉`,"up");
-        else showNotif(`⬇️ ${p.name} 下降至第 ${i+1} 名～😅`,"down");
-      }
-    }
-    lastRanks[p.name]=i;
-  });
-  const len=players.length;
-  const top=players.slice(0,4);
-  const bottom=players.slice(-2);
-  [...top,{name:"...",score:"..."},...bottom].forEach((p,i)=>{
-    const row=document.createElement("tr");
-    if(p.name==="..."){row.classList.add("ellipsis");row.innerHTML="<td colspan='3'>...</td>";}
-    else{
-      const rankNum=i<4?i+1:len-2+i-5;
-      const medal=rankNum===1?"🥇":rankNum===2?"🥈":rankNum===3?"🥉":rankNum;
-      row.innerHTML=`<td>${medal}</td><td>${p.name}</td><td>${p.score}</td>`;
-    }
-    tbody.appendChild(row);
-  });
-}
-setInterval(()=>{
-  const r=players[Math.floor(Math.random()*players.length)];
-  const d=Math.floor(Math.random()*7-3);
-  if(d!==0){r.score=Math.max(0,r.score+d);renderLeaderboard();}
-},2000);
-renderLeaderboard();
-
-/* ==========================================================
-   🗺️ 地圖設定（恢復原比例）
-   ========================================================== */
-const map=L.map("map",{crs:L.CRS.Simple,minZoom:-2,maxZoom:4,attributionControl:true,dragging:false,zoomControl:false});
-const imageUrl="assets/WL-平面場圖-4.png";
-const img=new Image();img.src=imageUrl;
-img.onload=function(){
-  const w=img.width,h=img.height;
-  const bounds=[[0,0],[h,w]];
-  L.imageOverlay(imageUrl,bounds).addTo(map);
-  map.setMaxBounds(bounds);
-  map.fitBounds(bounds,{animate:false});
-  map.setZoom(map.getZoom()-0.6);
-  const points=[
-    {name:"關卡一",coords:[h*0.45,w*0.45],color:"red"},
-    {name:"關卡二",coords:[h*0.35,w*0.70],color:"red"},
-    {name:"關卡三",coords:[h*0.55,w*0.30],color:"red"},
-    {name:"關卡四",coords:[h*0.25,w*0.80],color:"red"},
-    {name:"關卡五",coords:[h*0.20,w*0.20],color:"red"},
-    {name:"關卡六",coords:[h*0.40,w*0.10],color:"red"},
-    {name:"🎁 Bonus A",coords:[h*0.55,w*0.65],color:"gold"},
-    {name:"🎁 Bonus B",coords:[h*0.40,w*0.60],color:"gold"},
-    {name:"🎁 Bonus C",coords:[h*0.75,w*0.50],color:"gold"}
-  ];
-  points.forEach(p=>{
-    L.circleMarker(p.coords,{radius:4,color:p.color,fillColorOK. Here’s the **full working HTML** version — restored to the original visuals and functionality (動態排行榜＋地圖＋MYs attribution), while keeping your **洞悉模組** unchanged.  
-
-You can directly replace your GitHub Pages file with this:
-
-```html
-<!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>🎮闖關任務</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
-
-<style>
-:root {
-  --font-family-main: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif;
-  --font-base: 18px;
-  --font-lg: 25px;
-  --font-xl: 30px;
-  --muted: #6b7280;
-  --ink: #111827;
-}
-
-body {
-  margin: 0;
-  font-family: var(--font-family-main);
-  background: linear-gradient(0deg, #ebb3a9 0%, #f5a28c 45%, #ff906e 100%);
-  color: var(--ink);
-  overflow: hidden;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
-}
-
-#app {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
-
-#main-area {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 55vh;
-}
-
-.main-card {
-  background: linear-gradient(0deg, #f7d868 0%, #d1bb90 45%, #b8a9a9 100%);
-  border-radius: 24px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  width: 90vw;
-  max-width: 880px;
-  padding: 30px 20px;
-  backdrop-filter: blur(6px);
-  transition: all 0.6s ease;
-}
-.main-card h1 { font-size: var(--font-xl); margin: 10px 0; }
-.main-card p { font-size: var(--font-base); color: var(--muted); }
-
-button {
-  background-color: #ffb703;
-  border: none;
-  border-radius: 10px;
-  color: #111;
-  font-size: var(--font-base);
-  padding: 10px 25px;
-  cursor: pointer;
-  margin-top: 15px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-button:hover { background-color: #ffd166; }
-
-#bottom-area {
-  display: flex;
-  height: 45%;
-  border-top: 4px solid #fff;
-}
-
-/* 排行榜 */
-#leaderboard {
-  flex: 1;
-  background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%);
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding-bottom: 60px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  position: relative;
-}
-#leaderboard h2 {
-  font-size: 26px;
-  margin: 8px 0 12px;
-  color: #111;
-}
-#leaderboard .hint-box {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: rgba(220,220,220,0.92);
-  border-radius: 8px;
-  padding: 4px 10px;
-  font-size: 14px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  white-space: nowrap;
-}
-
-table {
-  width: 95%;
-  border-collapse: collapse;
-  font-size: 18px;
-  color: #111;
-}
-th, td { text-align: center; padding: 6px 0; }
-th { background-color: rgba(255, 255, 255, 0.4); }
-tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
-.ellipsis td { text-align: center; color: #555; font-style: italic; }
-
-#map {
-  flex: 1;
-  height: 100%;
-  border-left: 4px solid #fff;
-  position: relative;
-  overflow: hidden;
-}
-#map .map-hint-box {
-  position: absolute;
-  top: 8px;
-  left: 10px;
-  background: rgba(220,220,220,0.92);
-  border-radius: 8px;
-  padding: 4px 10px;
-  font-size: 14px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  white-space: nowrap;
-}
-.leaflet-container { width: 100%; height: 100%; background: #f5f5f5; }
-.leaflet-control-attribution {
-  background: rgba(180, 180, 180, 0.9);
-  border-radius: 6px;
-  padding: 2px 8px;
-  font-size: 13px;
-}
-
-#notif {
-  position: fixed;
-  top: 8%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 12px;
-  padding: 12px 25px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.2);
-  font-size: 20px;
-  color: #111;
-  opacity: 0;
-  transition: all 0.4s ease;
-  pointer-events: none;
-}
-#notif.show { opacity: 1; transform: translate(-50%, -10px); }
-
-@media (max-width: 768px) {
-  #bottom-area {
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
-    white-space: nowrap;
-    height: 45vh;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-  }
-  #leaderboard, #map {
-    flex: none;
-    width: 100vw;
-    height: 100%;
-    scroll-snap-align: start;
-    display: inline-block;
-  }
-}
-
-/* 洞悉模組 — 保留勿動 */
-</style>
-</head>
-
-<body>
-<div id="app">
-  <div id="main-area">
-    <div class="main-card" id="mission-card">
-      <h1>🕧 尋寶任務 🕧</h1>
-      <p>歡迎參加🎮任務遊戲～請點擊開始挑戰！</p>
-      <button onclick="nextMission()">開始任務 ▶</button>
+    <div id="map">
+      <div class="map-hint-box">👈 往右滑為排行榜</div>
     </div>
   </div>
-
-  <div id="bottom-area">
-    <div id="leaderboard">
-      <h2>🏆 排行榜</h2>
-      <span class="hint-box">👉 往左滑為地圖</span>
-      <table>
-        <thead><tr><th>名次</th><th>暱稱</th><th>分數</th></tr></thead>
-        <tbody id="rank-body"></tbody>
-      </table>
-    </div>
-    <div id="map"><div class="map-hint-box">👈 往右滑為排行榜</div></div>
-  </div>
 </div>
+
 <div id="notif"></div>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -615,88 +251,145 @@ const missions = [
   "小遊戲：完成拼圖挑戰！",
   "測驗：回答婚禮小問題 💡"
 ];
-if (Math.random() > 0.5) [missions[3], missions[4]] = [missions[4], missions[3]];
-
-function nextMission(){
-  const card=document.getElementById("mission-card");
-  if(step<missions.length-1){
-    card.innerHTML=`<h1>🎯 第 ${step+1} 關</h1><p>${missions[step]}</p><button onclick="nextMission()">下一關 ▶</button>`;
+function nextMission() {
+  const card = document.getElementById("mission-card");
+  if (step < missions.length) {
+    card.innerHTML = `<h1>🎯 第 ${step + 1} 關</h1>
+      <p>${missions[step]}</p>
+      <button onclick="nextMission()">下一關 ▶</button>`;
     step++;
-  }else if(step===missions.length-1){
-    startQuiz(); step++;
-  }else card.innerHTML=`<h1>🎉 完成任務！</h1><p>感謝參與！</p>`;
+  } else {
+    card.innerHTML = `<h1>🎉 恭喜完成所有任務</h1><p>感謝一起讓雙面陳往生</p>`;
+  }
 }
 
-const quizData=[
-  {q:"💍 新人第一次約會去哪裡？",o:["海邊","電影院","夜市","健身房"],a:1},
-  {q:"🍰 婚禮蛋糕幾層？",o:["1層","2層","3層","4層"],a:2},
-  {q:"🎵 婚禮主題曲是哪一首？",o:["小幸運","Perfect","告白氣球","Marry You"],a:3}
+let players = [
+  { name: "大變態林阿軒", score: 100 },
+  { name: "愛逃避姜新禹", score: 96 },
+  { name: "吃香蕉王小慧", score: 94 },
+  { name: "背鍋俠張咩揚", score: 92 },
+  { name: "雙面人陳大姐", score: 90 },
+  { name: "誰是你謝老闆", score: 87 },
+  { name: "碎碎念周大佑", score: 83 },
+  { name: "愛裸拍辜阿銓", score: 81 },
+  { name: "雖阿郎莊告白", score: 78 },
+  { name: "狗牛屎楊紐約", score: 76 }
 ];
-let quizIndex=0;
-function startQuiz(){showQuestion();}
-function showQuestion(){
-  const q=quizData[quizIndex];const card=document.getElementById("mission-card");
-  let html=`<h1>💡 第 ${quizIndex+1} 題</h1><p>${q.q}</p><div class='quiz-options'>`;
-  q.o.forEach((opt,i)=>html+=`<button class='quiz-option' onclick='checkAnswer(this,${i})'>${opt}</button>`);html+=`</div>`;
-  card.innerHTML=html;
-}
-function checkAnswer(btn,choice){
-  const correct=quizData[quizIndex].a;
-  const options=document.querySelectorAll(".quiz-option");
-  options.forEach(b=>b.disabled=true);
-  if(choice===correct)btn.classList.add("correct");
-  else{btn.classList.add("wrong");options[correct].classList.add("correct");}
-  quizIndex++;
-  if(quizIndex<quizData.length)setTimeout(showQuestion,1200);
-  else setTimeout(()=>document.getElementById("mission-card").innerHTML=`<h1>🎉 測驗完成！</h1><p>全部完成！</p>`,1200);
+let lastRanks = {};
+let notifCounter = 0;
+
+function showNotif(text, type) {
+  const n = document.getElementById("notif");
+  n.innerHTML = text;
+  n.style.background = type === "up" ? "#d1ffd1" : "#ffe6e6";
+  n.classList.add("show");
+  setTimeout(() => n.classList.remove("show"), 6000);
 }
 
-let players=[
-{name:"大變態林阿軒",score:100},{name:"愛逃避姜新禹",score:96},
-{name:"吃香蕉王小慧",score:94},{name:"背鍋俠張咩揚",score:92},
-{name:"雙面人陳大姐",score:90},{name:"誰是你謝老闆",score:87},
-{name:"碎碎念周大佑",score:83},{name:"愛裸拍辜阿銓",score:81},
-{name:"雖阿郎莊告白",score:78},{name:"狗牛屎楊紐約",score:76}
-];
-let lastRanks={},notifCounter=0;
-function showNotif(t,type){const n=document.getElementById("notif");
-n.innerHTML=t;n.style.background=type==="up"?"#d1ffd1":"#ffe6e6";
-n.classList.add("show");setTimeout(()=>n.classList.remove("show"),6000);}
-function renderLeaderboard(){
-players.sort((a,b)=>b.score-a.score);
-const tb=document.getElementById("rank-body");tb.innerHTML="";
-players.forEach((p,i)=>{const prev=lastRanks[p.name];
-if(prev!==undefined&&prev!==i){notifCounter++;
-if(notifCounter%Math.floor(Math.random()*4+5)===0){
-if(prev>i)showNotif(`⬆️ ${p.name} 上升至第 ${i+1} 名！🎉`,"up");
-else showNotif(`⬇️ ${p.name} 下降至第 ${i+1} 名～😅`,"down");}}
-lastRanks[p.name]=i;});
-const len=players.length;
-const top=players.slice(0,4);const bottom=players.slice(-2);
-[...top,{name:"...",score:"..."},...bottom].forEach((p,i)=>{
-const row=document.createElement("tr");
-if(p.name==="..."){row.classList.add("ellipsis");row.innerHTML="<td colspan='3'>...</td>";}
-else{const r=i<4?i+1:len-2+i-5;const medal=r===1?"🥇":r===2?"🥈":r===3?"🥉":r;
-row.innerHTML=`<td>${medal}</td><td>${p.name}</td><td>${p.score}</td>`;}
-tb.appendChild(row);});
+function renderLeaderboard() {
+  players.sort((a, b) => b.score - a.score);
+  const tbody = document.getElementById("rank-body");
+  tbody.innerHTML = "";
+
+  players.forEach((p, i) => {
+    const prev = lastRanks[p.name];
+    if (prev !== undefined && prev !== i) {
+      notifCounter++;
+      if (notifCounter % Math.floor(Math.random() * 4 + 5) === 0) {
+        if (prev > i) showNotif(`⬆️ ${p.name} 上升至第 ${i + 1} 名！🎉`, "up");
+        else showNotif(`⬇️ ${p.name} 下降至第 ${i + 1} 名～😅`, "down");
+      }
+    }
+    lastRanks[p.name] = i;
+  });
+
+  const len = players.length;
+  if (len <= 6) {
+    players.forEach((p, i) => {
+      const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1;
+      const row = document.createElement("tr");
+      row.innerHTML = `<td>${medal}</td><td>${p.name}</td><td>${p.score}</td>`;
+      tbody.appendChild(row);
+    });
+  } else {
+    const top = players.slice(0, 4);
+    const bottom = players.slice(-2);
+    [...top, { name: "...", score: "..." }, ...bottom].forEach((p, i) => {
+      const row = document.createElement("tr");
+      if (p.name === "...") {
+        row.classList.add("ellipsis");
+        row.innerHTML = `<td colspan="3">...</td>`;
+      } else {
+        const rankNum = i < 4 ? i + 1 : len - 2 + i - 5;
+        const medal = rankNum === 1 ? "🥇" : rankNum === 2 ? "🥈" : rankNum === 3 ? "🥉" : rankNum; /* ✅ 新增這行 */
+        row.innerHTML = `<td>${medal}</td><td>${p.name}</td><td>${p.score}</td>`; /* ✅ 修改這行 */
+      }
+      tbody.appendChild(row);
+    });
+  }
 }
-setInterval(()=>{const r=players[Math.floor(Math.random()*players.length)];
-const d=Math.floor(Math.random()*7-3);if(d!==0){r.score=Math.max(0,r.score+d);renderLeaderboard();}},2000);
+
+setInterval(() => {
+  const randomPlayer = players[Math.floor(Math.random() * players.length)];
+  const delta = Math.floor(Math.random() * 7 - 3);
+  if (delta !== 0) {
+    randomPlayer.score = Math.max(0, randomPlayer.score + delta);
+    renderLeaderboard();
+    const rows = document.querySelectorAll("#rank-body tr");
+    rows.forEach(r => {
+      if (r.innerText.includes(randomPlayer.name)) {
+        r.classList.add("flash");
+        setTimeout(() => r.classList.remove("flash"), 1000);
+      }
+    });
+  }
+}, 2000);
 renderLeaderboard();
 
-const map=L.map("map",{crs:L.CRS.Simple,minZoom:-2,maxZoom:4,attributionControl:true,dragging:false,zoomControl:false});
-const imageUrl="assets/WL-平面場圖-4.png";const img=new Image();img.src=imageUrl;
-img.onload=function(){const w=img.width,h=img.height;
-const bounds=[[0,0],[h,w]];L.imageOverlay(imageUrl,bounds).addTo(map);
-map.setMaxBounds(bounds);map.fitBounds(bounds,{animate:false});map.setZoom(map.getZoom()-0.6);
-const pts=[{name:"關卡一",coords:[h*0.45,w*0.45],color:"red"},{name:"關卡二",coords:[h*0.35,w*0.7],color:"red"},
-{name:"關卡三",coords:[h*0.55,w*0.3],color:"red"},{name:"關卡四",coords:[h*0.25,w*0.8],color:"red"},
-{name:"關卡五",coords:[h*0.2,w*0.2],color:"red"},{name:"關卡六",coords:[h*0.4,w*0.1],color:"red"},
-{name:"🎁 Bonus A",coords:[h*0.55,w*0.65],color:"gold"},{name:"🎁 Bonus B",coords:[h*0.4,w*0.6],color:"gold"},
-{name:"🎁 Bonus C",coords:[h*0.75,w*0.5],color:"gold"}];
-pts.forEach(p=>L.circleMarker(p.coords,{radius:4,color:p.color,fillColor:p.color,fillOpacity:0.9})
-.addTo(map).bindTooltip(p.name,{direction:"top",offset:[0,-4]}));
-L.control.attribution({prefix:false}).addAttribution("💍 MYs Map © 2025").addTo(map);};
+const map = L.map("map", {
+  crs: L.CRS.Simple,
+  minZoom: -2,
+  maxZoom: 4,
+  attributionControl: true,
+  dragging: false,
+  zoomControl: false
+});
+
+const imageUrl = "assets/WL-平面場圖-4.png";
+const img = new Image();
+img.src = imageUrl;
+img.onload = function () {
+  const w = img.width, h = img.height;
+  const bounds = [[0, 0], [h, w]];
+  L.imageOverlay(imageUrl, bounds).addTo(map);
+  map.setMaxBounds(bounds);
+  map.fitBounds(bounds, { animate: false });
+  map.setZoom(map.getZoom() - 1);
+
+  const points = [
+    { name: "關卡一", coords: [h * 0.45, w * 0.45], color: "red" },
+    { name: "關卡二", coords: [h * 0.35, w * 0.70], color: "red" },
+    { name: "關卡三", coords: [h * 0.55, w * 0.30], color: "red" },
+    { name: "關卡四", coords: [h * 0.25, w * 0.80], color: "red" },
+    { name: "關卡五", coords: [h * 0.20, w * 0.20], color: "red" },
+    { name: "關卡六", coords: [h * 0.40, w * 0.10], color: "red" },
+    { name: "🎁 Bonus A", coords: [h * 0.55, w * 0.65], color: "gold" },
+    { name: "🎁 Bonus B", coords: [h * 0.40, w * 0.60], color: "gold" },
+    { name: "🎁 Bonus C", coords: [h * 0.75, w * 0.50], color: "gold" }
+  ];
+  points.forEach(p => {
+    L.circleMarker(p.coords, {
+      radius: 4,
+      color: p.color,
+      fillColor: p.color,
+      fillOpacity: 0.9
+    }).addTo(map).bindTooltip(p.name, { direction: "top", offset: [0, -4] });
+  });
+
+  L.control.attribution({ prefix: false })
+    .addAttribution("💍 MYs Map © 2025").addTo(map);
+};
 </script>
 </body>
 </html>
+
