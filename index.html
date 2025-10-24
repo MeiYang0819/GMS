@@ -64,7 +64,7 @@ body {
 
 /* --------通知列（主卡中間；有才出現）-------- */
 #missionNotice {
-  display: none;          /* 無通知時隱藏 */
+  display: none;          /* 無通知時隱藏（但我們用佔位 DIV 固定高度） */
   background: transparent;
   font-size: 22px;
   font-weight: 700;
@@ -80,7 +80,7 @@ body {
   100% { opacity: 0; }
 }
 
-   button {
+button {
   background-color: #ffb703;  /* 按鈕背景顏色，可自行調整 */
   border: none;
   border-radius: 10px;         /* 按鈕圓角，可自行調整 */
@@ -222,7 +222,9 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 <div id="app">
   <div id="main-area">
     <div class="main-card" id="mission-card">
-      <!!-- ✅ 通知列：固定佔位 -->
+      <h1>🕙闖關任務🕒</h1>
+
+      <!-- ✅ 通知列：固定佔位 -->
       <div id="missionNotice"
            style="height:28px;
                   line-height:28px;
@@ -241,14 +243,15 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
                   opacity:0;
                   transition:opacity 0.5s ease;">
       </div>
+
       <p>歡迎參加幹掉雙面陳闖關活動～<br>請點擊開始進行挑戰！</p>
       <button onclick="nextMission()">開始任務 ▶</button>
     </div>
   </div>
 
   <div id="bottom-area">
-<!-- 🧾 通知固定區（預留空間） -->
-  <div id="rankNotice" style="height:60px;"></div>
+    <!-- 🧾 通知固定區（預留空間） -->
+    <div id="rankNotice" style="height:60px;"></div>
     <div id="leaderboard">
       <h2>🏆 排行榜</h2>
       <span class="hint-box">👉 往左滑為地圖</span>
@@ -261,13 +264,12 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   </div>
 </div>
 
-   <div id="notif" style="position:fixed;top:10px;left:50%;transform:translateX(-50%);padding:8px 16px;border-radius:8px;display:none;transition:all 0.4s;"></div>
+<div id="notif" style="position:fixed;top:10px;left:50%;transform:translateX(-50%);padding:8px 16px;border-radius:8px;display:none;transition:all 0.4s;"></div>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
-
 /* ==========================================================
    🗺️ 地圖設定區（圖片底圖 + 手勢縮放 + MYs 浮水印）
    ========================================================== */
@@ -324,7 +326,6 @@ img.onload = function () {
    .addTo(map);
 };
 
-
 /* ==========================================================
    🎯 任務流程控制區（含4/5關隨機、6關問答）
    ========================================================== */
@@ -374,40 +375,23 @@ function showMissionNotice(text) {
     setTimeout(() => { notice.textContent = ""; }, 600);
   }, 3000);
 }
-   
+
 function nextMission() {
   const card = document.getElementById("mission-card");
-  const notice = document.getElementById("missionNotice");
+  // 產生下一頁內容（含固定通知列佔位）
   if (step < baseMissions.length - 1) {
-    // 只更新文字，不覆蓋通知列
     card.innerHTML = `<h1>🎯 第 ${step + 1} 關</h1>
       ${getNoticeHTML()}
       <p>${baseMissions[step]}</p>
       <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
     step++;
   } else if (step === baseMissions.length - 1) {
-    startQuiz();
-    step++;
+    startQuiz(); step++;
   } else {
     card.innerHTML = `<h1>🎉 恭喜完成所有任務</h1>
       ${getNoticeHTML()}
       <p>感謝一起讓雙面陳往生</p>`;
   }
-}
-
-function showQuestion() {
-  answered = false;
-  const card = document.getElementById("mission-card");
-  const q = quizData[quizIndex];
-  let html = `<h1>💡 第 ${quizIndex + 1} 題</h1>
-              ${getNoticeHTML()}
-              <p>${q.q}</p>
-              <div class="option-grid">`;
-  q.o.forEach((opt, i) => {
-    html += `<button id="opt${i}" onclick="checkAnswer(${i})">${opt}<span class="mark"></span></button>`;
-  });
-  html += `</div>`;
-  card.innerHTML = html;
 }
 
 /* ==========================================================
@@ -427,8 +411,10 @@ function showQuestion() {
   answered = false;
   const card = document.getElementById("mission-card");
   const q = quizData[quizIndex];
-  let html = `<h1>💡 第 ${quizIndex + 1} 題</h1><p>${q.q}</p>
-  <div class="option-grid">`;
+  let html = `<h1>💡 第 ${quizIndex + 1} 題</h1>
+              ${getNoticeHTML()}
+              <p>${q.q}</p>
+              <div class="option-grid">`;
   q.o.forEach((opt, i) => { html += `<button id="opt${i}" onclick="checkAnswer(${i})">${opt}<span class="mark"></span></button>`; });
   html += `</div>`;
   card.innerHTML = html;
@@ -443,11 +429,32 @@ function checkAnswer(choice) {
     answered = true;
     quizIndex++;
     if (quizIndex < quizData.length) setTimeout(showQuestion, 1200);
-    else setTimeout(()=>{document.getElementById("mission-card").innerHTML=`<h1>🎉 測驗完成！</h1><p>你已完成第六關！</p>`;},1200);
+    else setTimeout(()=>{document.getElementById("mission-card").innerHTML=
+      `<h1>🎉 測驗完成！</h1>
+       ${getNoticeHTML()}
+       <p>你已完成第六關！</p>`;},1200);
   } else {
     clickedBtn.querySelector(".mark").textContent = "❌";
   }
 }
+
+/* ==========================================================
+   🏆 排行榜邏輯（前4 + … + 後2）
+   ========================================================== */
+/* ✅ 模擬排行榜資料（若你有串 API，換成你的資料即可） */
+let players = [
+  { name: "大變態林阿軒", score: 100 },
+  { name: "愛逃避姜新禹", score: 96 },
+  { name: "吃香蕉王小慧", score: 94 },
+  { name: "背鍋俠張咩揚", score: 92 },
+  { name: "雙面人陳大姐", score: 90 },
+  { name: "誰是你謝老闆", score: 87 },
+  { name: "碎碎念周大佑", score: 83 },
+  { name: "愛裸拍辜阿銓", score: 81 },
+  { name: "雖阿郎莊告白", score: 78 },
+  { name: "狗牛屎楊紐約", score: 76 }
+];
+let lastRanks = {};
 
 function renderLeaderboard() {
   players.sort((a, b) => b.score - a.score);
@@ -455,20 +462,16 @@ function renderLeaderboard() {
   if (!tbody) return;
   tbody.innerHTML = "";
 
-  // ✅ 名次通知檢查（保持原樣）
+  // 名次通知
   players.forEach((p, i) => {
     const prev = lastRanks[p.name];
     if (prev !== undefined && prev !== i) {
-      if (prev > i) {
-        showMissionNotice(`⬆️ ${p.name} 上升至第 ${i + 1} 名！🎉`);
-      } else {
-        showMissionNotice(`⬇️ ${p.name} 下降至第 ${i + 1} 名～😅`);
-      }
+      if (prev > i) showMissionNotice(`⬆️ ${p.name} 上升至第 ${i + 1} 名！🎉`);
+      else showMissionNotice(`⬇️ ${p.name} 下降至第 ${i + 1} 名～😅`);
     }
     lastRanks[p.name] = i;
   });
 
-  // ✅ 前四名
   const total = players.length;
   const showAll = total <= 7;
 
@@ -476,33 +479,28 @@ function renderLeaderboard() {
     players.forEach((p, i) => appendRankRow(p, i, tbody));
   } else {
     for (let i = 0; i < 4; i++) appendRankRow(players[i], i, tbody);
-
-    // 中間省略
     const trDots = document.createElement("tr");
     trDots.innerHTML = `<td colspan="3" style="text-align:center;color:#999;">⋯⋯</td>`;
     tbody.appendChild(trDots);
-
-    // 最後兩名
     appendRankRow(players[total - 2], total - 2, tbody);
     appendRankRow(players[total - 1], total - 1, tbody);
   }
 }
 
-/* ✅ 單列生成，保持原樣式 */
 function appendRankRow(p, i, tbody) {
   const tr = document.createElement("tr");
   const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1;
   tr.innerHTML = `<td>${medal}</td><td>${p.name}</td><td>${p.score}</td>`;
   tbody.appendChild(tr);
 
-  // ✅ 閃爍效果（名次異動時）
+  // 閃爍效果（名次異動時）
   if (lastRanks[p.name] !== undefined && lastRanks[p.name] !== i) {
     tr.style.animation = "flashRow 1s ease";
     setTimeout(() => { tr.style.animation = ""; }, 1000);
   }
 }
 
-/* ✅ 閃爍動畫 */
+/* 閃爍動畫 */
 const style = document.createElement("style");
 style.textContent = `
 @keyframes flashRow {
@@ -529,11 +527,6 @@ setInterval(() => {
 }, 2500);
 
 renderLeaderboard();
-
 </script>
 </body>
 </html>
-
-
-
-
