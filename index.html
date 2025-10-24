@@ -197,7 +197,7 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   <div id="bottom-area">
     <div id="leaderboard">
       <h2>🏆 排行榜</h2>
-      <span class="hint-box">👉 往左滑為地圖</span>
+      <span class="hint-box">👉 往左滑為地圖，往右滑回排行榜</span>
       <table>
         <thead><tr><th>名次</th><th>暱稱</th><th>分數</th></tr></thead>
         <tbody id="rank-body"></tbody>
@@ -214,7 +214,7 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 
 <script>
 /* ==========================================================
-   🗺️ 地圖設定區
+   🗺️ 地圖設定區（移除 Leaflet 官方連結）
    ========================================================== */
 const map = L.map("map", {
   crs: L.CRS.Simple,
@@ -258,7 +258,7 @@ img.onload = function () {
 };
 
 /* ==========================================================
-   🎯 任務流程控制區（含4/5關隨機、6關問答）
+   🎯 任務流程控制區
    ========================================================== */
 let step = 0;
 const baseMissions = [
@@ -287,7 +287,7 @@ function nextMission() {
 }
 
 /* ==========================================================
-   📘 第6關：婚禮趣味問答（六題四選一）
+   📘 第6關：婚禮趣味問答
    ========================================================== */
 const quizData = [
   { q: "💍 新人第一次約會去哪裡？", o: ["海邊", "電影院", "夜市", "健身房"], a: 1 },
@@ -326,7 +326,7 @@ function checkAnswer(choice) {
 }
 
 /* ==========================================================
-   🏆 排行榜邏輯（閃爍＋升降通知）
+   🏆 排行榜邏輯（僅變動行閃爍＋升降通知修復）
    ========================================================== */
 let players = [
   { name: "大變態林阿軒", score: 100 },
@@ -346,47 +346,35 @@ let notifCounter = 0;
 
 function showNotif(text, type) {
   const notif = document.getElementById("notif");
-  if (!notif) return;
   notif.textContent = text;
+  notif.style.display = "block";
   notif.style.background = type === "up" ? "#d1ffd1" : "#ffe6e6";
-  notif.classList.add("show");
-  setTimeout(() => notif.classList.remove("show"), 3000);
+  notif.style.opacity = "1";
+  setTimeout(() => { notif.style.opacity = "0"; }, 2200);
 }
 
 function renderLeaderboard() {
   players.sort((a, b) => b.score - a.score);
   const tbody = document.getElementById("rank-body");
-  if (!tbody) return;
   tbody.innerHTML = "";
 
   players.forEach((p, i) => {
     const prev = lastRanks[p.name];
-    if (prev !== undefined && prev !== i) {
-      notifCounter++;
-      if (notifCounter % 3 === 0) {
-        if (prev > i)
-          showNotif(`⬆️ ${p.name} 上升至第 ${i + 1} 名！🎉`, "up");
-        else showNotif(`⬇️ ${p.name} 下降至第 ${i + 1} 名～😅`, "down");
-      }
-    }
-    lastRanks[p.name] = i;
-  });
-
-  const len = players.length;
-  const top = players.slice(0, 4);
-  const bottom = players.slice(-2);
-  const showList = [...top, { name: "...", score: "..." }, ...bottom];
-
-  showList.forEach((p, i) => {
     const tr = document.createElement("tr");
     if (p.name === "...") {
       tr.classList.add("ellipsis");
       tr.innerHTML = "<td colspan='3'>...</td>";
     } else {
-      const rank = i < 4 ? i + 1 : len - 2 + i - 5;
+      const rank = i + 1;
       const medal =
         rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : rank;
-      tr.innerHTML = `<td>${medal}</td><td>${p.name}</td><td class="flash">${p.score}</td>`;
+      tr.innerHTML = `<td>${medal}</td><td>${p.name}</td><td>${p.score}</td>`;
+      if (prev !== undefined && prev !== i) {
+        tr.classList.add("flash");
+        if (prev > i) showNotif(`⬆️ ${p.name} 上升至第 ${i + 1} 名！🎉`, "up");
+        else showNotif(`⬇️ ${p.name} 下降至第 ${i + 1} 名～😅`, "down");
+      }
+      lastRanks[p.name] = i;
     }
     tbody.appendChild(tr);
   });
@@ -403,37 +391,6 @@ setInterval(() => {
 }, 2500);
 
 renderLeaderboard();
-
-/* ==========================================================
-   ✨ 通知提示樣式
-   ========================================================== */
-const notifBox = document.createElement("div");
-notifBox.id = "notif";
-notifBox.style.position = "fixed";
-notifBox.style.top = "15px";
-notifBox.style.left = "50%";
-notifBox.style.transform = "translateX(-50%)";
-notifBox.style.padding = "10px 20px";
-notifBox.style.borderRadius = "12px";
-notifBox.style.fontSize = "20px";
-notifBox.style.fontWeight = "700";
-notifBox.style.color = "#222";
-notifBox.style.boxShadow = "0 3px 10px rgba(0,0,0,0.2)";
-notifBox.style.opacity = "0";
-notifBox.style.transition = "opacity 0.3s ease";
-notifBox.classList.add("notif-hidden");
-document.body.appendChild(notifBox);
-
-const notifStyle = document.createElement("style");
-notifStyle.innerHTML = `
-  #notif.show { opacity: 1 !important; }
-  @keyframes scoreFlash {
-    0% { background-color: rgba(255,255,150,0.7); }
-    100% { background-color: transparent; }
-  }
-  .flash { animation: scoreFlash 1s ease; }
-`;
-document.head.appendChild(notifStyle);
 </script>
 </body>
 </html>
