@@ -398,45 +398,13 @@ function checkAnswer(choice) {
   }
 }
 
-/* ==========================================================
-   🏆 排行榜邏輯（單行閃爍＋名次通知）
-   ========================================================== */
-let players = [
-  { name: "大變態林阿軒", score: 100 },
-  { name: "愛逃避姜新禹", score: 96 },
-  { name: "吃香蕉王小慧", score: 94 },
-  { name: "背鍋俠張咩揚", score: 92 },
-  { name: "雙面人陳大姐", score: 90 },
-  { name: "誰是你謝老闆", score: 87 },
-  { name: "碎碎念周大佑", score: 83 },
-  { name: "愛裸拍辜阿銓", score: 81 },
-  { name: "雖阿郎莊告白", score: 78 },
-  { name: "狗牛屎楊紐約", score: 76 }
-];
-
-let lastRanks = {};
-
-function showMissionNotice(text) {
-  const notice = document.getElementById("missionNotice");
-  if (!notice) return;
-
-  notice.textContent = text;
-  notice.style.display = "block";
-  requestAnimationFrame(() => { notice.style.opacity = "1"; });
-
-  clearTimeout(window._noticeTimer);
-  window._noticeTimer = setTimeout(() => {
-    notice.style.opacity = "0";
-    setTimeout(() => { notice.style.display = "none"; }, 600);
-  }, 3000);
-}
-
 function renderLeaderboard() {
   players.sort((a, b) => b.score - a.score);
   const tbody = document.getElementById("rank-body");
   if (!tbody) return;
   tbody.innerHTML = "";
 
+  // ✅ 名次通知檢查（保持原樣）
   players.forEach((p, i) => {
     const prev = lastRanks[p.name];
     if (prev !== undefined && prev !== i) {
@@ -449,13 +417,48 @@ function renderLeaderboard() {
     lastRanks[p.name] = i;
   });
 
-  players.forEach((p, i) => {
-    const tr = document.createElement("tr");
-    const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1;
-    tr.innerHTML = `<td>${medal}</td><td>${p.name}</td><td>${p.score}</td>`;
-    tbody.appendChild(tr);
-  });
+  // ✅ 前四名
+  const total = players.length;
+  const showAll = total <= 7;
+
+  if (showAll) {
+    players.forEach((p, i) => appendRankRow(p, i, tbody));
+  } else {
+    for (let i = 0; i < 4; i++) appendRankRow(players[i], i, tbody);
+
+    // 中間省略
+    const trDots = document.createElement("tr");
+    trDots.innerHTML = `<td colspan="3" style="text-align:center;color:#999;">⋯⋯</td>`;
+    tbody.appendChild(trDots);
+
+    // 最後兩名
+    appendRankRow(players[total - 2], total - 2, tbody);
+    appendRankRow(players[total - 1], total - 1, tbody);
+  }
 }
+
+/* ✅ 單列生成，保持原樣式 */
+function appendRankRow(p, i, tbody) {
+  const tr = document.createElement("tr");
+  const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1;
+  tr.innerHTML = `<td>${medal}</td><td>${p.name}</td><td>${p.score}</td>`;
+  tbody.appendChild(tr);
+
+  // ✅ 閃爍效果（名次異動時）
+  if (lastRanks[p.name] !== undefined && lastRanks[p.name] !== i) {
+    tr.style.animation = "flashRow 1s ease";
+    setTimeout(() => { tr.style.animation = ""; }, 1000);
+  }
+}
+
+/* ✅ 閃爍動畫 */
+const style = document.createElement("style");
+style.textContent = `
+@keyframes flashRow {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: rgba(255, 255, 0, 0.4); }
+}`;
+document.head.appendChild(style);
 
 // 模擬分數變化與閃爍動畫
 setInterval(() => {
@@ -479,4 +482,5 @@ renderLeaderboard();
 </script>
 </body>
 </html>
+
 
