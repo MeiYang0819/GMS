@@ -9,9 +9,6 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
 <style>
-/* ==========================================================
-   🎨 基本配色與字級設定區（可自行微調）
-   ========================================================== */
 :root {
   --font-family-main: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif;
   --font-base: 22px;
@@ -20,10 +17,6 @@
   --muted: #6b7280;
   --ink: #111827;
 }
-
-/* ==========================================================
-   🧱 全域樣式
-   ========================================================== */
 body {
   margin: 0;
   font-family: var(--font-family-main);
@@ -32,45 +25,29 @@ body {
   overflow: hidden;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
 }
+#app { display: flex; flex-direction: column; height: 100vh; }
+#main-area { flex: 1; display: flex; justify-content: center; align-items: center; min-height: 55vh; }
 
-#app {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
-
-#main-area {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 55vh;
-}
-
-/* 主卡固定高度（以第1題為準） */
+/* 🎴 主卡 */
 .main-card {
-  position: relative; /* 讓通知列能定位 */
-  background: linear-gradient(0deg, rgba(247, 237, 143, 1) 0%, rgba(241, 223, 57, 1) 71%, rgba(237, 214, 5, 1) 100%);
+  background: linear-gradient(0deg, rgba(247,237,143,1) 0%, rgba(241,223,57,1) 71%, rgba(237,214,5,1) 100%);
   border-radius: 24px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 20px rgba(0,0,0,0.2);
   text-align: center;
   width: 90vw;
   max-width: 880px;
   padding: 30px 20px;
   min-height: 380px;
-  backdrop-filter: blur(6px);
   transition: all 0.6s ease;
 }
 .main-card h1 { font-size: var(--font-xl); margin: 10px 0; }
 .main-card p { font-size: var(--font-base); color: var(--muted); }
 
-/* --------通知列（主卡中間；固定保留佔位）-------- */
+/* ✅ 永遠存在的狀態列 */
 #missionNotice {
-  position: absolute;
-  top: 72px; left: 50%;
-  transform: translateX(-50%);
-  width: 80%;
-  min-height: 34px; /* ✅ 保留固定空間 */
+  width: 90%;
+  margin: 10px auto 14px;
+  min-height: 34px;
   background: rgba(255,240,240,0.96);
   border: 2px solid #f8dada;
   border-radius: 10px;
@@ -80,16 +57,12 @@ body {
   font-size: 17px;
   text-align: center;
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  z-index: 99;
   opacity: 0;
   transition: opacity 0.5s ease;
 }
-
-/* 通知淡入淡出 */
 .notice-show { opacity: 1 !important; }
 
-/* 按鈕樣式 */
-button {
+   button {
   background-color: #ffb703;
   border: none;
   border-radius: 10px;
@@ -102,13 +75,8 @@ button {
 }
 button:hover { background-color: #ffd166; }
 
-#bottom-area {
-  display: flex;
-  height: 45%;
-  border-top: 4px solid #fff;
-}
-
-/* ================== 🏆 排行榜 ================== */
+/* 下方排行與地圖 */
+#bottom-area { display: flex; height: 45%; border-top: 4px solid #fff; }
 #leaderboard {
   flex: 1;
   background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%);
@@ -121,37 +89,18 @@ button:hover { background-color: #ffd166; }
   justify-content: flex-start;
   position: relative;
 }
-#leaderboard h2 {
-  font-size: 26px;
-  margin: 8px 0 12px;
-  color: #111;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+#leaderboard h2 { font-size: 26px; margin: 8px 0 12px; color: #111; display: flex; justify-content: center; }
 #leaderboard .hint-box {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+  position: absolute; top: 10px; right: 10px;
   background: rgba(220,220,220,0.92);
-  border-radius: 8px;
-  padding: 4px 10px;
-  font-size: 14px;
+  border-radius: 8px; padding: 4px 10px; font-size: 14px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  white-space: nowrap;
-  z-index: 9999;
+  white-space: nowrap; z-index: 9999;
 }
-
-table {
-  width: 95%;
-  border-collapse: collapse;
-  font-size: 18px;
-  color: #111;
-}
+table { width: 95%; border-collapse: collapse; font-size: 18px; color: #111; }
 th, td { text-align: center; padding: 6px 0; }
-th { background-color: rgba(255, 255, 255, 0.4); }
-tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
+th { background-color: rgba(255,255,255,0.4); }
+tr:nth-child(even){ background-color: rgba(255,255,255,0.2);}
 .ellipsis td { text-align: center; color: #555; font-style: italic; }
 
 @keyframes scoreFlash {
@@ -160,13 +109,7 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 }
 .flash { animation: scoreFlash 1s ease; }
 
-/* ================== 🗺️ 地圖樣式 ================== */
-#map {
-  flex: 1;
-  border-left: 4px solid #fff;
-  position: relative;
-  overflow: hidden;
-}
+#map { flex: 1; border-left: 4px solid #fff; position: relative; overflow: hidden; }
 .leaflet-container { width: 100%; height: 100%; background: #f5f5f5; }
 .leaflet-control-attribution {
   background: rgba(180,180,180,0.9);
@@ -177,57 +120,34 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 #map::before {
   content: "右滑排行 👉";
   position: absolute;
-  top: 8px;
-  left: 10px;
+  top: 8px; left: 10px;
   background: rgba(240,240,240,0.9);
   padding: 3px 10px;
   border-radius: 8px;
-  font-size: 14px;
-  color: #111;
-  z-index: 9999;
+  font-size: 14px; color: #111; z-index: 9999;
 }
 
-/* 四選一格子 */
 .option-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  justify-items: center;
-  margin-top: 25px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; justify-items: center; margin-top: 25px;
 }
-.option-grid button {
-  width: 90%;
-  background-color: #ffb703;
-  position: relative;
-}
-.option-grid button .mark {
-  position: absolute;
-  right: 10px;
-  top: 5px;
-  font-size: 24px;
-}
+.option-grid button { width: 90%; position: relative; }
+.option-grid button .mark { position: absolute; right: 10px; top: 5px; font-size: 24px; }
 
 @media (max-width: 768px) {
   #bottom-area {
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
-    white-space: nowrap;
-    height: 45vh;
-    scroll-snap-type: x mandatory;
+    flex-direction: row; overflow-x: auto; overflow-y: hidden;
+    white-space: nowrap; height: 45vh; scroll-snap-type: x mandatory;
   }
   #leaderboard, #map {
-    flex: none;
-    width: 100vw;
-    height: 100%;
-    scroll-snap-align: start;
-    display: inline-block;
+    flex: none; width: 100vw; height: 100%;
+    scroll-snap-align: start; display: inline-block;
   }
 }
 </style>
 </head>
 
-   <body>
+<body>
 <div id="app">
   <div id="main-area">
     <div class="main-card" id="mission-card">
@@ -238,7 +158,7 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
     </div>
   </div>
 
-  <div id="bottom-area">
+     <div id="bottom-area">
     <div id="leaderboard">
       <h2>🏆 排行榜</h2>
       <span class="hint-box">👈 左滑地圖</span>
@@ -255,89 +175,6 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 
 <script>
 /* ==========================================================
-   🗺️ 地圖設定區（修正滑動衝突）
-   ========================================================== */
-const map = L.map("map", {
-  crs: L.CRS.Simple,
-  minZoom: -3,
-  maxZoom: 4,
-  zoomControl: false,
-  attributionControl: true,
-  dragging: true,
-  touchZoom: true,
-  scrollWheelZoom: true,
-  doubleClickZoom: true,
-});
-
-const imageUrl = "assets/WL-平面場圖-4.png";
-const img = new Image();
-img.src = imageUrl;
-img.onload = function () {
-  const w = img.width, h = img.height;
-  const bounds = [[0, 0], [h, w]];
-  L.imageOverlay(imageUrl, bounds).addTo(map);
-  map.setMaxBounds(bounds);
-  map.fitBounds(bounds, { animate: false });
-
-  if (window.innerWidth <= 768) {
-    map.setZoom(map.getZoom() - 1.6);
-  } else {
-    map.setZoom(map.getZoom() - 1.2);
-  }
-
-  const points = [
-    { name: "關卡一", coords: [h * 0.45, w * 0.45], color: "red" },
-    { name: "關卡二", coords: [h * 0.35, w * 0.70], color: "red" },
-    { name: "關卡三", coords: [h * 0.55, w * 0.30], color: "red" },
-    { name: "關卡四", coords: [h * 0.25, w * 0.80], color: "red" },
-    { name: "關卡五", coords: [h * 0.20, w * 0.20], color: "red" },
-    { name: "關卡六", coords: [h * 0.40, w * 0.10], color: "red" },
-    { name: "🎁 Bonus A", coords: [h * 0.55, w * 0.65], color: "gold" },
-    { name: "🎁 Bonus B", coords: [h * 0.40, w * 0.60], color: "gold" },
-    { name: "🎁 Bonus C", coords: [h * 0.75, w * 0.50], color: "gold" }
-  ];
-  points.forEach(p => {
-    L.circleMarker(p.coords, {
-      radius: 4,
-      color: p.color,
-      fillColor: p.color,
-      fillOpacity: 0.9
-    }).addTo(map).bindTooltip(p.name, { direction: "top", offset: [0, -4] });
-  });
-
-  L.control.attribution({ prefix: false })
-    .addAttribution("💍 MYs Map © 2025")
-    .addTo(map);
-};
-
-/* ✅ 修正滑動衝突區（不影響原結構） */
-map.on('touchstart', function(e){ e.preventDefault(); });
-map.getContainer().addEventListener('touchmove', e => e.stopPropagation(), { passive: true });
-map.getContainer().addEventListener('wheel', e => e.stopPropagation(), { passive: true });
-
-/* ✅ 新增：單指可左右滑、雙指可拖地圖 */
-map.touchZoom.disable();
-map.dragging.disable();
-
-let multiTouch = false;
-map.getContainer().addEventListener('touchstart', e => {
-  multiTouch = e.touches.length > 1;
-  if (multiTouch) {
-    map.touchZoom.enable();
-    map.dragging.enable();
-  } else {
-    map.touchZoom.disable();
-    map.dragging.disable();
-  }
-});
-
-map.getContainer().addEventListener('touchend', () => {
-  multiTouch = false;
-  map.touchZoom.disable();
-  map.dragging.disable();
-});
-
-   /* ==========================================================
    🎯 任務流程控制區（含4/5關隨機、6關問答）
    ========================================================== */
 let step = 0;
@@ -352,21 +189,22 @@ const baseMissions = [
 if (Math.random() > 0.5) {
   [baseMissions[3], baseMissions[4]] = [baseMissions[4], baseMissions[3]];
 }
+
 function nextMission() {
   const card = document.getElementById("mission-card");
-  const notice = document.getElementById("missionNotice");
   if (step < baseMissions.length - 1) {
-    notice.textContent = "";
-    card.innerHTML = `<h1>🎯 第 ${step + 1} 關</h1>
-      <div id="missionNotice"></div>
+    card.innerHTML = `
+      <h1>🎯 第 ${step + 1} 關</h1>
+      <div id="missionNotice"></div> <!-- ✅ 永遠留空格給狀態列 -->
       <p>${baseMissions[step]}</p>
       <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
     step++;
   } else if (step === baseMissions.length - 1) {
     startQuiz(); step++;
   } else {
-    notice.textContent = "";
-    card.innerHTML = `<h1>🎉 恭喜完成所有任務</h1><p>感謝一起讓雙面陳往生</p>`;
+    card.innerHTML = `<h1>🎉 恭喜完成所有任務</h1>
+      <div id="missionNotice"></div> <!-- ✅ 仍保留空格 -->
+      <p>感謝一起讓雙面陳往生</p>`;
   }
 }
 
@@ -381,15 +219,21 @@ const quizData = [
   { q: "🎁 伴手禮是什麼？", o: ["餅乾", "紅豆糕", "巧克力", "手工皂"], a: 2 },
   { q: "💐 新娘最喜歡的花？", o: ["玫瑰", "百合", "鬱金香", "向日葵"], a: 3 }
 ];
-let quizIndex = 0; let answered = false;
+let quizIndex = 0, answered = false;
+
 function startQuiz() { showQuestion(); }
 function showQuestion() {
   answered = false;
   const card = document.getElementById("mission-card");
   const q = quizData[quizIndex];
-  let html = `<h1>💡 第 ${quizIndex + 1} 題</h1><p>${q.q}</p>
-  <div class="option-grid">`;
-  q.o.forEach((opt, i) => { html += `<button id="opt${i}" onclick="checkAnswer(${i})">${opt}<span class="mark"></span></button>`; });
+  let html = `
+    <h1>💡 第 ${quizIndex + 1} 題</h1>
+    <div id="missionNotice"></div> <!-- ✅ 固定通知列位置 -->
+    <p>${q.q}</p>
+    <div class="option-grid">`;
+  q.o.forEach((opt, i) => {
+    html += `<button id="opt${i}" onclick="checkAnswer(${i})">${opt}<span class="mark"></span></button>`;
+  });
   html += `</div>`;
   card.innerHTML = html;
 }
@@ -397,20 +241,23 @@ function checkAnswer(choice) {
   if (answered) return;
   const q = quizData[quizIndex];
   const correct = q.a;
-  const clickedBtn = document.getElementById("opt" + choice);
+  const btn = document.getElementById("opt" + choice);
   if (choice === correct) {
-    clickedBtn.querySelector(".mark").textContent = "✔️";
+    btn.querySelector(".mark").textContent = "✔️";
     answered = true;
     quizIndex++;
     if (quizIndex < quizData.length) setTimeout(showQuestion, 1200);
-    else setTimeout(()=>{document.getElementById("mission-card").innerHTML=`<h1>🎉 測驗完成！</h1><p>你已完成第六關！</p>`;},1200);
-  } else {
-    clickedBtn.querySelector(".mark").textContent = "❌";
-  }
+    else setTimeout(() => {
+      document.getElementById("mission-card").innerHTML = `
+        <h1>🎉 測驗完成！</h1>
+        <div id="missionNotice"></div>
+        <p>你已完成第六關！</p>`;
+    }, 1200);
+  } else btn.querySelector(".mark").textContent = "❌";
 }
 
-/* ==========================================================
-   🏆 排行榜邏輯（單行閃爍＋名次通知）
+   /* ==========================================================
+   🏆 排行榜（含狀態通知）
    ========================================================== */
 let players = [
   { name: "大變態林阿軒", score: 100 },
@@ -426,10 +273,11 @@ let players = [
 ];
 let lastRanks = {};
 
+/* ✅ 固定通知列（所有任務卡標題下方永遠保留空位） */
 function showMissionNotice(text) {
   const notice = document.getElementById("missionNotice");
   if (!notice) return;
-  notice.textContent = text;
+  notice.textContent = text || "";
   notice.classList.add("notice-show");
   clearTimeout(window._noticeTimer);
   window._noticeTimer = setTimeout(() => {
@@ -438,6 +286,9 @@ function showMissionNotice(text) {
   }, 3000);
 }
 
+/* ==========================================================
+   🧩 排行榜繪製與名次異動提示
+   ========================================================== */
 function renderLeaderboard() {
   players.sort((a, b) => b.score - a.score);
   const tbody = document.getElementById("rank-body");
@@ -469,7 +320,7 @@ function renderLeaderboard() {
 }
 
 /* ==========================================================
-   🔄 模擬分數變化與閃爍動畫（已修正順序）
+   🔄 模擬分數變化與閃爍動畫（固定通知列顯示名次異動）
    ========================================================== */
 setInterval(() => {
   const target = players[Math.floor(Math.random() * players.length)];
@@ -488,9 +339,68 @@ setInterval(() => {
 }, 2500);
 
 renderLeaderboard();
+
+/* ==========================================================
+   🗺️ 地圖設定區（修正滑動衝突）
+   ========================================================== */
+const map = L.map("map", {
+  crs: L.CRS.Simple,
+  minZoom: -3,
+  maxZoom: 4,
+  zoomControl: false,
+  attributionControl: true,
+  dragging: true,
+  touchZoom: true,
+  scrollWheelZoom: true,
+  doubleClickZoom: true,
+});
+
+const imageUrl = "assets/WL-平面場圖-4.png";
+const img = new Image();
+img.src = imageUrl;
+img.onload = function () {
+  const w = img.width, h = img.height;
+  const bounds = [[0, 0], [h, w]];
+  L.imageOverlay(imageUrl, bounds).addTo(map);
+  map.setMaxBounds(bounds);
+  map.fitBounds(bounds, { animate: false });
+  if (window.innerWidth <= 768) map.setZoom(map.getZoom() - 1.6);
+  else map.setZoom(map.getZoom() - 1.2);
+  const points = [
+    { name: "關卡一", coords: [h * 0.45, w * 0.45], color: "red" },
+    { name: "關卡二", coords: [h * 0.35, w * 0.70], color: "red" },
+    { name: "關卡三", coords: [h * 0.55, w * 0.30], color: "red" },
+    { name: "關卡四", coords: [h * 0.25, w * 0.80], color: "red" },
+    { name: "關卡五", coords: [h * 0.20, w * 0.20], color: "red" },
+    { name: "關卡六", coords: [h * 0.40, w * 0.10], color: "red" },
+    { name: "🎁 Bonus A", coords: [h * 0.55, w * 0.65], color: "gold" },
+    { name: "🎁 Bonus B", coords: [h * 0.40, w * 0.60], color: "gold" },
+    { name: "🎁 Bonus C", coords: [h * 0.75, w * 0.50], color: "gold" }
+  ];
+  points.forEach(p => {
+    L.circleMarker(p.coords, {
+      radius: 4, color: p.color, fillColor: p.color, fillOpacity: 0.9
+    }).addTo(map).bindTooltip(p.name, { direction: "top", offset: [0, -4] });
+  });
+  L.control.attribution({ prefix: false })
+    .addAttribution("💍 MYs Map © 2025").addTo(map);
+};
+
+/* ✅ 修正滑動衝突（支援雙指縮放、單指左右滑頁） */
+map.on('touchstart', function(e){ e.preventDefault(); });
+map.getContainer().addEventListener('touchmove', e => e.stopPropagation(), { passive: true });
+map.getContainer().addEventListener('wheel', e => e.stopPropagation(), { passive: true });
+map.touchZoom.disable();
+map.dragging.disable();
+let multiTouch = false;
+map.getContainer().addEventListener('touchstart', e => {
+  multiTouch = e.touches.length > 1;
+  if (multiTouch) { map.touchZoom.enable(); map.dragging.enable(); }
+  else { map.touchZoom.disable(); map.dragging.disable(); }
+});
+map.getContainer().addEventListener('touchend', () => {
+  multiTouch = false; map.touchZoom.disable(); map.dragging.disable();
+});
 </script>
 </body>
 </html>
-
-
-
