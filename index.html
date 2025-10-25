@@ -76,20 +76,23 @@ button {
 button:hover { background-color: #ffd166; }
 
 /* 🟨 暱稱輸入框樣式 */
-input[type="text"] {
+/* 🧾 暱稱輸入框樣式調整 */
+#nicknameInput {
   width: 80%;
-  padding: 10px 14px;
-  margin-top: 12px;
-  font-size: 18px;
-  border: 2px solid #ddd;
+  max-width: 280px;
+  height: 40px;
+  margin: 12px auto;
+  display: block;
   border-radius: 10px;
-  outline: none;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border: 2px solid #ddd;
+  background-color: #f2f2f2;
+  font-size: 16px;
   text-align: center;
+  outline: none;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1) inset;
 }
-input[type="text"]:focus {
-  border-color: #ffb703;
-  background-color: #fff8e6;
+#nicknameInput::placeholder {
+  color: #999;
 }
 
 /* 下方排行與地圖 */
@@ -396,6 +399,16 @@ img.onload = function () {
     map.setZoom(map.getZoom() - 1.2);
   }
 
+/* 🧷 防止鍵盤彈出導致畫面上移（僅限手機） */
+const nicknameInput = document.getElementById('nicknameInput');
+if (nicknameInput) {
+  nicknameInput.addEventListener('focus', () => {
+    document.body.style.position = 'fixed';
+  });
+  nicknameInput.addEventListener('blur', () => {
+    document.body.style.position = '';
+  });
+}
   // ✅ 關卡與 Bonus 點位
   const points = [
     { name: "關卡一", coords: [h * 0.45, w * 0.45], color: "red" },
@@ -440,3 +453,4 @@ map.getContainer().addEventListener('touchend', () => {
 </script>
 </body>
 </html>
+
