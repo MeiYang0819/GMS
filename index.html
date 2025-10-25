@@ -6,6 +6,7 @@
 <title>🎮闖關任務</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
 <style>
 /* ==========================================================
@@ -46,10 +47,9 @@ body {
   min-height: 55vh;
 }
 
-/* ==========================================================
-   🟡 主卡（固定高度＋通知列保留空間）
-   ========================================================== */
+/* 主卡固定高度（以第1題為準） */
 .main-card {
+  position: relative; /* 讓通知列能定位 */
   background: linear-gradient(0deg, rgba(247, 237, 143, 1) 0%, rgba(241, 223, 57, 1) 71%, rgba(237, 214, 5, 1) 100%);
   border-radius: 24px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
@@ -60,45 +60,35 @@ body {
   min-height: 380px;
   backdrop-filter: blur(6px);
   transition: all 0.6s ease;
-  position: relative;
 }
 .main-card h1 { font-size: var(--font-xl); margin: 10px 0; }
 .main-card p { font-size: var(--font-base); color: var(--muted); }
 
-/* ✅ 固定通知列（永遠佔位，不推文字） */
+/* --------通知列（主卡中間；固定保留佔位）-------- */
 #missionNotice {
   position: absolute;
-  top: 72px;
-  left: 50%;
+  top: 72px; left: 50%;
   transform: translateX(-50%);
-  height: 32px;
-  line-height: 32px;
+  width: 80%;
+  min-height: 34px; /* ✅ 保留固定空間 */
   background: rgba(255,240,240,0.96);
   border: 2px solid #f8dada;
   border-radius: 10px;
-  padding: 0 14px;
+  padding: 6px 14px;
   font-weight: 700;
   color: #111;
   font-size: 17px;
   text-align: center;
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  min-width: 200px;
+  z-index: 99;
   opacity: 0;
   transition: opacity 0.5s ease;
-  z-index: 99;
 }
 
-/* 淡入淡出動畫 */
-@keyframes noticeFade {
-  0% { opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { opacity: 0; }
-}
+/* 通知淡入淡出 */
+.notice-show { opacity: 1 !important; }
 
-/* ==========================================================
-   按鈕樣式
-   ========================================================== */
+/* 按鈕樣式 */
 button {
   background-color: #ffb703;
   border: none;
@@ -112,14 +102,13 @@ button {
 }
 button:hover { background-color: #ffd166; }
 
-/* ==========================================================
-   🏆 排行榜樣式
-   ========================================================== */
 #bottom-area {
   display: flex;
   height: 45%;
   border-top: 4px solid #fff;
 }
+
+/* ================== 🏆 排行榜 ================== */
 #leaderboard {
   flex: 1;
   background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%);
@@ -153,6 +142,7 @@ button:hover { background-color: #ffd166; }
   white-space: nowrap;
   z-index: 9999;
 }
+
 table {
   width: 95%;
   border-collapse: collapse;
@@ -170,9 +160,7 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 }
 .flash { animation: scoreFlash 1s ease; }
 
-/* ==========================================================
-   🗺️ 地圖樣式
-   ========================================================== */
+/* ================== 🗺️ 地圖樣式 ================== */
 #map {
   flex: 1;
   border-left: 4px solid #fff;
@@ -186,7 +174,6 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   padding: 2px 8px;
   font-size: 13px;
 }
-/* 地圖提示：固定左上角 👉 往右滑為排行 */
 #map::before {
   content: "👉 往右滑為排行";
   position: absolute;
@@ -200,9 +187,7 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   z-index: 9999;
 }
 
-/* ==========================================================
-   四選一格子樣式
-   ========================================================== */
+/* 四選一格子 */
 .option-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -222,9 +207,6 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   font-size: 24px;
 }
 
-/* ==========================================================
-   RWD 手機橫滑模式
-   ========================================================== */
 @media (max-width: 768px) {
   #bottom-area {
     flex-direction: row;
@@ -245,12 +227,11 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 </style>
 </head>
 
-<body>
+   <body>
 <div id="app">
   <div id="main-area">
     <div class="main-card" id="mission-card">
       <h1>🕙闖關任務🕒</h1>
-      <!-- 🟡 固定通知列（永遠保留空間） -->
       <div id="missionNotice"></div>
       <p>歡迎參加幹掉雙面陳闖關活動～<br>請點擊開始進行挑戰！</p>
       <button onclick="nextMission()">開始任務 ▶</button>
@@ -270,7 +251,137 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   </div>
 </div>
 
-   <script>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+/* ==========================================================
+   🗺️ 地圖設定區（恢復原始 Leaflet）
+   ========================================================== */
+const map = L.map("map", {
+  crs: L.CRS.Simple,
+  minZoom: -3,
+  maxZoom: 4,
+  zoomControl: false,
+  attributionControl: true,
+  dragging: true,
+  touchZoom: true,
+  scrollWheelZoom: true,
+  doubleClickZoom: true,
+});
+
+const imageUrl = "assets/WL-平面場圖-4.png";
+const img = new Image();
+img.src = imageUrl;
+img.onload = function () {
+  const w = img.width, h = img.height;
+  const bounds = [[0, 0], [h, w]];
+  L.imageOverlay(imageUrl, bounds).addTo(map);
+  map.setMaxBounds(bounds);
+  map.fitBounds(bounds, { animate: false });
+
+  if (window.innerWidth <= 768) {
+    map.setZoom(map.getZoom() - 1.6);
+  } else {
+    map.setZoom(map.getZoom() - 1.2);
+  }
+
+  const points = [
+    { name: "關卡一", coords: [h * 0.45, w * 0.45], color: "red" },
+    { name: "關卡二", coords: [h * 0.35, w * 0.70], color: "red" },
+    { name: "關卡三", coords: [h * 0.55, w * 0.30], color: "red" },
+    { name: "關卡四", coords: [h * 0.25, w * 0.80], color: "red" },
+    { name: "關卡五", coords: [h * 0.20, w * 0.20], color: "red" },
+    { name: "關卡六", coords: [h * 0.40, w * 0.10], color: "red" },
+    { name: "🎁 Bonus A", coords: [h * 0.55, w * 0.65], color: "gold" },
+    { name: "🎁 Bonus B", coords: [h * 0.40, w * 0.60], color: "gold" },
+    { name: "🎁 Bonus C", coords: [h * 0.75, w * 0.50], color: "gold" }
+  ];
+  points.forEach(p => {
+    L.circleMarker(p.coords, {
+      radius: 4,
+      color: p.color,
+      fillColor: p.color,
+      fillOpacity: 0.9
+    }).addTo(map).bindTooltip(p.name, { direction: "top", offset: [0, -4] });
+  });
+
+  L.control.attribution({ prefix: false })
+    .addAttribution("💍 MYs Map © 2025")
+    .addTo(map);
+};
+
+   /* ==========================================================
+   🎯 任務流程控制區（含4/5關隨機、6關問答）
+   ========================================================== */
+let step = 0;
+const baseMissions = [
+  "簽到：請完成簽到並輸入暱稱！",
+  "簽名：請上傳您的簽名或照片！",
+  "找招待：請找現場工作人員確認",
+  "找新人拍照：與新人合照 📸",
+  "小遊戲：完成拼圖挑戰！",
+  "測驗：回答婚禮小問題 💡"
+];
+if (Math.random() > 0.5) {
+  [baseMissions[3], baseMissions[4]] = [baseMissions[4], baseMissions[3]];
+}
+function nextMission() {
+  const card = document.getElementById("mission-card");
+  const notice = document.getElementById("missionNotice");
+  if (step < baseMissions.length - 1) {
+    notice.textContent = "";
+    card.innerHTML = `<h1>🎯 第 ${step + 1} 關</h1>
+      <div id="missionNotice"></div>
+      <p>${baseMissions[step]}</p>
+      <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
+    step++;
+  } else if (step === baseMissions.length - 1) {
+    startQuiz(); step++;
+  } else {
+    notice.textContent = "";
+    card.innerHTML = `<h1>🎉 恭喜完成所有任務</h1><p>感謝一起讓雙面陳往生</p>`;
+  }
+}
+
+/* ==========================================================
+   📘 第6關：婚禮趣味問答（六題四選一）
+   ========================================================== */
+const quizData = [
+  { q: "💍 新人第一次約會去哪裡？", o: ["海邊", "電影院", "夜市", "健身房"], a: 1 },
+  { q: "🍰 婚禮蛋糕幾層？", o: ["1層", "2層", "3層", "4層"], a: 2 },
+  { q: "🎵 婚禮主題曲是哪一首？", o: ["小幸運", "Perfect", "告白氣球", "Marry You"], a: 3 },
+  { q: "🐶 新人養了哪種寵物？", o: ["狗", "貓", "兔子", "鳥"], a: 0 },
+  { q: "🎁 伴手禮是什麼？", o: ["餅乾", "紅豆糕", "巧克力", "手工皂"], a: 2 },
+  { q: "💐 新娘最喜歡的花？", o: ["玫瑰", "百合", "鬱金香", "向日葵"], a: 3 }
+];
+let quizIndex = 0; let answered = false;
+function startQuiz() { showQuestion(); }
+function showQuestion() {
+  answered = false;
+  const card = document.getElementById("mission-card");
+  const q = quizData[quizIndex];
+  let html = `<h1>💡 第 ${quizIndex + 1} 題</h1><p>${q.q}</p>
+  <div class="option-grid">`;
+  q.o.forEach((opt, i) => { html += `<button id="opt${i}" onclick="checkAnswer(${i})">${opt}<span class="mark"></span></button>`; });
+  html += `</div>`;
+  card.innerHTML = html;
+}
+function checkAnswer(choice) {
+  if (answered) return;
+  const q = quizData[quizIndex];
+  const correct = q.a;
+  const clickedBtn = document.getElementById("opt" + choice);
+  if (choice === correct) {
+    clickedBtn.querySelector(".mark").textContent = "✔️";
+    answered = true;
+    quizIndex++;
+    if (quizIndex < quizData.length) setTimeout(showQuestion, 1200);
+    else setTimeout(()=>{document.getElementById("mission-card").innerHTML=`<h1>🎉 測驗完成！</h1><p>你已完成第六關！</p>`;},1200);
+  } else {
+    clickedBtn.querySelector(".mark").textContent = "❌";
+  }
+}
+
 /* ==========================================================
    🏆 排行榜邏輯（單行閃爍＋名次通知）
    ========================================================== */
@@ -280,67 +391,45 @@ let players = [
   { name: "吃香蕉王小慧", score: 94 },
   { name: "背鍋俠張咩揚", score: 92 },
   { name: "雙面人陳大姐", score: 90 },
-  { name: "誰是你謝老闆", score: 87 },
-  { name: "碎碎念周大佑", score: 83 },
-  { name: "愛裸拍辜阿銓", score: 81 },
-  { name: "雖阿郎莊告白", score: 78 },
-  { name: "狗牛屎楊紐約", score: 76 }
+  { name: "誰是你謝老闆", score: 89 },
+  { name: "碎碎念周大佑", score: 86 },
+  { name: "愛裸拍辜阿銓", score: 84 },
+  { name: "雖阿郎莊告白", score: 83 },
+  { name: "狗牛屎楊紐約", score: 82 }
 ];
+let lastRanks = {};
 
-let lastRanks = {}; // 紀錄前次排名
-
-/* ==========================================================
-   🟡 通知列顯示控制（固定在黃色主卡）
-   ========================================================== */
 function showMissionNotice(text) {
   const notice = document.getElementById("missionNotice");
   if (!notice) return;
-
-  // 顯示文字並淡入
   notice.textContent = text;
-  notice.style.opacity = "1";
-  notice.style.visibility = "visible";
-
+  notice.classList.add("notice-show");
   clearTimeout(window._noticeTimer);
   window._noticeTimer = setTimeout(() => {
-    notice.style.opacity = "0";
-    setTimeout(() => {
-      notice.textContent = ""; // 清空文字但保留佔位
-      notice.style.visibility = "hidden";
-    }, 600);
+    notice.classList.remove("notice-show");
+    setTimeout(() => { notice.textContent = ""; }, 400);
   }, 3000);
 }
 
-/* ==========================================================
-   📊 排行榜繪製函式（顯示前 4 + ... + 後 2）
-   ========================================================== */
 function renderLeaderboard() {
   players.sort((a, b) => b.score - a.score);
   const tbody = document.getElementById("rank-body");
   if (!tbody) return;
   tbody.innerHTML = "";
 
-  // 排名變動通知
   players.forEach((p, i) => {
     const prev = lastRanks[p.name];
     if (prev !== undefined && prev !== i) {
-      if (prev > i) {
-        showMissionNotice(`⬆️ ${p.name} 上升至第 ${i + 1} 名！🎉`);
-      } else {
-        showMissionNotice(`⬇️ ${p.name} 下降至第 ${i + 1} 名～😅`);
-      }
+      if (prev > i) showMissionNotice(`⬆️ ${p.name} 上升至第 ${i + 1} 名！🎉`);
+      else showMissionNotice(`⬇️ ${p.name} 下降至第 ${i + 1} 名～😅`);
     }
     lastRanks[p.name] = i;
   });
 
-  // 只顯示前 4 名 + ... + 後 2 名
   players.forEach((p, i) => {
     if (i < 4 || i >= players.length - 2) {
       const tr = document.createElement("tr");
-      const medal =
-        i === 0 ? "🥇" :
-        i === 1 ? "🥈" :
-        i === 2 ? "🥉" : i + 1;
+      const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1;
       tr.innerHTML = `<td>${medal}</td><td>${p.name}</td><td>${p.score}</td>`;
       tbody.appendChild(tr);
     } else if (i === 4) {
@@ -351,143 +440,27 @@ function renderLeaderboard() {
     }
   });
 }
-</script>
-
-   <script>
-/* ==========================================================
-   🎮 任務流程控制區
-   ========================================================== */
-let currentMission = 0;
-
-function nextMission() {
-  const card = document.getElementById("mission-card");
-  if (!card) return;
-
-  currentMission++;
-  if (currentMission === 1) {
-    card.innerHTML = `
-      <h1>🕹️ 第一關：智慧問答</h1>
-      <div id="missionNotice"></div>
-      <p>選出正確答案才能繼續前進！</p>
-      <div class="option-grid">
-        <button onclick="answerQuestion(this, true)">程是馬 🐴</button>
-        <button onclick="answerQuestion(this, false)">成是馬 🐎</button>
-        <button onclick="answerQuestion(this, false)">城是馬 🏰</button>
-        <button onclick="answerQuestion(this, false)">乘是馬 🚀</button>
-      </div>
-    `;
-  } else if (currentMission === 2) {
-    card.innerHTML = `
-      <h1>💡 第二關：數字挑戰</h1>
-      <div id="missionNotice"></div>
-      <p>請選出最大的數字！</p>
-      <div class="option-grid">
-        <button onclick="checkNumber(this, 5)">5️⃣</button>
-        <button onclick="checkNumber(this, 9)">9️⃣</button>
-        <button onclick="checkNumber(this, 3)">3️⃣</button>
-        <button onclick="checkNumber(this, 1)">1️⃣</button>
-      </div>
-    `;
-  } else if (currentMission === 3) {
-    card.innerHTML = `
-      <h1>🧩 第三關：拼圖任務</h1>
-      <div id="missionNotice"></div>
-      <p>完成拼圖即可過關！</p>
-      <button onclick="finishMission()">完成 ✅</button>
-    `;
-  } else {
-    card.innerHTML = `
-      <h1>🎉 任務全部完成！</h1>
-      <div id="missionNotice"></div>
-      <p>恭喜你完成所有挑戰！</p>
-      <button onclick="restartGame()">再玩一次 🔁</button>
-    `;
-  }
-}
 
 /* ==========================================================
-   ✅ 答題結果處理
+   🔄 模擬分數變化與閃爍動畫（已修正順序）
    ========================================================== */
-function answerQuestion(btn, correct) {
-  const all = document.querySelectorAll(".option-grid button");
-  all.forEach(b => b.disabled = true);
-  if (correct) {
-    btn.innerHTML += '<span class="mark">✅</span>';
-    updateScore("大變態林阿軒", 5);
-    showMissionNotice("答對了！加分 🎯");
-  } else {
-    btn.innerHTML += '<span class="mark">❌</span>';
-    showMissionNotice("答錯了～請再接再厲！");
-  }
-  setTimeout(nextMission, 1600);
-}
-
-function checkNumber(btn, num) {
-  const all = document.querySelectorAll(".option-grid button");
-  all.forEach(b => b.disabled = true);
-  if (num === 9) {
-    btn.innerHTML += '<span class="mark">✅</span>';
-    updateScore("大變態林阿軒", 5);
-    showMissionNotice("太棒了！再加分 🔥");
-  } else {
-    btn.innerHTML += '<span class="mark">❌</span>';
-    showMissionNotice("可惜，再試一次～");
-  }
-  setTimeout(nextMission, 1600);
-}
-
-function finishMission() {
-  updateScore("大變態林阿軒", 10);
-  showMissionNotice("完成任務 ✅ 繼續加油！");
-  setTimeout(nextMission, 1600);
-}
-
-function restartGame() {
-  currentMission = 0;
-  const card = document.getElementById("mission-card");
-  if (!card) return;
-  card.innerHTML = `
-    <h1>🕙闖關任務🕒</h1>
-    <div id="missionNotice"></div>
-    <p>歡迎參加幹掉雙面陳闖關活動～<br>請點擊開始進行挑戰！</p>
-    <button onclick="nextMission()">開始任務 ▶</button>
-  `;
-}
-
-/* ==========================================================
-   ⚙️ 分數更新與閃爍提示
-   ========================================================== */
-function updateScore(playerName, delta) {
-  const p = players.find(pl => pl.name === playerName);
-  if (!p) return;
-  p.score += delta;
-  renderLeaderboard();
-
-  const tbody = document.getElementById("rank-body");
-  if (tbody) {
-    [...tbody.children].forEach(tr => {
-      if (tr.children[1] && tr.children[1].textContent === playerName) {
+setInterval(() => {
+  const target = players[Math.floor(Math.random() * players.length)];
+  const diff = Math.floor(Math.random() * 9 - 4);
+  if (diff !== 0) {
+    target.score = Math.max(0, target.score + diff);
+    renderLeaderboard();
+    const trs = document.querySelectorAll("#rank-body tr");
+    trs.forEach(tr => {
+      if (tr.textContent.includes(target.name)) {
         tr.classList.add("flash");
         setTimeout(() => tr.classList.remove("flash"), 1000);
       }
     });
   }
-}
+}, 2500);
 
-/* ==========================================================
-   🗺️ 地圖初始化（Leaflet）
-   ========================================================== */
-document.addEventListener("DOMContentLoaded", () => {
-  renderLeaderboard();
-
-  const mapContainer = document.getElementById("map");
-  if (typeof L !== "undefined" && mapContainer) {
-    const map = L.map(mapContainer).setView([25.033964, 121.564468], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap 貢獻者'
-    }).addTo(map);
-  }
-});
+renderLeaderboard();
 </script>
 </body>
 </html>
