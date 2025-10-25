@@ -62,7 +62,7 @@ body {
 }
 .notice-show { opacity: 1 !important; }
 
-   button {
+button {
   background-color: #ffb703;
   border: none;
   border-radius: 10px;
@@ -75,6 +75,23 @@ body {
 }
 button:hover { background-color: #ffd166; }
 
+/* 🟨 暱稱輸入框樣式 */
+input[type="text"] {
+  width: 80%;
+  padding: 10px 14px;
+  margin-top: 12px;
+  font-size: 18px;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  outline: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  text-align: center;
+}
+input[type="text"]:focus {
+  border-color: #ffb703;
+  background-color: #fff8e6;
+}
+
 /* 下方排行與地圖 */
 #bottom-area { display: flex; height: 45%; border-top: 4px solid #fff; }
 #leaderboard {
@@ -82,7 +99,6 @@ button:hover { background-color: #ffd166; }
   background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%);
   overflow-y: auto;
   overflow-x: hidden;
-  /* ✅ 去掉左右邊界讓表格能貼齊 */
   padding: 0 0 60px 0;
   display: flex;
   flex-direction: column;
@@ -99,7 +115,6 @@ button:hover { background-color: #ffd166; }
   white-space: nowrap; z-index: 9999;
 }
 
-/* ✅ 改這裡讓表格完整貼齊左右邊 */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -112,7 +127,6 @@ th, td { text-align: center; padding: 6px 0; }
 th { background-color: rgba(255,255,255,0.4); }
 tr:nth-child(even){ background-color: rgba(255,255,255,0.2);}
 .ellipsis td { text-align: center; color: #555; font-style: italic; }
-
 
 @keyframes scoreFlash {
   0% { background-color: rgba(255,255,150,0.7); }
@@ -169,7 +183,7 @@ tr:nth-child(even){ background-color: rgba(255,255,255,0.2);}
     </div>
   </div>
 
-     <div id="bottom-area">
+  <div id="bottom-area">
     <div id="leaderboard">
       <h2>🏆 排行榜</h2>
       <span class="hint-box">👈 左滑地圖</span>
@@ -186,7 +200,7 @@ tr:nth-child(even){ background-color: rgba(255,255,255,0.2);}
 
 <script>
 /* ==========================================================
-   🎯 任務流程控制區（含4/5關隨機、6關問答）
+   🎯 任務流程控制區（含暱稱輸入於第一關）
    ========================================================== */
 let step = 0;
 const baseMissions = [
@@ -203,10 +217,18 @@ if (Math.random() > 0.5) {
 
 function nextMission() {
   const card = document.getElementById("mission-card");
-  if (step < baseMissions.length - 1) {
+  if (step === 0) {
+    card.innerHTML = `
+      <h1>🎯 第 1 關</h1>
+      <div id="missionNotice"></div>
+      <p>${baseMissions[0]}</p>
+      <input type="text" id="nicknameInput" placeholder="填寫暱稱..." />
+      <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
+    step++;
+  } else if (step < baseMissions.length - 1) {
     card.innerHTML = `
       <h1>🎯 第 ${step + 1} 關</h1>
-      <div id="missionNotice"></div> <!-- ✅ 永遠留空格給狀態列 -->
+      <div id="missionNotice"></div>
       <p>${baseMissions[step]}</p>
       <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
     step++;
@@ -214,7 +236,7 @@ function nextMission() {
     startQuiz(); step++;
   } else {
     card.innerHTML = `<h1>🎉 恭喜完成所有任務</h1>
-      <div id="missionNotice"></div> <!-- ✅ 仍保留空格 -->
+      <div id="missionNotice"></div>
       <p>感謝一起讓雙面陳往生</p>`;
   }
 }
@@ -239,7 +261,7 @@ function showQuestion() {
   const q = quizData[quizIndex];
   let html = `
     <h1>💡 第 ${quizIndex + 1} 題</h1>
-    <div id="missionNotice"></div> <!-- ✅ 固定通知列位置 -->
+    <div id="missionNotice"></div>
     <p>${q.q}</p>
     <div class="option-grid">`;
   q.o.forEach((opt, i) => {
@@ -267,7 +289,7 @@ function checkAnswer(choice) {
   } else btn.querySelector(".mark").textContent = "❌";
 }
 
-   /* ==========================================================
+/* ==========================================================
    🏆 排行榜（含狀態通知）
    ========================================================== */
 let players = [
@@ -284,7 +306,6 @@ let players = [
 ];
 let lastRanks = {};
 
-/* ✅ 固定通知列（所有任務卡標題下方永遠保留空位） */
 function showMissionNotice(text) {
   const notice = document.getElementById("missionNotice");
   if (!notice) return;
@@ -297,15 +318,11 @@ function showMissionNotice(text) {
   }, 3000);
 }
 
-/* ==========================================================
-   🧩 排行榜繪製與名次異動提示
-   ========================================================== */
 function renderLeaderboard() {
   players.sort((a, b) => b.score - a.score);
   const tbody = document.getElementById("rank-body");
   if (!tbody) return;
   tbody.innerHTML = "";
-
   players.forEach((p, i) => {
     const prev = lastRanks[p.name];
     if (prev !== undefined && prev !== i) {
@@ -314,7 +331,6 @@ function renderLeaderboard() {
     }
     lastRanks[p.name] = i;
   });
-
   players.forEach((p, i) => {
     if (i < 4 || i >= players.length - 2) {
       const tr = document.createElement("tr");
@@ -330,9 +346,6 @@ function renderLeaderboard() {
   });
 }
 
-/* ==========================================================
-   🔄 模擬分數變化與閃爍動畫（固定通知列顯示名次異動）
-   ========================================================== */
 setInterval(() => {
   const target = players[Math.floor(Math.random() * players.length)];
   const diff = Math.floor(Math.random() * 9 - 4);
@@ -375,8 +388,15 @@ img.onload = function () {
   L.imageOverlay(imageUrl, bounds).addTo(map);
   map.setMaxBounds(bounds);
   map.fitBounds(bounds, { animate: false });
-  if (window.innerWidth <= 768) map.setZoom(map.getZoom() - 1.6);
-  else map.setZoom(map.getZoom() - 1.2);
+
+  // ✅ 手機視窗略縮小地圖比例
+  if (window.innerWidth <= 768) {
+    map.setZoom(map.getZoom() - 1.6);
+  } else {
+    map.setZoom(map.getZoom() - 1.2);
+  }
+
+  // ✅ 關卡與 Bonus 點位
   const points = [
     { name: "關卡一", coords: [h * 0.45, w * 0.45], color: "red" },
     { name: "關卡二", coords: [h * 0.35, w * 0.70], color: "red" },
@@ -390,11 +410,16 @@ img.onload = function () {
   ];
   points.forEach(p => {
     L.circleMarker(p.coords, {
-      radius: 4, color: p.color, fillColor: p.color, fillOpacity: 0.9
+      radius: 4,
+      color: p.color,
+      fillColor: p.color,
+      fillOpacity: 0.9
     }).addTo(map).bindTooltip(p.name, { direction: "top", offset: [0, -4] });
   });
+
   L.control.attribution({ prefix: false })
-    .addAttribution("💍 MYs Map © 2025").addTo(map);
+    .addAttribution("💍 MYs Map © 2025")
+    .addTo(map);
 };
 
 /* ✅ 修正滑動衝突（支援雙指縮放、單指左右滑頁） */
@@ -415,4 +440,3 @@ map.getContainer().addEventListener('touchend', () => {
 </script>
 </body>
 </html>
-
