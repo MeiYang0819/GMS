@@ -398,16 +398,6 @@ img.onload = function () {
     map.setZoom(map.getZoom() - 1.2);
   }
 
-/* 🧷 防止鍵盤彈出導致畫面上移（僅限手機） */
-const nicknameInput = document.getElementById('nicknameInput');
-if (nicknameInput) {
-  nicknameInput.addEventListener('focus', () => {
-    document.body.style.position = 'fixed';
-  });
-  nicknameInput.addEventListener('blur', () => {
-    document.body.style.position = '';
-  });
-}
   // ✅ 關卡與 Bonus 點位
   const points = [
     { name: "關卡一", coords: [h * 0.45, w * 0.45], color: "red" },
@@ -449,8 +439,27 @@ map.getContainer().addEventListener('touchstart', e => {
 map.getContainer().addEventListener('touchend', () => {
   multiTouch = false; map.touchZoom.disable(); map.dragging.disable();
 });
+
+/* 🧷 全域防止鍵盤彈出導致畫面上移（所有輸入與上傳框適用） */
+function preventKeyboardPushUp() {
+  document.addEventListener('focusin', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+    }
+  });
+  document.addEventListener('focusout', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+      document.body.style.position = '';
+      document.body.style.width = '';
+      window.scrollTo(0, 0); // 回到原位
+    }
+  });
+}
+preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
 
 
