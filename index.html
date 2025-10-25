@@ -255,7 +255,7 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
 
 <script>
 /* ==========================================================
-   🗺️ 地圖設定區（恢復原始 Leaflet）
+   🗺️ 地圖設定區（修正滑動衝突）
    ========================================================== */
 const map = L.map("map", {
   crs: L.CRS.Simple,
@@ -309,6 +309,12 @@ img.onload = function () {
     .addAttribution("💍 MYs Map © 2025")
     .addTo(map);
 };
+
+/* ✅ 修正滑動衝突區（不影響原結構） */
+map.on('touchstart', function(e){ e.preventDefault(); });
+map.getContainer().addEventListener('touchmove', e => e.stopPropagation(), { passive: true });
+map.getContainer().addEventListener('wheel', e => e.stopPropagation(), { passive: true });
+
 
    /* ==========================================================
    🎯 任務流程控制區（含4/5關隨機、6關問答）
@@ -464,3 +470,4 @@ renderLeaderboard();
 </script>
 </body>
 </html>
+
