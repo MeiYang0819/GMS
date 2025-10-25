@@ -315,6 +315,27 @@ map.on('touchstart', function(e){ e.preventDefault(); });
 map.getContainer().addEventListener('touchmove', e => e.stopPropagation(), { passive: true });
 map.getContainer().addEventListener('wheel', e => e.stopPropagation(), { passive: true });
 
+/* ✅ 新增：單指可左右滑、雙指可拖地圖 */
+map.touchZoom.disable();
+map.dragging.disable();
+
+let multiTouch = false;
+map.getContainer().addEventListener('touchstart', e => {
+  multiTouch = e.touches.length > 1;
+  if (multiTouch) {
+    map.touchZoom.enable();
+    map.dragging.enable();
+  } else {
+    map.touchZoom.disable();
+    map.dragging.disable();
+  }
+});
+
+map.getContainer().addEventListener('touchend', () => {
+  multiTouch = false;
+  map.touchZoom.disable();
+  map.dragging.disable();
+});
 
    /* ==========================================================
    🎯 任務流程控制區（含4/5關隨機、6關問答）
@@ -470,4 +491,5 @@ renderLeaderboard();
 </script>
 </body>
 </html>
+
 
