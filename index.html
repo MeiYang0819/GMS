@@ -250,17 +250,17 @@ tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.2); }
   </div>
 
   <div id="bottom-area">
-    <!-- 🧾 通知固定區（預留空間） -->
-    <div id="rankNotice" style="height:60px;"></div>
-    <div id="leaderboard">
+    <div id="bottom-area">
+    <div class="main-card" id="leaderboard-card">
       <h2>🏆 排行榜</h2>
-      <span class="hint-box">👉 往左滑為地圖</span>
+      <div class="hint">👉 往左滑為地圖</div>
       <table>
-        <thead><tr><th>名次</th><th>暱稱</th><th>分數</th></tr></thead>
+        <thead>
+          <tr><th>名次</th><th>暱稱</th><th>分數</th></tr>
+        </thead>
         <tbody id="rank-body"></tbody>
       </table>
     </div>
-    <div id="map"></div>
   </div>
 </div>
 
@@ -441,10 +441,9 @@ function checkAnswer(choice) {
 /* ==========================================================
    🏆 排行榜邏輯（前4 + … + 後2）
    ========================================================== */
-/* ✅ 模擬排行榜資料（若你有串 API，換成你的資料即可） */
-let players = [
+   let players = [
   { name: "大變態林阿軒", score: 100 },
-  { name: "愛逃避姜新禹", score: 96 },
+  { name: "愛逃避姜新禹", score: 95 },
   { name: "吃香蕉王小慧", score: 94 },
   { name: "背鍋俠張咩揚", score: 92 },
   { name: "雙面人陳大姐", score: 90 },
@@ -454,79 +453,59 @@ let players = [
   { name: "雖阿郎莊告白", score: 78 },
   { name: "狗牛屎楊紐約", score: 76 }
 ];
-let lastRanks = {};
 
+let lastRanks = {};
+   
+/* ✅ 狀態通知列控制 */
+function showMissionNotice(text) {
+  const notice = document.getElementById("missionNotice");
+  if (!notice) return;
+  notice.textContent = text;
+  notice.style.opacity = "1";
+
+  clearTimeout(window._noticeTimer);
+  window._noticeTimer = setTimeout(() => {
+    notice.style.opacity = "0";
+    setTimeout(() => { notice.textContent = ""; }, 600);
+  }, 3000);
+}
+
+/* ✅ 排行榜渲染與名次變動監測 */
 function renderLeaderboard() {
   players.sort((a, b) => b.score - a.score);
   const tbody = document.getElementById("rank-body");
   if (!tbody) return;
   tbody.innerHTML = "";
 
-  // 名次通知
   players.forEach((p, i) => {
     const prev = lastRanks[p.name];
     if (prev !== undefined && prev !== i) {
-      if (prev > i) showMissionNotice(`⬆️ ${p.name} 上升至第 ${i + 1} 名！🎉`);
-      else showMissionNotice(`⬇️ ${p.name} 下降至第 ${i + 1} 名～😅`);
+      if (prev > i) {
+        showMissionNotice(`⬆️ ${p.name} 上升至第 ${i + 1} 名！🎉`);
+      } else {
+        showMissionNotice(`⬇️ ${p.name} 下降至第 ${i + 1} 名～😅`);
+      }
     }
     lastRanks[p.name] = i;
   });
 
-  const total = players.length;
-  const showAll = total <= 7;
-
-  if (showAll) {
-    players.forEach((p, i) => appendRankRow(p, i, tbody));
-  } else {
-    for (let i = 0; i < 4; i++) appendRankRow(players[i], i, tbody);
-    const trDots = document.createElement("tr");
-    trDots.innerHTML = `<td colspan="3" style="text-align:center;color:#999;">⋯⋯</td>`;
-    tbody.appendChild(trDots);
-    appendRankRow(players[total - 2], total - 2, tbody);
-    appendRankRow(players[total - 1], total - 1, tbody);
-  }
+  players.forEach((p, i) => {
+    const tr = document.createElement("tr");
+    const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1;
+    tr.innerHTML = `<td>${medal}</td><td>${p.name}</td><td>${p.score}</td>`;
+    tbody.appendChild(tr);
+  });
 }
 
-function appendRankRow(p, i, tbody) {
-  const tr = document.createElement("tr");
-  const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1;
-  tr.innerHTML = `<td>${medal}</td><td>${p.name}</td><td>${p.score}</td>`;
-  tbody.appendChild(tr);
-
-  // 閃爍效果（名次異動時）
-  if (lastRanks[p.name] !== undefined && lastRanks[p.name] !== i) {
-    tr.style.animation = "flashRow 1s ease";
-    setTimeout(() => { tr.style.animation = ""; }, 1000);
-  }
-}
-
-/* 閃爍動畫 */
-const style = document.createElement("style");
-style.textContent = `
-@keyframes flashRow {
-  0%, 100% { background-color: transparent; }
-  50% { background-color: rgba(255, 255, 0, 0.4); }
-}`;
-document.head.appendChild(style);
-
-// 模擬分數變化與閃爍動畫
+/* ✅ 模擬更新（每 4 秒重新排序） */
 setInterval(() => {
-  const target = players[Math.floor(Math.random() * players.length)];
-  const diff = Math.floor(Math.random() * 9 - 4);
-  if (diff !== 0) {
-    target.score = Math.max(0, target.score + diff);
-    renderLeaderboard();
-    const trs = document.querySelectorAll("#rank-body tr");
-    trs.forEach(tr => {
-      if (tr.textContent.includes(target.name)) {
-        tr.classList.add("flash");
-        setTimeout(() => tr.classList.remove("flash"), 1000);
-      }
-    });
-  }
-}, 2500);
+  const i = Math.floor(Math.random() * players.length);
+  players[i].score += Math.floor(Math.random() * 5 - 2); // 小幅波動
+  renderLeaderboard();
+}, 4000);
 
-renderLeaderboard();
+window.onload = renderLeaderboard;
 </script>
 </body>
 </html>
+
