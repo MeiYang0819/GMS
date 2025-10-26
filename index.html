@@ -94,26 +94,6 @@ button:hover { background-color: #ffd166; }
   color: #999;
 }
 
-/* 📸 第二關上傳樣式補強 */
-#photoPreview {
-  display: block;
-  margin: 14px auto 0;
-  max-width: 260px;
-  max-height: 180px;
-  object-fit: cover;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-}
-input[type="file"] {
-  font-size: 20px;
-  background: #ffe8a1;
-  border-radius: 8px;
-  padding: 6px;
-  width: 80%;
-  max-width: 300px;
-  cursor: pointer;
-}
-
 /* 下方排行與地圖 */
 #bottom-area { display: flex; height: 45%; border-top: 4px solid #fff; }
 #leaderboard {
@@ -128,8 +108,7 @@ input[type="file"] {
   justify-content: flex-start;
   position: relative;
 }
-
-  #leaderboard h2 { font-size: 26px; margin: 8px 0 12px; color: #111; display: flex; justify-content: center; }
+#leaderboard h2 { font-size: 26px; margin: 8px 0 12px; color: #111; display: flex; justify-content: center; }
 #leaderboard .hint-box {
   position: absolute; top: 10px; right: 10px;
   background: rgba(220,220,220,0.92);
@@ -175,12 +154,40 @@ tr:nth-child(even){ background-color: rgba(255,255,255,0.2);}
   font-size: 14px; color: #111; z-index: 9999;
 }
 
-.option-grid {
+  .option-grid {
   display: grid; grid-template-columns: 1fr 1fr;
   gap: 12px; justify-items: center; margin-top: 25px;
 }
 .option-grid button { width: 90%; position: relative; }
 .option-grid button .mark { position: absolute; right: 10px; top: 5px; font-size: 24px; }
+
+/* 🟨 第二關：上傳檔案框樣式調整 */
+#photoUploadBox {
+  margin: 12px auto;
+  display: block;
+  width: 80%;
+  max-width: 280px;
+  text-align: center;
+}
+
+#photoInput {
+  width: 100%;
+  padding: 12px;
+  background-color: #f2f2f2;
+  border-radius: 10px;
+  border: 2px solid #ddd;
+  cursor: pointer;
+}
+
+#photoPreview {
+  display: none;
+  margin-top: 10px;
+  max-width: 200px;
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  object-fit: cover;
+}
 
 @media (max-width: 768px) {
   #bottom-area {
@@ -192,7 +199,8 @@ tr:nth-child(even){ background-color: rgba(255,255,255,0.2);}
     scroll-snap-align: start; display: inline-block;
   }
 }
-</style>
+
+  </style>
 </head>
 
 <body>
@@ -223,7 +231,7 @@ tr:nth-child(even){ background-color: rgba(255,255,255,0.2);}
 
 <script>
 /* ==========================================================
-   🎯 任務流程控制區（含暱稱輸入於第一關）
+   🎯 任務流程控制區（含暱稱輸入於第一關 + 照片上傳於第二關）
    ========================================================== */
 let step = 0;
 const baseMissions = [
@@ -248,99 +256,25 @@ function nextMission() {
       <input type="text" id="nicknameInput" placeholder="填寫暱稱..." />
       <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
     step++;
-  } 
-  /* ==========================================================
-     📸 第二關：簽名上傳（新增預覽功能）
-     ========================================================== */
-  else if (step === 1) {
+  } else if (step === 1) {
     card.innerHTML = `
       <h1>🎯 第 2 關</h1>
       <div id="missionNotice"></div>
       <p>${baseMissions[1]}</p>
-      <input type="file" id="photoInput" accept="image/*" />
-      <img id="photoPreview" style="display:none;" />
-      <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
-    const input = card.querySelector('#photoInput');
-    const preview = card.querySelector('#photoPreview');
-    input.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          preview.src = ev.target.result;
-          preview.style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-    step++;
-  } 
-  /* ==========================================================
-   📸 第二關：簽名上傳（放大按鈕 + 縮圖預覽）
-   ========================================================== */
-else if (step === 1) {
-  card.innerHTML = `
-    <h1>🎯 第 ${step + 1} 關</h1>
-    <div id="missionNotice"></div>
-    <p>${baseMissions[step]}</p>
-    <div style="margin-top:20px;">
-      <label for="photoInput" 
-        style="
-          display:inline-block;
-          background-color:#ffb703;
-          color:#111;
-          font-size:20px;
-          padding:14px 40px;
-          border-radius:12px;
-          cursor:pointer;
-          box-shadow:0 4px 8px rgba(0,0,0,0.2);
-        ">
-        📷 選擇照片上傳
-      </label>
-      <input type="file" id="photoInput" accept="image/*" 
-        style="display:none;" onchange="previewPhoto(event)">
-      <div id="photoPreview" 
-        style="
-          width:220px;
-          height:220px;
-          margin:20px auto 0;
-          border:3px dashed #ccc;
-          border-radius:10px;
-          overflow:hidden;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          background:#fff;
-        ">
-        <span style="color:#999;font-size:14px;">尚未上傳</span>
+      <div id="photoUploadBox">
+        <input type="file" id="photoInput" accept="image/*" />
+        <img id="photoPreview" style="display:none;max-width:200px;margin-top:10px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.2);" />
       </div>
-    </div>
-    <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
-  step++;
-}
-
-/* ✅ 上傳預覽功能（固定大小不跑版） */
-function previewPhoto(e) {
-  const file = e.target.files[0];
-  const preview = document.getElementById("photoPreview");
-  if (!file) {
-    preview.innerHTML = `<span style="color:#999;font-size:14px;">尚未上傳</span>`;
-    return;
-  }
-  const img = document.createElement("img");
-  img.style.maxWidth = "100%";
-  img.style.maxHeight = "100%";
-  img.style.objectFit = "cover";
-  const reader = new FileReader();
-  reader.onload = function(evt) {
-    preview.innerHTML = "";
-    img.src = evt.target.result;
-    preview.appendChild(img);
-  };
-  reader.readAsDataURL(file);
-}
-
-    else if (step === baseMissions.length - 1) {
+      <button style="background-color:#ffb703;margin-top:25px;" onclick="checkPhotoAndNext()">下一關 ▶</button>`;
+    step++;
+  } else if (step < baseMissions.length - 1) {
+    card.innerHTML = `
+      <h1>🎯 第 ${step + 1} 關</h1>
+      <div id="missionNotice"></div>
+      <p>${baseMissions[step]}</p>
+      <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
+    step++;
+  } else if (step === baseMissions.length - 1) {
     startQuiz(); step++;
   } else {
     card.innerHTML = `<h1>🎉 恭喜完成所有任務</h1>
@@ -348,6 +282,31 @@ function previewPhoto(e) {
       <p>感謝一起讓雙面陳往生</p>`;
   }
 }
+
+/* 🖼️ 第二關：上傳檢查與預覽 */
+function checkPhotoAndNext() {
+  const input = document.getElementById('photoInput');
+  const file = input?.files[0];
+  if (!file) {
+    showMissionNotice("⚠️ 請先上傳一張照片再繼續！");
+    return;
+  }
+  nextMission();
+}
+document.addEventListener('change', e => {
+  if (e.target.id === 'photoInput') {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const img = document.getElementById('photoPreview');
+        img.src = ev.target.result;
+        img.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+});
 
 /* ==========================================================
    📘 第6關：婚禮趣味問答（六題四選一）
@@ -361,7 +320,6 @@ const quizData = [
   { q: "💐 新娘最喜歡的花？", o: ["玫瑰", "百合", "鬱金香", "向日葵"], a: 3 }
 ];
 let quizIndex = 0, answered = false;
-
 function startQuiz() { showQuestion(); }
 function showQuestion() {
   answered = false;
@@ -454,23 +412,20 @@ function renderLeaderboard() {
   });
 }
 
-setInterval(() => {
-  const target = players[Math.floor(Math.random() * players.length)];
-  const diff = Math.floor(Math.random() * 9 - 4);
-  if (diff !== 0) {
-    target.score = Math.max(0, target.score + diff);
-    renderLeaderboard();
-    const trs = document.querySelectorAll("#rank-body tr");
-    trs.forEach(tr => {
-      if (tr.textContent.includes(target.name)) {
-        tr.classList.add("flash");
-        setTimeout(() => tr.classList.remove("flash"), 1000);
-      }
-    });
+function simulateScoreChange() {
+  const idx = Math.floor(Math.random() * players.length);
+  const delta = Math.random() > 0.5 ? 1 : -1;
+  players[idx].score += delta;
+  const tbody = document.getElementById("rank-body");
+  if (tbody && tbody.children[idx]) {
+    tbody.children[idx].classList.add("flash");
+    setTimeout(() => tbody.children[idx]?.classList.remove("flash"), 1000);
   }
-}, 2500);
+  renderLeaderboard();
+}
 
 renderLeaderboard();
+setInterval(simulateScoreChange, 4500);
 
 /* ==========================================================
    🗺️ 地圖設定區（修正滑動衝突）
@@ -530,40 +485,24 @@ img.onload = function () {
     .addTo(map);
 };
 
-/* ✅ 修正滑動衝突（支援雙指縮放、單指左右滑頁） */
-map.on('touchstart', function(e){ e.preventDefault(); });
+/* ✅ 修正滑動衝突（不影響其他滾動區域） */
+map.getContainer().addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
 map.getContainer().addEventListener('touchmove', e => e.stopPropagation(), { passive: true });
 map.getContainer().addEventListener('wheel', e => e.stopPropagation(), { passive: true });
-map.touchZoom.disable();
-map.dragging.disable();
-let multiTouch = false;
-map.getContainer().addEventListener('touchstart', e => {
-  multiTouch = e.touches.length > 1;
-  if (multiTouch) { map.touchZoom.enable(); map.dragging.enable(); }
-  else { map.touchZoom.disable(); map.dragging.disable(); }
-});
-map.getContainer().addEventListener('touchend', () => {
-  multiTouch = false; map.touchZoom.disable(); map.dragging.disable();
-});
 
-/* 🧷 全域防止鍵盤彈出導致畫面上移（所有輸入與上傳框適用） */
-function preventKeyboardPushUp() {
-  document.addEventListener('focusin', (e) => {
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
-    }
+/* 📱 防止鍵盤頂上推（適用所有輸入/上傳欄位） */
+document.querySelectorAll('input, textarea, [contenteditable="true"]').forEach(el => {
+  el.addEventListener('focus', () => {
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${window.scrollY}px`;
   });
-  document.addEventListener('focusout', (e) => {
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-      document.body.style.position = '';
-      document.body.style.width = '';
-      window.scrollTo(0, 0); // 回到原位
-    }
+  el.addEventListener('blur', () => {
+    const scrollY = document.body.style.top;
+    document.body.style.position = '';
+    document.body.style.top = '';
+    window.scrollTo(0, parseInt(scrollY || '0') * -1);
   });
-}
-preventKeyboardPushUp();
+});
 </script>
 </body>
 </html>
-
