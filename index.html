@@ -275,14 +275,70 @@ function nextMission() {
     });
     step++;
   } 
-  else if (step < baseMissions.length - 1) {
-    card.innerHTML = `
-      <h1>🎯 第 ${step + 1} 關</h1>
-      <div id="missionNotice"></div>
-      <p>${baseMissions[step]}</p>
-      <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
-    step++;
-  } 
+  /* ==========================================================
+   📸 第二關：簽名上傳（放大按鈕 + 縮圖預覽）
+   ========================================================== */
+else if (step === 1) {
+  card.innerHTML = `
+    <h1>🎯 第 ${step + 1} 關</h1>
+    <div id="missionNotice"></div>
+    <p>${baseMissions[step]}</p>
+    <div style="margin-top:20px;">
+      <label for="photoInput" 
+        style="
+          display:inline-block;
+          background-color:#ffb703;
+          color:#111;
+          font-size:20px;
+          padding:14px 40px;
+          border-radius:12px;
+          cursor:pointer;
+          box-shadow:0 4px 8px rgba(0,0,0,0.2);
+        ">
+        📷 選擇照片上傳
+      </label>
+      <input type="file" id="photoInput" accept="image/*" 
+        style="display:none;" onchange="previewPhoto(event)">
+      <div id="photoPreview" 
+        style="
+          width:220px;
+          height:220px;
+          margin:20px auto 0;
+          border:3px dashed #ccc;
+          border-radius:10px;
+          overflow:hidden;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          background:#fff;
+        ">
+        <span style="color:#999;font-size:14px;">尚未上傳</span>
+      </div>
+    </div>
+    <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
+  step++;
+}
+
+/* ✅ 上傳預覽功能（固定大小不跑版） */
+function previewPhoto(e) {
+  const file = e.target.files[0];
+  const preview = document.getElementById("photoPreview");
+  if (!file) {
+    preview.innerHTML = `<span style="color:#999;font-size:14px;">尚未上傳</span>`;
+    return;
+  }
+  const img = document.createElement("img");
+  img.style.maxWidth = "100%";
+  img.style.maxHeight = "100%";
+  img.style.objectFit = "cover";
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    preview.innerHTML = "";
+    img.src = evt.target.result;
+    preview.appendChild(img);
+  };
+  reader.readAsDataURL(file);
+}
 
     else if (step === baseMissions.length - 1) {
     startQuiz(); step++;
@@ -510,3 +566,4 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
