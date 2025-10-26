@@ -75,10 +75,10 @@ button {
 }
 button:hover { background-color: #ffd166; }
 
-/* 🟨 暱稱輸入框樣式 */
+/* 🟨 暱稱輸入框樣式 - 調整為較短的寬度 */
 #nicknameInput {
-  width: 80%;
-  max-width: 280px;
+  width: 60%; /* 調整為較短 */
+  max-width: 240px; /* 調整為較短 */
   height: 40px;
   margin: 12px auto;
   display: block;
@@ -94,113 +94,37 @@ button:hover { background-color: #ffd166; }
   color: #999;
 }
 
-/* 下方排行與地圖 */
-#bottom-area { display: flex; height: 45%; border-top: 4px solid #fff; }
-#leaderboard {
-  flex: 1;
-  background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%);
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 0 0 60px 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  position: relative;
-}
-#leaderboard h2 { font-size: 26px; margin: 8px 0 12px; color: #111; display: flex; justify-content: center; }
-#leaderboard .hint-box {
-  position: absolute; top: 10px; right: 10px;
-  background: rgba(220,220,220,0.92);
-  border-radius: 8px; padding: 4px 10px; font-size: 14px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  white-space: nowrap; z-index: 9999;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  border-spacing: 0;
-  font-size: 18px;
-  color: #111;
-  margin: 0;
-}
-th, td { text-align: center; padding: 6px 0; }
-th { background-color: rgba(255,255,255,0.4); }
-tr:nth-child(even){ background-color: rgba(255,255,255,0.2);}
-.ellipsis td { text-align: center; color: #555; font-style: italic; }
-
-@keyframes scoreFlash {
-  0% { background-color: rgba(255,255,150,0.7); }
-  100% { background-color: transparent; }
-}
-.flash { animation: scoreFlash 1s ease; }
-
-#map { flex: 1; border-left: 4px solid #fff; position: relative; overflow: hidden; }
-.leaflet-container { width: 100%; height: 100%; background: #f5f5f5; }
-.leaflet-control-attribution {
-  background: rgba(180,180,180,0.9);
-  border-radius: 6px;
-  padding: 2px 8px;
-  font-size: 13px;
-}
-#map::before {
-  content: "右滑排行 👉";
-  position: absolute;
-  top: 8px; left: 10px;
-  background: rgba(240,240,240,0.9);
-  padding: 3px 10px;
-  border-radius: 8px;
-  font-size: 14px; color: #111; z-index: 9999;
-}
-
-  .option-grid {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 12px; justify-items: center; margin-top: 25px;
-}
-.option-grid button { width: 90%; position: relative; }
-.option-grid button .mark { position: absolute; right: 10px; top: 5px; font-size: 24px; }
-
-/* 🟨 第二關：上傳檔案框樣式調整 */
+/* 第2關：上傳框樣式 - 調整為與第1關相同的大小，移除「尚未選取檔案」 */
 #photoUploadBox {
-  margin: 12px auto;
-  display: block;
-  width: 80%;
-  max-width: 280px;
   text-align: center;
+  margin-top: 15px;
 }
-
 #photoInput {
-  width: 100%;
-  padding: 12px;
-  background-color: #f2f2f2;
+  width: 60%; /* 調整為與第一關一致 */
+  height: 40px;
+  margin: 0 auto;
+  display: block;
   border-radius: 10px;
   border: 2px solid #ddd;
-  cursor: pointer;
+  background-color: #f2f2f2;
+  font-size: 16px;
+  text-align: center;
+  outline: none;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1) inset;
 }
 
 #photoPreview {
   display: none;
+  max-width: 100%; /* 最大寬度為100% */
   margin-top: 10px;
-  max-width: 200px;
-  width: 100%;
   border-radius: 10px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  object-fit: cover;
 }
 
-@media (max-width: 768px) {
-  #bottom-area {
-    flex-direction: row; overflow-x: auto; overflow-y: hidden;
-    white-space: nowrap; height: 45vh; scroll-snap-type: x mandatory;
-  }
-  #leaderboard, #map {
-    flex: none; width: 100vw; height: 100%;
-    scroll-snap-align: start; display: inline-block;
-  }
+#photoInput::after {
+  content: none;
 }
-
-  </style>
+</style>
 </head>
 
 <body>
@@ -227,7 +151,7 @@ tr:nth-child(even){ background-color: rgba(255,255,255,0.2);}
   </div>
 </div>
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
 /* ==========================================================
@@ -293,6 +217,7 @@ function checkPhotoAndNext() {
   }
   nextMission();
 }
+
 document.addEventListener('change', e => {
   if (e.target.id === 'photoInput') {
     const file = e.target.files[0];
@@ -302,60 +227,15 @@ document.addEventListener('change', e => {
         const img = document.getElementById('photoPreview');
         img.src = ev.target.result;
         img.style.display = 'block';
+        document.getElementById('photoInput').style.display = 'none';  // 隱藏選擇檔案按鈕
       };
       reader.readAsDataURL(file);
     }
   }
 });
+</script>
 
-/* ==========================================================
-   📘 第6關：婚禮趣味問答（六題四選一）
-   ========================================================== */
-const quizData = [
-  { q: "💍 新人第一次約會去哪裡？", o: ["海邊", "電影院", "夜市", "健身房"], a: 1 },
-  { q: "🍰 婚禮蛋糕幾層？", o: ["1層", "2層", "3層", "4層"], a: 2 },
-  { q: "🎵 婚禮主題曲是哪一首？", o: ["小幸運", "Perfect", "告白氣球", "Marry You"], a: 3 },
-  { q: "🐶 新人養了哪種寵物？", o: ["狗", "貓", "兔子", "鳥"], a: 0 },
-  { q: "🎁 伴手禮是什麼？", o: ["餅乾", "紅豆糕", "巧克力", "手工皂"], a: 2 },
-  { q: "💐 新娘最喜歡的花？", o: ["玫瑰", "百合", "鬱金香", "向日葵"], a: 3 }
-];
-let quizIndex = 0, answered = false;
-function startQuiz() { showQuestion(); }
-function showQuestion() {
-  answered = false;
-  const card = document.getElementById("mission-card");
-  const q = quizData[quizIndex];
-  let html = `
-    <h1>💡 第 ${quizIndex + 1} 題</h1>
-    <div id="missionNotice"></div>
-    <p>${q.q}</p>
-    <div class="option-grid">`;
-  q.o.forEach((opt, i) => {
-    html += `<button id="opt${i}" onclick="checkAnswer(${i})">${opt}<span class="mark"></span></button>`;
-  });
-  html += `</div>`;
-  card.innerHTML = html;
-}
-function checkAnswer(choice) {
-  if (answered) return;
-  const q = quizData[quizIndex];
-  const correct = q.a;
-  const btn = document.getElementById("opt" + choice);
-  if (choice === correct) {
-    btn.querySelector(".mark").textContent = "✔️";
-    answered = true;
-    quizIndex++;
-    if (quizIndex < quizData.length) setTimeout(showQuestion, 1200);
-    else setTimeout(() => {
-      document.getElementById("mission-card").innerHTML = `
-        <h1>🎉 測驗完成！</h1>
-        <div id="missionNotice"></div>
-        <p>你已完成第六關！</p>`;
-    }, 1200);
-  } else btn.querySelector(".mark").textContent = "❌";
-}
-
-/* ==========================================================
+ /* ==========================================================
    🏆 排行榜（含狀態通知）
    ========================================================== */
 let players = [
@@ -485,24 +365,39 @@ img.onload = function () {
     .addTo(map);
 };
 
-/* ✅ 修正滑動衝突（不影響其他滾動區域） */
-map.getContainer().addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+* ✅ 修正滑動衝突（支援雙指縮放、單指左右滑頁） */
+map.on('touchstart', function(e){ e.preventDefault(); });
 map.getContainer().addEventListener('touchmove', e => e.stopPropagation(), { passive: true });
 map.getContainer().addEventListener('wheel', e => e.stopPropagation(), { passive: true });
-
-/* 📱 防止鍵盤頂上推（適用所有輸入/上傳欄位） */
-document.querySelectorAll('input, textarea, [contenteditable="true"]').forEach(el => {
-  el.addEventListener('focus', () => {
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${window.scrollY}px`;
-  });
-  el.addEventListener('blur', () => {
-    const scrollY = document.body.style.top;
-    document.body.style.position = '';
-    document.body.style.top = '';
-    window.scrollTo(0, parseInt(scrollY || '0') * -1);
-  });
+map.touchZoom.disable();
+map.dragging.disable();
+let multiTouch = false;
+map.getContainer().addEventListener('touchstart', e => {
+  multiTouch = e.touches.length > 1;
+  if (multiTouch) { map.touchZoom.enable(); map.dragging.enable(); }
+  else { map.touchZoom.disable(); map.dragging.disable(); }
 });
+map.getContainer().addEventListener('touchend', () => {
+  multiTouch = false; map.touchZoom.disable(); map.dragging.disable();
+});
+
+/* 🧷 全域防止鍵盤彈出導致畫面上移（所有輸入與上傳框適用） */
+function preventKeyboardPushUp() {
+  document.addEventListener('focusin', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+    }
+  });
+  document.addEventListener('focusout', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+      document.body.style.position = '';
+      document.body.style.width = '';
+      window.scrollTo(0, 0); // 回到原位
+    }
+  });
+}
+preventKeyboardPushUp();
 </script>
 </body>
 </html>
