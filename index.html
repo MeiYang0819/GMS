@@ -90,8 +90,46 @@ button:hover { background-color: #ffd166; }
   outline: none;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1) inset;
 }
-#nicknameInput::placeholder {
-  color: #999;
+#nicknameInput::placeholder { color: #999; }
+
+/* 🖼️ 第二關上傳 */
+#photoUploadBox { margin-top: 20px; }
+#photoInput {
+  width: 85%;
+  max-width: 340px;
+  height: 60px;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  background: #fff;
+  color: transparent;
+  cursor: pointer;
+  font-size: 0;
+  outline: none;
+}
+#photoInput::-webkit-file-upload-button {
+  visibility: hidden;
+}
+#photoInput::before {
+  content: "📷 選擇照片";
+  display: inline-block;
+  background: #ffb703;
+  color: #111;
+  font-size: 20px;
+  font-weight: bold;
+  padding: 12px 30px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+#photoInput:hover::before { background: #ffd166; }
+#photoPreview {
+  display: none;
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  margin-top: 14px;
+  border-radius: 14px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
 }
 
 /* 下方排行與地圖 */
@@ -199,10 +237,9 @@ tr:nth-child(even){ background-color: rgba(255,255,255,0.2);}
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
 <script>
 /* ==========================================================
-   🎯 任務流程控制區（含暱稱輸入於第一關 + 照片上傳於第二關）
+   🎯 任務流程控制
    ========================================================== */
 let step = 0;
 const baseMissions = [
@@ -225,7 +262,7 @@ function nextMission() {
       <div id="missionNotice"></div>
       <p>${baseMissions[0]}</p>
       <input type="text" id="nicknameInput" placeholder="填寫暱稱..." />
-      <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
+      <button onclick="nextMission()">下一關 ▶</button>`;
     step++;
   } else if (step === 1) {
     card.innerHTML = `
@@ -234,16 +271,16 @@ function nextMission() {
       <p>${baseMissions[1]}</p>
       <div id="photoUploadBox">
         <input type="file" id="photoInput" accept="image/*" />
-        <img id="photoPreview" style="display:none;max-width:200px;margin-top:10px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.2);" />
+        <img id="photoPreview" />
       </div>
-      <button style="background-color:#ffb703;margin-top:25px;" onclick="checkPhotoAndNext()">下一關 ▶</button>`;
+      <button onclick="checkPhotoAndNext()">下一關 ▶</button>`;
     step++;
   } else if (step < baseMissions.length - 1) {
     card.innerHTML = `
       <h1>🎯 第 ${step + 1} 關</h1>
       <div id="missionNotice"></div>
       <p>${baseMissions[step]}</p>
-      <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
+      <button onclick="nextMission()">下一關 ▶</button>`;
     step++;
   } else if (step === baseMissions.length - 1) {
     startQuiz(); step++;
@@ -254,14 +291,10 @@ function nextMission() {
   }
 }
 
-/* 🖼️ 第二關：上傳檢查與預覽 */
+/* 🖼️ 第二關上傳與預覽 */
 function checkPhotoAndNext() {
-  const input = document.getElementById('photoInput');
-  const file = input?.files[0];
-  if (!file) {
-    showMissionNotice("⚠️ 請先上傳一張照片再繼續！");
-    return;
-  }
+  const file = document.getElementById('photoInput').files[0];
+  if (!file) { showMissionNotice("⚠️ 請先上傳一張照片再繼續！"); return; }
   nextMission();
 }
 document.addEventListener('change', e => {
@@ -280,54 +313,7 @@ document.addEventListener('change', e => {
 });
 
 /* ==========================================================
-   📘 第6關：婚禮趣味問答（六題四選一）
-   ========================================================== */
-const quizData = [
-  { q: "💍 新人第一次約會去哪裡？", o: ["海邊", "電影院", "夜市", "健身房"], a: 1 },
-  { q: "🍰 婚禮蛋糕幾層？", o: ["1層", "2層", "3層", "4層"], a: 2 },
-  { q: "🎵 婚禮主題曲是哪一首？", o: ["小幸運", "Perfect", "告白氣球", "Marry You"], a: 3 },
-  { q: "🐶 新人養了哪種寵物？", o: ["狗", "貓", "兔子", "鳥"], a: 0 },
-  { q: "🎁 伴手禮是什麼？", o: ["餅乾", "紅豆糕", "巧克力", "手工皂"], a: 2 },
-  { q: "💐 新娘最喜歡的花？", o: ["玫瑰", "百合", "鬱金香", "向日葵"], a: 3 }
-];
-let quizIndex = 0, answered = false;
-function startQuiz() { showQuestion(); }
-function showQuestion() {
-  answered = false;
-  const card = document.getElementById("mission-card");
-  const q = quizData[quizIndex];
-  let html = `
-    <h1>💡 第 ${quizIndex + 1} 題</h1>
-    <div id="missionNotice"></div>
-    <p>${q.q}</p>
-    <div class="option-grid">`;
-  q.o.forEach((opt, i) => {
-    html += `<button id="opt${i}" onclick="checkAnswer(${i})">${opt}<span class="mark"></span></button>`;
-  });
-  html += `</div>`;
-  card.innerHTML = html;
-}
-function checkAnswer(choice) {
-  if (answered) return;
-  const q = quizData[quizIndex];
-  const correct = q.a;
-  const btn = document.getElementById("opt" + choice);
-  if (choice === correct) {
-    btn.querySelector(".mark").textContent = "✔️";
-    answered = true;
-    quizIndex++;
-    if (quizIndex < quizData.length) setTimeout(showQuestion, 1200);
-    else setTimeout(() => {
-      document.getElementById("mission-card").innerHTML = `
-        <h1>🎉 測驗完成！</h1>
-        <div id="missionNotice"></div>
-        <p>你已完成第六關！</p>`;
-    }, 1200);
-  } else btn.querySelector(".mark").textContent = "❌";
-}
-
-/* ==========================================================
-   🏆 排行榜（含狀態通知）
+   🏆 排行榜（含通知）
    ========================================================== */
 let players = [
   { name: "大變態林阿軒", score: 100 },
@@ -342,61 +328,63 @@ let players = [
   { name: "狗牛屎楊紐約", score: 82 }
 ];
 let lastRanks = {};
-
-function showMissionNotice(text) {
-  const notice = document.getElementById("missionNotice");
-  if (!notice) return;
-  notice.textContent = text || "";
-  notice.classList.add("notice-show");
-  clearTimeout(window._noticeTimer);
-  window._noticeTimer = setTimeout(() => {
-    notice.classList.remove("notice-show");
-    setTimeout(() => { notice.textContent = ""; }, 400);
-  }, 3000);
-}
-
-function renderLeaderboard() {
-  players.sort((a, b) => b.score - a.score);
-  const tbody = document.getElementById("rank-body");
-  if (!tbody) return;
-  tbody.innerHTML = "";
-  players.forEach((p, i) => {
-    const prev = lastRanks[p.name];
-    if (prev !== undefined && prev !== i) {
-      if (prev > i) showMissionNotice(`⬆️ ${p.name} 上升至第 ${i + 1} 名！🎉`);
-      else showMissionNotice(`⬇️ ${p.name} 下降至第 ${i + 1} 名～😅`);
+function showMissionNotice(t){const n=document.getElementById("missionNotice");if(!n)return;n.textContent=t||"",n.classList.add("notice-show"),clearTimeout(window._noticeTimer),window._noticeTimer=setTimeout(()=>{n.classList.remove("notice-show"),setTimeout(()=>{n.textContent=""},400)},3000)}
+function renderLeaderboard(){
+  players.sort((a,b)=>b.score-a.score);
+  const tbody=document.getElementById("rank-body");
+  tbody.innerHTML="";
+  players.forEach((p,i)=>{const prev=lastRanks[p.name];
+    if(prev!==undefined&&prev!==i){
+      if(prev>i)showMissionNotice(`⬆️ ${p.name} 上升至第 ${i+1} 名！🎉`);
+      else showMissionNotice(`⬇️ ${p.name} 下降至第 ${i+1} 名～😅`);
     }
-    lastRanks[p.name] = i;
+    lastRanks[p.name]=i;
   });
-  players.forEach((p, i) => {
-    if (i < 4 || i >= players.length - 2) {
-      const tr = document.createElement("tr");
-      const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1;
-      tr.innerHTML = `<td>${medal}</td><td>${p.name}</td><td>${p.score}</td>`;
+  players.forEach((p,i)=>{
+    if(i<4||i>=players.length-2){
+      const tr=document.createElement("tr");
+      const medal=i===0?"🥇":i===1?"🥈":i===2?"🥉":i+1;
+      tr.innerHTML=`<td>${medal}</td><td>${p.name}</td><td>${p.score}</td>`;
       tbody.appendChild(tr);
     }
   });
 }
-
-function simulateScoreChange() {
-  const idx = Math.floor(Math.random() * players.length);
-  const delta = Math.random() > 0.5 ? 1 : -1;
-  players[idx].score += delta;
-  const tbody = document.getElementById("rank-body");
-  if (tbody && tbody.children[idx]) {
-    tbody.children[idx].classList.add("flash");
-    setTimeout(() => tbody.children[idx]?.classList.remove("flash"), 1000);
-  }
-  renderLeaderboard();
-}
-
 renderLeaderboard();
-setInterval(simulateScoreChange, 4500);
+setInterval(()=>{const i=Math.floor(Math.random()*players.length);
+  const d=Math.random()>0.5?1:-1;players[i].score+=d;renderLeaderboard();},4500);
 
 /* ==========================================================
-   🗺️ 地圖設定區（修正滑動衝突）
+   🗺️ 地圖初始化
    ========================================================== */
-const map = L.map("map", {
+let map=L.map("map",{crs:L.CRS.Simple,minZoom:-3,maxZoom:4,zoomControl:false,attributionControl:true,dragging:true,touchZoom:true,scrollWheelZoom:true,doubleClickZoom:true});
+const imageUrl="assets/WL-平面場圖-4.png";
+const img=new Image();img.src=imageUrl;
+img.onload=function(){
+  const w=img.width,h=img.height,bounds=[[0,0],[h,w]];
+  L.imageOverlay(imageUrl,bounds).addTo(map);
+  map.setMaxBounds(bounds);map.fitBounds(bounds,{animate:false});
+  if(window.innerWidth<=768){map.setZoom(map.getZoom()-1.6);}else{map.setZoom(map.getZoom()-1.2);}
+  const points=[
+    {name:"關卡一",coords:[h*0.45,w*0.45],color:"red"},
+    {name:"關卡二",coords:[h*0.35,w*0.70],color:"red"},
+    {name:"關卡三",coords:[h*0.55,w*0.30],color:"red"},
+    {name:"關卡四",coords:[h*0.25,w*0.80],color:"red"},
+    {name:"關卡五",coords:[h*0.20,w*0.20],color:"red"},
+    {name:"關卡六",coords:[h*0.40,w*0.10],color:"red"},
+    {name:"🎁 Bonus A",coords:[h*0.55,w*0.65],color:"gold"},
+    {name:"🎁 Bonus B",coords:[h*0.40,w*0.60],color:"gold"},
+    {name:"🎁 Bonus C",coords:[h*0.75,w*0.50],color:"gold"}
+  ];
+  points.forEach(p=>{
+    L.circleMarker(p.coords,{radius:4,color:p.color,fillColor:p.color,fillOpacity:0.9})
+    .addTo(map).bindTooltip(p.name,{direction:"top",offset:[0,-4]});
+  });
+  L.control.attribution({prefix:false}).addAttribution("💍 MYs Map © 
+
+                                                       /* ==========================================================
+   🗺️ 地圖初始化
+   ========================================================== */
+let map = L.map("map", {
   crs: L.CRS.Simple,
   minZoom: -3,
   maxZoom: 4,
@@ -435,6 +423,7 @@ img.onload = function () {
     { name: "🎁 Bonus B", coords: [h * 0.40, w * 0.60], color: "gold" },
     { name: "🎁 Bonus C", coords: [h * 0.75, w * 0.50], color: "gold" }
   ];
+
   points.forEach(p => {
     L.circleMarker(p.coords, {
       radius: 4,
@@ -455,17 +444,19 @@ map.getContainer().addEventListener('touchmove', e => e.stopPropagation(), { pas
 map.getContainer().addEventListener('wheel', e => e.stopPropagation(), { passive: true });
 
 /* 📱 防止鍵盤頂上推（適用所有輸入/上傳欄位） */
-document.querySelectorAll('input, textarea, [contenteditable="true"]').forEach(el => {
-  el.addEventListener('focus', () => {
+document.addEventListener('focusin', e => {
+  if (e.target.matches('input, textarea, [contenteditable="true"]')) {
     document.body.style.position = 'fixed';
     document.body.style.top = `-${window.scrollY}px`;
-  });
-  el.addEventListener('blur', () => {
+  }
+});
+document.addEventListener('focusout', e => {
+  if (e.target.matches('input, textarea, [contenteditable="true"]')) {
     const scrollY = document.body.style.top;
     document.body.style.position = '';
     document.body.style.top = '';
     window.scrollTo(0, parseInt(scrollY || '0') * -1);
-  });
+  }
 });
 </script>
 </body>
