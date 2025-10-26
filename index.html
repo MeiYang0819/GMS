@@ -365,39 +365,24 @@ img.onload = function () {
     .addTo(map);
 };
 
-* ✅ 修正滑動衝突（支援雙指縮放、單指左右滑頁） */
-map.on('touchstart', function(e){ e.preventDefault(); });
+/* ✅ 修正滑動衝突（不影響其他滾動區域） */
+map.getContainer().addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
 map.getContainer().addEventListener('touchmove', e => e.stopPropagation(), { passive: true });
 map.getContainer().addEventListener('wheel', e => e.stopPropagation(), { passive: true });
-map.touchZoom.disable();
-map.dragging.disable();
-let multiTouch = false;
-map.getContainer().addEventListener('touchstart', e => {
-  multiTouch = e.touches.length > 1;
-  if (multiTouch) { map.touchZoom.enable(); map.dragging.enable(); }
-  else { map.touchZoom.disable(); map.dragging.disable(); }
-});
-map.getContainer().addEventListener('touchend', () => {
-  multiTouch = false; map.touchZoom.disable(); map.dragging.disable();
-});
 
-/* 🧷 全域防止鍵盤彈出導致畫面上移（所有輸入與上傳框適用） */
-function preventKeyboardPushUp() {
-  document.addEventListener('focusin', (e) => {
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
-    }
+/* 📱 防止鍵盤頂上推（適用所有輸入/上傳欄位） */
+document.querySelectorAll('input, textarea, [contenteditable="true"]').forEach(el => {
+  el.addEventListener('focus', () => {
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${window.scrollY}px`;
   });
-  document.addEventListener('focusout', (e) => {
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-      document.body.style.position = '';
-      document.body.style.width = '';
-      window.scrollTo(0, 0); // 回到原位
-    }
+  el.addEventListener('blur', () => {
+    const scrollY = document.body.style.top;
+    document.body.style.position = '';
+    document.body.style.top = '';
+    window.scrollTo(0, parseInt(scrollY || '0') * -1);
   });
-}
-preventKeyboardPushUp();
+});
 </script>
 </body>
 </html>
