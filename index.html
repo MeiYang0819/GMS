@@ -237,6 +237,18 @@ button:hover { background-color: #ffd166; }
     </div>
   </div>
 
+    <!-- 這部分放在任務區塊內部 -->
+  <div id="puzzleContainer" style="display: none;">
+    <button id="startPuzzleButton" onclick="startPuzzle()">開始拼圖</button>
+    <div id="puzzleArea" style="display: none;">
+      <div id="puzzleLeft"></div>
+      <div id="puzzleRight"></div>
+      <button id="resetPuzzleButton" onclick="resetPuzzle()">重來</button>
+      <button id="completePuzzleButton" onclick="completePuzzle()">完成</button>
+    </div>
+  </div>
+</div>
+    
   <div id="bottom-area">
     <div id="leaderboard">
       <h2>🏆 排行榜</h2>
@@ -251,19 +263,6 @@ button:hover { background-color: #ffd166; }
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<!-- 這是新增的拼圖部分 -->
-    <div id="puzzleContainer" style="display: none;">
-      <button id="startPuzzleButton" onclick="startPuzzle()">開始拼圖</button>
-      <div id="puzzleArea" style="display: none;">
-        <div id="puzzleLeft"></div>
-        <div id="puzzleRight"></div>
-        <button id="resetPuzzleButton" onclick="resetPuzzle()">重來</button>
-        <button id="completePuzzleButton" onclick="completePuzzle()">完成</button>
-      </div>
-    </div>
-  </div>
-</body>
 
 <script>
 /* ==========================================================
