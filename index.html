@@ -75,117 +75,44 @@
     }
     button:hover { background-color: #ffd166; }
 
-    /* 🟨 暱稱輸入框樣式 */
-    #nicknameInput {
-      width: 60%; /* 縮小寬度 */
-      max-width: 280px;
-      height: 40px;
-      margin: 12px auto;
-      display: block;
-      border-radius: 10px;
-      border: 2px solid #ddd;
-      background-color: #f2f2f2;
-      font-size: 16px;
-      text-align: center;
-      outline: none;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1) inset;
-    }
-    #nicknameInput::placeholder {
-      color: #999;
-    }
-
-    /* 第二關的檔案選擇框樣式 */
-    #photoInput {
-      width: 60%; /* 與第一關一致 */
-      max-width: 280px;
-      margin: 12px auto;
-      display: block;
-      border-radius: 10px;
-      border: 2px solid #ddd;
-      background-color: #f2f2f2;
-      font-size: 16px;
-      text-align: center;
-      outline: none;
-      padding: 10px;
-      font-size: 14px; /* 縮小字體 */
-    }
-
-    /* 下方排行與地圖 */
-    #bottom-area { display: flex; height: 45%; border-top: 4px solid #fff; }
-    #leaderboard {
-      flex: 1;
-      background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%);
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding: 0 0 60px 0;
-      display: flex;
-      flex-direction: column;
+    /* 拼图界面 */
+    #puzzle-container {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.8);
+      justify-content: center;
       align-items: center;
-      justify-content: flex-start;
+    }
+    #puzzle {
       position: relative;
+      display: flex;
+      flex-wrap: wrap;
+      width: 300px;
+      height: 300px;
+      margin: auto;
     }
-    #leaderboard h2 { font-size: 26px; margin: 8px 0 12px; color: #111; display: flex; justify-content: center; }
-    #leaderboard .hint-box {
-      position: absolute; top: 10px; right: 10px;
-      background: rgba(220,220,220,0.92);
-      border-radius: 8px; padding: 4px 10px; font-size: 14px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      white-space: nowrap; z-index: 9999;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      border-spacing: 0;
-      font-size: 18px;
-      color: #111;
-      margin: 0;
-    }
-    th, td { text-align: center; padding: 6px 0; }
-    th { background-color: rgba(255,255,255,0.4); }
-    tr:nth-child(even){ background-color: rgba(255,255,255,0.2); }
-    .ellipsis td { text-align: center; color: #555; font-style: italic; }
-
-    @keyframes scoreFlash {
-      0% { background-color: rgba(255,255,150,0.7); }
-      100% { background-color: transparent; }
-    }
-    .flash { animation: scoreFlash 1s ease; }
-
-    #map { flex: 1; border-left: 4px solid #fff; position: relative; overflow: hidden; }
-    .leaflet-container { width: 100%; height: 100%; background: #f5f5f5; }
-    .leaflet-control-attribution {
-      background: rgba(180,180,180,0.9);
-      border-radius: 6px;
-      padding: 2px 8px;
-      font-size: 13px;
-    }
-    #map::before {
-      content: "右滑排行 👉";
-      position: absolute;
-      top: 8px; left: 10px;
-      background: rgba(240,240,240,0.9);
-      padding: 3px 10px;
+    .puzzle-piece {
+      width: 100px;
+      height: 100px;
+      background-color: #f2f2f2;
+      border: 2px solid #ddd;
       border-radius: 8px;
-      font-size: 14px; color: #111; z-index: 9999;
+      box-sizing: border-box;
+      margin: 2px;
+      cursor: pointer;
     }
-
-    .option-grid {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 12px; justify-items: center; margin-top: 25px;
+    .puzzle-piece img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 8px;
     }
-    .option-grid button { width: 90%; position: relative; }
-    .option-grid button .mark { position: absolute; right: 10px; top: 5px; font-size: 24px; }
-
-    @media (max-width: 768px) {
-      #bottom-area {
-        flex-direction: row; overflow-x: auto; overflow-y: hidden;
-        white-space: nowrap; height: 45vh; scroll-snap-type: x mandatory;
-      }
-      #leaderboard, #map {
-        flex: none; width: 100vw; height: 100%;
-        scroll-snap-align: start; display: inline-block;
-      }
+    #controls {
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -193,111 +120,178 @@
 <body>
 
   <div id="app">
-  <div id="main-area">
-    <div class="main-card" id="mission-card">
-      <h1>🕙闖關任務🕒</h1>
-      <div id="missionNotice"></div>
-      <p>歡迎參加幹掉雙面陳闖關活動～<br>請點擊開始進行挑戰！</p>
-      <button onclick="nextMission()">開始任務 ▶</button>
-    </div>
-  </div>
-
-  <div id="bottom-area">
-    <div id="leaderboard">
-      <h2>🏆 排行榜</h2>
-      <span class="hint-box">👈 左滑地圖</span>
-      <table>
-        <thead><tr><th>名次</th><th>暱稱</th><th>分數</th></tr></thead>
-        <tbody id="rank-body"></tbody>
-      </table>
-    </div>
-    <div id="map"></div>
-  </div>
-</div>
-
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<script>
-/* ==========================================================
-   🎯 任務流程控制區（含暱稱輸入於第一關 + 照片上傳於第二關）
-   ========================================================== */
-let step = 0;
-const baseMissions = [
-  "簽到：請完成簽到並輸入暱稱！",
-  "簽名：請上傳您的簽名或照片！",
-  "找招待：請找現場工作人員確認",
-  "找新人拍照：與新人合照 📸",
-  "小遊戲：完成拼圖挑戰！",
-  "測驗：回答婚禮小問題 💡"
-];
-if (Math.random() > 0.5) {
-  [baseMissions[3], baseMissions[4]] = [baseMissions[4], baseMissions[3]];
-}
-
-function nextMission() {
-  const card = document.getElementById("mission-card");
-  if (step === 0) {
-    card.innerHTML = `
-      <h1>🎯 第 1 關</h1>
-      <div id="missionNotice"></div>
-      <p>${baseMissions[0]}</p>
-      <input type="text" id="nicknameInput" placeholder="填寫暱稱..." />
-      <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
-    step++;
-  } else if (step === 1) {
-    card.innerHTML = `
-      <h1>🎯 第 2 關</h1>
-      <div id="missionNotice"></div>
-      <p>${baseMissions[1]}</p>
-      <div id="photoUploadBox">
-        <input type="file" id="photoInput" accept="image/*" />
+    <div id="main-area">
+      <div class="main-card" id="mission-card">
+        <h1>🕙闖關任務🕒</h1>
+        <div id="missionNotice"></div>
+        <p>歡迎參加幹掉雙面陳闖關活動～<br>請點擊開始進行挑戰！</p>
+        <button onclick="nextMission()">開始任務 ▶</button>
       </div>
-      <button style="background-color:#ffb703;margin-top:25px;" onclick="checkPhotoAndNext()">下一關 ▶</button>`;
-    step++;
-  } else if (step === 3 || step === 4) { // 第四或第五关根据任务类型决定是否显示上传框
-    if (baseMissions[step] === "找新人拍照：與新人合照 📸") {
-      card.innerHTML = `
-        <h1>🎯 第 ${step + 1} 關</h1>
-        <div id="missionNotice"></div>
-        <p>${baseMissions[step]}</p>
-        <div id="photoUploadBox">
-          <input type="file" id="photoInput" accept="image/*" />
-        </div>
-        <button style="background-color:#ffb703;margin-top:25px;" onclick="checkPhotoAndNext()">下一關 ▶</button>`;
-    } else {
-      card.innerHTML = `
-        <h1>🎯 第 ${step + 1} 關</h1>
-        <div id="missionNotice"></div>
-        <p>${baseMissions[step]}</p>
-        <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
-    }
-    step++;
-  } else if (step < baseMissions.length - 1) {
-    card.innerHTML = `
-      <h1>🎯 第 ${step + 1} 關</h1>
-      <div id="missionNotice"></div>
-      <p>${baseMissions[step]}</p>
-      <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
-    step++;
-  } else if (step === baseMissions.length - 1) {
-    startQuiz(); step++;
-  } else {
-    card.innerHTML = `<h1>🎉 恭喜完成所有任務</h1>
-      <div id="missionNotice"></div>
-      <p>感謝一起讓雙面陳往生</p>`;
-  }
-}
+    </div>
 
-/* 🖼️ 第二關：上傳檢查與預覽 */
-function checkPhotoAndNext() {
-  const input = document.getElementById('photoInput');
-  const file = input?.files[0];
-  if (!file) {
-    showMissionNotice("⚠️ 請先上傳一張照片再繼續！");
-    return;
-  }
-  nextMission();
-}
+    <div id="bottom-area">
+      <div id="leaderboard">
+        <h2>🏆 排行榜</h2>
+        <span class="hint-box">👈 左滑地圖</span>
+        <table>
+          <thead><tr><th>名次</th><th>暱稱</th><th>分數</th></tr></thead>
+          <tbody id="rank-body"></tbody>
+        </table>
+      </div>
+      <div id="map"></div>
+    </div>
+  </div>
+
+  <!-- 拼图界面 -->
+  <div id="puzzle-container">
+    <div id="puzzle"></div>
+    <div id="controls">
+      <button onclick="resetPuzzle()">重來</button>
+      <button onclick="completePuzzle()">完成</button>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+    let step = 0;
+    const baseMissions = [
+      "簽到：請完成簽到並輸入暱稱！",
+      "簽名：請上傳您的簽名或照片！",
+      "找招待：請找現場工作人員確認",
+      "找新人拍照：與新人合照 📸",
+      "小遊戲：完成拼圖挑戰！",
+      "測驗：回答婚禮小問題 💡"
+    ];
+    if (Math.random() > 0.5) {
+      [baseMissions[3], baseMissions[4]] = [baseMissions[4], baseMissions[3]];
+    }
+
+    function nextMission() {
+      const card = document.getElementById("mission-card");
+      if (step === 0) {
+        card.innerHTML = `
+          <h1>🎯 第 1 關</h1>
+          <div id="missionNotice"></div>
+          <p>${baseMissions[0]}</p>
+          <input type="text" id="nicknameInput" placeholder="填寫暱稱..." />
+          <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
+        step++;
+      } else if (step === 1) {
+        card.innerHTML = `
+          <h1>🎯 第 2 關</h1>
+          <div id="missionNotice"></div>
+          <p>${baseMissions[1]}</p>
+          <div id="photoUploadBox">
+            <input type="file" id="photoInput" accept="image/*" />
+          </div>
+          <button style="background-color:#ffb703;margin-top:25px;" onclick="checkPhotoAndNext()">下一關 ▶</button>`;
+        step++;
+      } else if (step === 4) { // 拼图任务
+        card.innerHTML = `
+          <h1>🎯 第 5 關</h1>
+          <div id="missionNotice"></div>
+          <p>${baseMissions[4]}</p>
+          <button style="background-color:#ffb703;margin-top:25px;" onclick="startPuzzle()">開始拼圖 ▶</button>`;
+        step++;
+      } else {
+        card.innerHTML = `
+          <h1>🎯 第 ${step + 1} 關</h1>
+          <div id="missionNotice"></div>
+          <p>${baseMissions[step]}</p>
+          <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
+        step++;
+      }
+    }
+
+    function startPuzzle() {
+      // 顯示拼圖界面
+      document.getElementById("puzzle-container").style.display = "flex";
+      const puzzleImage = new Image();
+      puzzleImage.src = 'assets/MYs_logo_1.png'; // 拼图图片来源
+      puzzleImage.onload = () => {
+        createPuzzle(puzzleImage);
+      };
+    }
+
+    function createPuzzle(image) {
+      const puzzleContainer = document.getElementById("puzzle");
+      const rows = 3;
+      const cols = 3;
+      const pieceWidth = 100;
+      const pieceHeight = 100;
+
+      // 随机生成拼图块位置
+      let pieces = [];
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+          const x = j * pieceWidth;
+          const y = i * pieceHeight;
+          pieces.push({ x, y });
+        }
+      }
+
+      // 生成拼图块并应用马赛克效果
+      pieces.forEach((piece, index) => {
+        const canvas = document.createElement("canvas");
+        canvas.width = pieceWidth;
+        canvas.height = pieceHeight;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(image, piece.x, piece.y, pieceWidth, pieceHeight, 0, 0, pieceWidth, pieceHeight);
+        ctx.globalAlpha = 0.8;
+        ctx.filter = "blur(4px)";
+        ctx.drawImage(canvas, 0, 0, pieceWidth, pieceHeight);
+
+        const img = document.createElement("img");
+        img.src = canvas.toDataURL();
+        img.classList.add("puzzle-piece");
+        img.draggable = true;
+        img.dataset.index = index;
+        img.addEventListener("dragstart", (e) => handleDragStart(e, index));
+        puzzleContainer.appendChild(img);
+      });
+    }
+
+    let draggedIndex = null;
+    function handleDragStart(e, index) {
+      draggedIndex = index;
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+    }
+
+    function handleDrop(e) {
+      const target = e.target;
+      if (target && target.classList.contains("puzzle-piece") && draggedIndex !== null) {
+        const temp = target.src;
+        target.src = document.querySelectorAll(".puzzle-piece")[draggedIndex].src;
+        document.querySelectorAll(".puzzle-piece")[draggedIndex].src = temp;
+        draggedIndex = null;
+      }
+    }
+
+    function resetPuzzle() {
+      const puzzleContainer = document.getElementById("puzzle");
+      puzzleContainer.innerHTML = ""; // 清空拼图块
+      createPuzzle(document.querySelector("img").src);
+    }
+
+    function completePuzzle() {
+      // 完成拼图，返回主页面并显示下一关
+      document.getElementById("puzzle-container").style.display = "none";
+      nextMission();
+    }
+
+    function checkPhotoAndNext() {
+      const input = document.getElementById('photoInput');
+      const file = input?.files[0];
+      if (!file) {
+        showMissionNotice("⚠️ 請先上傳一張照片再繼續！");
+        return;
+      }
+      nextMission();
+    }
 
  /* ==========================================================
    📘 第6關：婚禮趣味問答（六題四選一）
@@ -516,6 +510,7 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html> 
+
 
 
 
