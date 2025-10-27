@@ -107,11 +107,12 @@ button:hover { background-color: #ffd166; }
   text-align: center;
   outline: none;
   padding: 10px;
+  font-size: 14px; /* 縮小字體 */
 }
 
 #photoPreview {
   display: none;
-  max-width: 100px; /* 預覽圖片大小 */
+  max-width: 50px; /* 預覽圖片大小 50x50px */
   margin-top: 10px;
   border-radius: 10px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
@@ -258,7 +259,7 @@ function nextMission() {
       <p>${baseMissions[1]}</p>
       <div id="photoUploadBox">
         <input type="file" id="photoInput" accept="image/*" />
-        <img id="photoPreview" style="display:none;max-width:100px;margin-top:10px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.2);" />
+        <img id="photoPreview" style="display:none;max-width:50px;margin-top:10px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.2);" />
       </div>
       <button style="background-color:#ffb703;margin-top:25px;" onclick="checkPhotoAndNext()">下一關 ▶</button>`;
     step++;
@@ -520,3 +521,4 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
