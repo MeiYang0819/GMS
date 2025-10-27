@@ -143,7 +143,7 @@
     }
     th, td { text-align: center; padding: 6px 0; }
     th { background-color: rgba(255,255,255,0.4); }
-    tr:nth-child(even){ background-color: rgba(255,255,255,0.2);}
+    tr:nth-child(even){ background-color: rgba(255,255,255,0.2); }
     .ellipsis td { text-align: center; color: #555; font-style: italic; }
 
     @keyframes scoreFlash {
@@ -253,6 +253,24 @@ function nextMission() {
         <input type="file" id="photoInput" accept="image/*" />
       </div>
       <button style="background-color:#ffb703;margin-top:25px;" onclick="checkPhotoAndNext()">下一關 ▶</button>`;
+    step++;
+  } else if (step === 3 || step === 4) { // 第四或第五关根据任务类型决定是否显示上传框
+    if (baseMissions[step] === "找新人拍照：與新人合照 📸") {
+      card.innerHTML = `
+        <h1>🎯 第 ${step + 1} 關</h1>
+        <div id="missionNotice"></div>
+        <p>${baseMissions[step]}</p>
+        <div id="photoUploadBox">
+          <input type="file" id="photoInput" accept="image/*" />
+        </div>
+        <button style="background-color:#ffb703;margin-top:25px;" onclick="checkPhotoAndNext()">下一關 ▶</button>`;
+    } else {
+      card.innerHTML = `
+        <h1>🎯 第 ${step + 1} 關</h1>
+        <div id="missionNotice"></div>
+        <p>${baseMissions[step]}</p>
+        <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
+    }
     step++;
   } else if (step < baseMissions.length - 1) {
     card.innerHTML = `
@@ -498,6 +516,7 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html> 
+
 
 
 
