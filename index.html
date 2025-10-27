@@ -110,14 +110,6 @@ button:hover { background-color: #ffd166; }
   font-size: 14px; /* 縮小字體 */
 }
 
-#photoPreview {
-  display: none;
-  max-width: 50px; /* 預覽圖片大小 50x50px */
-  margin-top: 10px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-}
-
 /* 下方排行與地圖 */
 #bottom-area { display: flex; height: 45%; border-top: 4px solid #fff; }
 #leaderboard {
@@ -259,7 +251,6 @@ function nextMission() {
       <p>${baseMissions[1]}</p>
       <div id="photoUploadBox">
         <input type="file" id="photoInput" accept="image/*" />
-        <img id="photoPreview" style="display:none;max-width:50px;margin-top:10px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.2);" />
       </div>
       <button style="background-color:#ffb703;margin-top:25px;" onclick="checkPhotoAndNext()">下一關 ▶</button>`;
     step++;
@@ -289,20 +280,6 @@ function checkPhotoAndNext() {
   }
   nextMission();
 }
-document.addEventListener('change', e => {
-  if (e.target.id === 'photoInput') {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = ev => {
-        const img = document.getElementById('photoPreview');
-        img.src = ev.target.result;
-        img.style.display = 'block';
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-});
 
 /* ==========================================================
    📘 第6關：婚禮趣味問答（六題四選一）
@@ -521,4 +498,5 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
 
