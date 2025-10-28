@@ -108,30 +108,28 @@
       font-size: 14px; /* 縮小字體 */
     }
 
-    /* （你之前新增的拼圖樣式：保留，不刪改） */
+    /* 拼圖區域樣式（你原先的，保留不動） */
     #puzzleContainer { text-align: center; margin-top: 20px; }
     #puzzleLeft { display: inline-block; width: 45%; height: 300px; border: 2px solid #ddd; margin-right: 10px; }
     #puzzleRight { display: inline-block; width: 45%; height: 300px; border: 2px solid #ddd; }
     button { background-color: #ffb703; border: none; border-radius: 10px; color: #111; font-size: var(--font-base); padding: 10px 25px; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
     button:hover { background-color: #ffd166; }
 
-    /* === 新增：全螢幕拼圖覆蓋層（上/下佈局；不顯示下方格線） === */
-    /* 覆蓋層（會蓋住整個頁面，下方排行榜/地圖仍存在，只是被遮罩） */
+    /* === 新增：全螢幕拼圖覆蓋層（上：散塊；下：單一大框；重來置中） === */
     #puzzleContainer {
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.45);
       display: none;          /* 由 JS 控制 */
       z-index: 9999;
-      margin-top: 0;          /* 覆蓋前面舊樣式的 margin */
+      margin-top: 0;          /* 覆蓋舊樣式的 margin */
     }
-    /* 置中面板（上：散塊；下：單框；底：按鈕列） */
     #puzzleArea {
       position: absolute;
       top: 50%; left: 50%;
       transform: translate(-50%,-50%);
       width: min(96vw, 900px);
-      height: min(86vh, 680px);
+      height: min(86vh, 700px);
       background: #fffdf2;
       border-radius: 16px;
       padding: 12px;
@@ -152,29 +150,32 @@
     #puzzleBottom {
       position: relative;
       background: #fafafa;
-      border: 2px dashed #ddd;      /* 視覺是單一大框，不畫 3x3 格線 */
+      border: 2px dashed #ddd;      /* 單一大框，不畫 3x3 格線 */
       border-radius: 12px;
       overflow: hidden;
     }
     #puzzleActions {
+      position: relative;
       display: flex;
-      justify-content: space-between;
+      justify-content: center;      /* ✅ 重來置中 */
       align-items: center;
+      min-height: 56px;
       gap: 12px;
     }
-    #completePuzzleButton { display: none; }
-
-    /* 拼圖塊（背景切 3x3；輕度「馬賽克」用模糊近似） */
-    .puzzlePiece {
+    #completePuzzleButton {
       position: absolute;
-      width: 100px; height: 100px;  /* 進場會被 JS 覆寫成對應尺寸 */
-      background-size: 300% 300%;
+      right: 0;                      /* 完成固定右側 */
+      display: none;
+    }
+
+    .puzzlePiece {
+      position: absolute;            /* 由 JS 絕對定位 */
+      width: 100px; height: 100px;   /* 進場會被 JS 覆寫為 cellSize */
       background-repeat: no-repeat;
       border-radius: 8px;
       border: 1px solid #ddd;
       box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-      filter: blur(0.5px);          /* 約 5% 視覺模糊 */
-      touch-action: none;           /* 允許 Pointer Events 拖曳 */
+      touch-action: none;            /* 允許 Pointer 拖曳 */
       user-select: none;
     }
     .dragging { box-shadow: 0 6px 16px rgba(0,0,0,0.35); }
@@ -276,7 +277,7 @@
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-    <!-- ✅ 全螢幕拼圖覆蓋層（只有一個「開始拼圖」：在任務卡；覆蓋層內不再出現第二個開始按鈕） -->
+<!-- ✅ 全螢幕拼圖覆蓋層（覆蓋層內不再出現第二個開始按鈕） -->
 <div id="puzzleContainer" style="display: none;">
   <div id="puzzleArea" style="display: none;">
     <div id="puzzleTop"></div>
@@ -336,7 +337,7 @@ function nextMission() {
         </div>
         <button style="background-color:#ffb703;margin-top:25px;" onclick="checkPhotoAndNext()">下一關 ▶</button>`;
     } else {
-      /* ✅ 這裡顯示「開始拼圖」按鈕（唯一的），按下後直接開啟覆蓋層並顯示拼圖 */
+      /* ✅ 顯示唯一的「開始拼圖」，點下開覆蓋層並直接進入拼圖 */
       card.innerHTML = `
         <h1>🎯 第 ${step + 1} 關</h1>
         <div id="missionNotice"></div>
@@ -372,18 +373,24 @@ function checkPhotoAndNext() {
 }
 
 /* ==========================================================
-   🧩 拼圖（上：隨機散塊；下：單一大框；支援滑鼠+手機 Pointer Events）
+   🧩 拼圖（上：散塊；下：單一大框；零縫對齊；支援手機 Pointer Events）
    ========================================================== */
+
+/* 你可以調整這個百分比（0~100 建議 0~15）來改變馬賽克強度 */
+window.PUZZLE_MOSAIC_PERCENT = 5;
+
 const PUZZLE_IMG_SRC = 'assets/MYs_logo_1.png';
 let puzzleImage = new Image();
 puzzleImage.src = PUZZLE_IMG_SRC;
 
-let pieces = [];                 // 所有拼圖塊 DOM
-let slotSize = 0;                // 下方單框中每格大小（但不畫格線）
+let pieces = [];                          // 所有拼圖塊
 let assignedSlots = new Array(9).fill(null); // 0..8 -> piece 或 null
 let activePiece = null;
 let dragStart = { x: 0, y: 0 };
 let pieceStart = { x: 0, y: 0 };
+
+/* 3x3 棋盤（不畫格線）的幾何資訊 */
+const board = { cell: 0, size: 0, left: 0, top: 0, areaLeft: 0, areaTop: 0 };
 
 function openPuzzle() {
   const overlay = document.getElementById('puzzleContainer');
@@ -391,7 +398,7 @@ function openPuzzle() {
   if (!overlay || !area) return;
   overlay.style.display = 'block';
   area.style.display = 'grid';
-  startPuzzle(); // 覆蓋層內不再出現第二個開始按鈕，直接進入拼圖
+  startPuzzle();    // 覆蓋層內沒有第二個開始鍵，直接進入
 }
 
 function closePuzzle() {
@@ -405,8 +412,23 @@ function startPuzzle() {
 }
 
 function resetPuzzle() {
-  /* 保持覆蓋層開啟，只重新產生散塊與分配 */
   createPuzzle();
+}
+
+function measureBoard() {
+  const area = document.getElementById('puzzleArea');
+  const bottomBox = document.getElementById('puzzleBottom');
+  if (!area || !bottomBox) return;
+  const areaRect = area.getBoundingClientRect();
+  const bottomRect = bottomBox.getBoundingClientRect();
+
+  // 讓棋盤為「正方形」，並在下框內「整盤置中」
+  board.cell = Math.floor(Math.min(bottomRect.width, bottomRect.height) / 3);
+  board.size = board.cell * 3;
+  board.left = bottomRect.left + (bottomRect.width  - board.size) / 2;
+  board.top  = bottomRect.top  + (bottomRect.height - board.size) / 2;
+  board.areaLeft = areaRect.left;
+  board.areaTop  = areaRect.top;
 }
 
 function createPuzzle() {
@@ -421,31 +443,41 @@ function createPuzzle() {
   assignedSlots = new Array(9).fill(null);
   document.getElementById('completePuzzleButton').style.display = 'none';
 
-  // 計算尺寸
-  const bottomRect = bottomBox.getBoundingClientRect();
-  slotSize = Math.floor(Math.min(bottomRect.width, bottomRect.height) / 3);
+  // 計算棋盤幾何
+  measureBoard();
 
-  // 建立 9 片並隨機散布在「上方區域」範圍內
   const areaRect = area.getBoundingClientRect();
-  const topRect = topBox.getBoundingClientRect();
+  const topRect  = topBox.getBoundingClientRect();
 
+  // 9 個索引（打散順序）
   const order = [0,1,2,3,4,5,6,7,8].sort(() => Math.random() - 0.5);
+
   order.forEach(i => {
+    const col = i % 3;
+    const row = Math.floor(i / 3);
+
     const piece = document.createElement('div');
     piece.className = 'puzzlePiece';
-    piece.style.width = piece.style.height = slotSize + 'px';
-    piece.style.backgroundImage = `url(${puzzleImage.src})`;
-    piece.style.backgroundPosition = `${(i % 3) * 33.333}% ${(Math.floor(i / 3)) * 33.333}%`;
-    piece.dataset.indexOriginal = i;
-    piece.dataset.slotIndex = '';      // 尚未放入下方單框
+    piece.style.width = piece.style.height = board.cell + 'px';
 
-    // 將拼圖塊放在 #puzzleArea（絕對定位），位置隨機落在上半區域
-    const randX = topRect.left + Math.random() * Math.max(1, (topRect.width - slotSize));
-    const randY = topRect.top  + Math.random() * Math.max(1, (topRect.height - slotSize));
+    /* 馬賽克強度（百分比 → 像素） */
+    const blurPx = Math.max(0, Math.round(board.cell * (window.PUZZLE_MOSAIC_PERCENT || 0) / 100));
+    piece.style.filter = `blur(${blurPx}px)`;
+
+    /* 用「像素法」切片：絕不重複、零縫對齊 */
+    piece.style.backgroundImage  = `url(${puzzleImage.src})`;
+    piece.style.backgroundSize   = `${board.size}px ${board.size}px`;
+    piece.style.backgroundPosition = `-${col * board.cell}px -${row * board.cell}px`;
+
+    piece.dataset.indexOriginal = i;     // 正確位置索引
+    piece.dataset.slotIndex = '';        // 尚未放入下方棋盤
+
+    // 將拼圖塊放到「上半區域」隨機位置（相對於 puzzleArea）
+    const randX = topRect.left + Math.random() * Math.max(1, (topRect.width  - board.cell));
+    const randY = topRect.top  + Math.random() * Math.max(1, (topRect.height - board.cell));
     piece.style.left = (randX - areaRect.left) + 'px';
-    piece.style.top  = (randY - areaRect.top)  + 'px';
+    piece.style.top  = (randY - areaRect.top ) + 'px';
 
-    // 啟用 Pointer 拖曳（手機+桌機）
     enablePointerDrag(piece);
 
     pieces.push(piece);
@@ -453,17 +485,13 @@ function createPuzzle() {
   });
 }
 
-function enablePointerDrag(el) {
-  el.addEventListener('pointerdown', onPointerDown);
-}
+function enablePointerDrag(el) { el.addEventListener('pointerdown', onPointerDown); }
 
 function onPointerDown(e) {
   activePiece = e.currentTarget;
   activePiece.classList.add('dragging');
   activePiece.setPointerCapture(e.pointerId);
 
-  const area = document.getElementById('puzzleArea');
-  const areaRect = area.getBoundingClientRect();
   const left = parseFloat(activePiece.style.left || '0');
   const top  = parseFloat(activePiece.style.top  || '0');
 
@@ -490,31 +518,30 @@ function onPointerUp(e) {
   activePiece.classList.remove('dragging');
   activePiece.releasePointerCapture(e.pointerId);
 
-  // 投放判定：如果在下方單一大框內，吸附到最近的 3x3 隱形格位置
+  // 若落在下方單一大框內，吸附到最近的 3×3 格（整盤置中、零縫貼齊）
   const area = document.getElementById('puzzleArea');
   const bottomBox = document.getElementById('puzzleBottom');
   const areaRect = area.getBoundingClientRect();
   const bottomRect = bottomBox.getBoundingClientRect();
-
   const pieceRect = activePiece.getBoundingClientRect();
+
   const cx = pieceRect.left + pieceRect.width / 2;
   const cy = pieceRect.top  + pieceRect.height / 2;
 
   let snapped = false;
   if (cx >= bottomRect.left && cx <= bottomRect.right && cy >= bottomRect.top && cy <= bottomRect.bottom) {
-    // 相對於下方框的 0..1 座標
-    const relX = (cx - bottomRect.left) / bottomRect.width;
-    const relY = (cy - bottomRect.top)  / bottomRect.height;
+    // 重新計算棋盤（避免旋轉/縮放後誤差）
+    measureBoard();
 
-    // 轉成 3x3 的格索引（不顯示，只用來對位）
-    const col = Math.min(2, Math.max(0, Math.floor(relX * 3)));
-    const row = Math.min(2, Math.max(0, Math.floor(relY * 3)));
+    const relX = Math.min(board.size, Math.max(0, cx - board.left));
+    const relY = Math.min(board.size, Math.max(0, cy - board.top));
+    const col  = Math.min(2, Math.max(0, Math.floor(relX / board.cell)));
+    const row  = Math.min(2, Math.max(0, Math.floor(relY / board.cell)));
     const slotIndex = row * 3 + col;
 
-    // 若該格未被占用或占用者就是自己，才吸附
     const occupiedBy = assignedSlots[slotIndex];
     if (!occupiedBy || occupiedBy === activePiece) {
-      // 釋放舊格
+      // 清除舊格占用
       const old = activePiece.dataset.slotIndex;
       if (old !== '' && old !== undefined && old !== null) {
         const oldIdx = Number(old);
@@ -524,19 +551,16 @@ function onPointerUp(e) {
       assignedSlots[slotIndex] = activePiece;
       activePiece.dataset.slotIndex = String(slotIndex);
 
-      // 吸附到該格中心（計算 left/top）
-      const cellW = bottomRect.width / 3;
-      const cellH = bottomRect.height / 3;
-      const snapLeft = bottomRect.left + col * cellW + (cellW - pieceRect.width) / 2;
-      const snapTop  = bottomRect.top  + row * cellH + (cellH - pieceRect.height) / 2;
+      // 吸附：左上對齊（不是置中），零縫排列
+      const snapLeft = board.left + col * board.cell;
+      const snapTop  = board.top  + row * board.cell;
 
-      activePiece.style.left = (snapLeft - areaRect.left) + 'px';
-      activePiece.style.top  = (snapTop  - areaRect.top ) + 'px';
+      activePiece.style.left = (snapLeft - board.areaLeft) + 'px';
+      activePiece.style.top  = (snapTop  - board.areaTop ) + 'px';
       snapped = true;
     }
   }
 
-  // 若未吸附，且原本佔了格位，清掉佔用
   if (!snapped) {
     const old = activePiece.dataset.slotIndex;
     if (old !== '' && old !== undefined && old !== null) {
@@ -546,13 +570,9 @@ function onPointerUp(e) {
     }
   }
 
-  // 檢查是否完成
   const doneBtn = document.getElementById('completePuzzleButton');
-  if (checkPuzzleComplete()) {
-    doneBtn.style.display = 'inline-block';
-  } else {
-    doneBtn.style.display = 'none';
-  }
+  if (checkPuzzleComplete()) doneBtn.style.display = 'inline-block';
+  else doneBtn.style.display = 'none';
 
   activePiece.removeEventListener('pointermove', onPointerMove);
   activePiece.removeEventListener('pointerup', onPointerUp);
@@ -561,28 +581,34 @@ function onPointerUp(e) {
 }
 
 function onResizeReflow() {
-  // 視窗縮放時重新計算 slot 尺寸與現有拼圖位置（保持吸附格）
+  // 重新計算棋盤與所有已吸附塊
+  measureBoard();
   const area = document.getElementById('puzzleArea');
-  const bottomBox = document.getElementById('puzzleBottom');
   const areaRect = area.getBoundingClientRect();
-  const bottomRect = bottomBox.getBoundingClientRect();
-  slotSize = Math.floor(Math.min(bottomRect.width, bottomRect.height) / 3);
 
-  // 依目前 slotIndex 重算位置與尺寸
+  // 依目前 slotIndex 重算位置與尺寸（未吸附者維持在上方散落位置）
   pieces.forEach(piece => {
-    piece.style.width = piece.style.height = slotSize + 'px';
+    piece.style.width = piece.style.height = board.cell + 'px';
+
+    const blurPx = Math.max(0, Math.round(board.cell * (window.PUZZLE_MOSAIC_PERCENT || 0) / 100));
+    piece.style.filter = `blur(${blurPx}px)`;
+
+    const i = Number(piece.dataset.indexOriginal);
+    const col = i % 3;
+    const row = Math.floor(i / 3);
+    piece.style.backgroundSize = `${board.size}px ${board.size}px`;
+    piece.style.backgroundPosition = `-${col * board.cell}px -${row * board.cell}px`;
+
     const si = piece.dataset.slotIndex;
     if (si !== '' && si !== undefined && si !== null) {
       const idx = Number(si);
       if (!Number.isNaN(idx)) {
-        const col = idx % 3;
-        const row = Math.floor(idx / 3);
-        const cellW = bottomRect.width / 3;
-        const cellH = bottomRect.height / 3;
-        const snapLeft = bottomRect.left + col * cellW + (cellW - slotSize) / 2;
-        const snapTop  = bottomRect.top  + row * cellH + (cellH - slotSize) / 2;
-        piece.style.left = (snapLeft - areaRect.left) + 'px';
-        piece.style.top  = (snapTop  - areaRect.top ) + 'px';
+        const c = idx % 3;
+        const r = Math.floor(idx / 3);
+        const snapLeft = board.left + c * board.cell;
+        const snapTop  = board.top  + r * board.cell;
+        piece.style.left = (snapLeft - board.areaLeft) + 'px';
+        piece.style.top  = (snapTop  - board.areaTop ) + 'px';
       }
     }
   });
@@ -655,8 +681,9 @@ function checkAnswer(choice) {
     }, 1200);
   } else btn.querySelector(".mark").textContent = "❌";
 }
-  
-  /* ==========================================================
+
+
+        /* ==========================================================
    🏆 排行榜（含狀態通知）
    ========================================================== */
 let players = [
