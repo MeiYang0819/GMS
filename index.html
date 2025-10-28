@@ -304,7 +304,7 @@
   </div>
 </div>
 
-    <script>
+<script>
 /* ==========================================================
    🎯 任務流程控制區（含暱稱輸入於第一關 + 照片上傳於第二關）
    ========================================================== */
@@ -324,25 +324,18 @@ if (Math.random() > 0.5) {
 function nextMission() {
   const card = document.getElementById("mission-card");
   if (step === 0) {
-    /* ✅ 第一關：暱稱必填才可按下一關（並支援 Enter） */
+    /* ✅ 第一關：暱稱沒填 → 不前進並顯示狀態列提示 */
     card.innerHTML = `
       <h1>🎯 第 1 關</h1>
       <div id="missionNotice"></div>
       <p>${baseMissions[0]}</p>
       <input type="text" id="nicknameInput" placeholder="填寫暱稱..." />
-      <button id="btnNickNext" style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()" disabled>下一關 ▶</button>`;
+      <button id="btnNickNext" style="background-color:#ffb703;margin-top:25px;" onclick="attemptNickNext()">下一關 ▶</button>`;
 
-    // 直接在插入後綁定事件（不重排其他程式）
     const nickInput = document.getElementById('nicknameInput');
-    const btnNickNext = document.getElementById('btnNickNext');
-    const updateNickBtn = () => {
-      btnNickNext.disabled = !nickInput.value.trim();
-    };
-    nickInput.addEventListener('input', updateNickBtn);
     nickInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && nickInput.value.trim()) nextMission();
+      if (e.key === 'Enter') attemptNickNext();
     });
-    updateNickBtn(); // 初始鎖住
     step++;
 
   } else if (step === 1) {
@@ -357,9 +350,8 @@ function nextMission() {
       <button style="background-color:#ffb703;margin-top:25px;" onclick="checkPhotoAndNext()">下一關 ▶</button>`;
     step++;
 
-  } else if (step === 3 || step === 4) { // 第四或第五关根据任务类型决定是否显示上传框 / 拼圖
+  } else if (step === 3 || step === 4) { 
     if (baseMissions[step] === "找新人拍照：與新人合照 📸") {
-      /* ✅ 拍照關：同樣選到照片就自動進下一關 */
       card.innerHTML = `
         <h1>🎯 第 ${step + 1} 關</h1>
         <div id="missionNotice"></div>
@@ -369,7 +361,6 @@ function nextMission() {
         </div>
         <button style="background-color:#ffb703;margin-top:25px;" onclick="checkPhotoAndNext()">下一關 ▶</button>`;
     } else {
-      /* ✅ 顯示唯一的「開始拼圖」，點下開覆蓋層並直接進入拼圖 */
       card.innerHTML = `
         <h1>🎯 第 ${step + 1} 關</h1>
         <div id="missionNotice"></div>
@@ -395,6 +386,17 @@ function nextMission() {
   }
 }
 
+/* ✅ 暱稱檢查（沒填就用狀態列提示，且不前進） */
+function attemptNickNext() {
+  const nickInput = document.getElementById('nicknameInput');
+  const name = (nickInput?.value || '').trim();
+  if (!name) {
+    showMissionNotice("⚠️ 請填寫暱稱！");
+    return;
+  }
+  nextMission();
+}
+
 /* 🖼️ 第二關：上傳檢查與預覽（保留原邏輯） */
 function checkPhotoAndNext() {
   const input = document.getElementById('photoInput');
@@ -406,13 +408,12 @@ function checkPhotoAndNext() {
   nextMission();
 }
 
-/* ✅ 新增：選到照片即自動前往下一關（第二關與拍照關共用） */
+/* ✅ 選到照片即自動前往下一關（第二關與拍照關共用） */
 function onPhotoSelected() {
   const input = document.getElementById('photoInput');
   const file = input?.files && input.files[0];
   if (file) {
     showMissionNotice("📸 已選擇照片，前往下一關！");
-    // 小延遲讓使用者看到提示
     setTimeout(() => nextMission(), 300);
   }
 }
@@ -428,12 +429,12 @@ const PUZZLE_IMG_SRC = 'assets/MYs_logo_1.png';
 let puzzleImage = new Image();
 puzzleImage.src = PUZZLE_IMG_SRC;
 
-let pieces = [];                          // 所有拼圖塊
-let assignedSlots = new Array(9).fill(null); // 0..8 -> piece 或 null
+let pieces = [];
+let assignedSlots = new Array(9).fill(null);
 let activePiece = null;
 let dragStart = { x: 0, y: 0 };
 let pieceStart = { x: 0, y: 0 };
-let revealTimerId = null;                 // ✅ 完成後 3 秒倒數用
+let revealTimerId = null;
 
 /* 3x3 棋盤（不畫格線）的幾何資訊 */
 const board = { cell: 0, size: 0, left: 0, top: 0, areaLeft: 0, areaTop: 0 };
@@ -444,7 +445,7 @@ function openPuzzle() {
   if (!overlay || !area) return;
   overlay.style.display = 'block';
   area.style.display = 'grid';
-  startPuzzle();    // 覆蓋層內沒有第二個開始鍵，直接進入
+  startPuzzle();
 }
 
 function closePuzzle() {
@@ -458,16 +459,17 @@ function startPuzzle() {
 }
 
 function resetPuzzle() {
-  // 取消可能存在的揭示倒數
   if (revealTimerId) { clearTimeout(revealTimerId); revealTimerId = null; }
-  // 隱藏揭示層
   const reveal = document.getElementById('puzzleReveal');
   if (reveal) { reveal.style.display = 'none'; reveal.style.opacity = '0'; }
-  // 解鎖按鈕
+
+  /* ✅ 重設按鈕區顯示（重來／完成回來） */
+  const actions = document.getElementById('puzzleActions');
+  if (actions) actions.style.display = 'flex';
   const rb = document.getElementById('resetPuzzleButton');
   const cb = document.getElementById('completePuzzleButton');
   if (rb) rb.disabled = false;
-  if (cb) cb.disabled = false;
+  if (cb) { cb.disabled = false; cb.textContent = "完成"; }
 
   createPuzzle();
 }
@@ -479,7 +481,6 @@ function measureBoard() {
   const areaRect = area.getBoundingClientRect();
   const bottomRect = bottomBox.getBoundingClientRect();
 
-  // 讓棋盤為「正方形」，並在下框內「整盤置中」
   board.cell = Math.floor(Math.min(bottomRect.width, bottomRect.height) / 3);
   board.size = board.cell * 3;
   board.left = bottomRect.left + (bottomRect.width  - board.size) / 2;
@@ -494,19 +495,16 @@ function createPuzzle() {
   const bottomBox = document.getElementById('puzzleBottom');
   if (!area || !topBox || !bottomBox) return;
 
-  /* 清空狀態 */
   pieces.forEach(p => p.remove());
   pieces = [];
   assignedSlots = new Array(9).fill(null);
   document.getElementById('completePuzzleButton').style.display = 'none';
 
-  // 計算棋盤幾何
   measureBoard();
 
   const areaRect = area.getBoundingClientRect();
   const topRect  = topBox.getBoundingClientRect();
 
-  // 9 個索引（打散順序）
   const order = [0,1,2,3,4,5,6,7,8].sort(() => Math.random() - 0.5);
 
   order.forEach(i => {
@@ -517,19 +515,16 @@ function createPuzzle() {
     piece.className = 'puzzlePiece';
     piece.style.width = piece.style.height = board.cell + 'px';
 
-    /* 馬賽克強度（百分比 → 像素） */
-    const blurPx = Math.max(0, Math.round(board.cell * (window.PUZZLE_MOSAIC_PERCENT || 2) / 100));
+    const blurPx = Math.max(0, Math.round(board.cell * (window.PUZZLE_MOSAIC_PERCENT || 0) / 100));
     piece.style.filter = `blur(${blurPx}px)`;
 
-    /* 用「像素法」切片：絕不重複、零縫對齊 */
     piece.style.backgroundImage  = `url(${puzzleImage.src})`;
     piece.style.backgroundSize   = `${board.size}px ${board.size}px`;
     piece.style.backgroundPosition = `-${col * board.cell}px -${row * board.cell}px`;
 
-    piece.dataset.indexOriginal = i;     // 正確位置索引
-    piece.dataset.slotIndex = '';        // 尚未放入下方棋盤
+    piece.dataset.indexOriginal = i;
+    piece.dataset.slotIndex = '';
 
-    // 將拼圖塊放到「上半區域」隨機位置（相對於 puzzleArea）
     const randX = topRect.left + Math.random() * Math.max(1, (topRect.width  - board.cell));
     const randY = topRect.top  + Math.random() * Math.max(1, (topRect.height - board.cell));
     piece.style.left = (randX - areaRect.left) + 'px';
@@ -575,7 +570,6 @@ function onPointerUp(e) {
   activePiece.classList.remove('dragging');
   activePiece.releasePointerCapture(e.pointerId);
 
-  // 若落在下方單一大框內，吸附到最近的 3×3 格（整盤置中、零縫貼齊）
   const area = document.getElementById('puzzleArea');
   const bottomBox = document.getElementById('puzzleBottom');
   const areaRect = area.getBoundingClientRect();
@@ -587,7 +581,6 @@ function onPointerUp(e) {
 
   let snapped = false;
   if (cx >= bottomRect.left && cx <= bottomRect.right && cy >= bottomRect.top && cy <= bottomRect.bottom) {
-    // 重新計算棋盤（避免旋轉/縮放後誤差）
     measureBoard();
 
     const relX = Math.min(board.size, Math.max(0, cx - board.left));
@@ -598,7 +591,6 @@ function onPointerUp(e) {
 
     const occupiedBy = assignedSlots[slotIndex];
     if (!occupiedBy || occupiedBy === activePiece) {
-      // 清除舊格占用
       const old = activePiece.dataset.slotIndex;
       if (old !== '' && old !== undefined && old !== null) {
         const oldIdx = Number(old);
@@ -608,7 +600,6 @@ function onPointerUp(e) {
       assignedSlots[slotIndex] = activePiece;
       activePiece.dataset.slotIndex = String(slotIndex);
 
-      // 吸附：左上對齊（不是置中），零縫排列
       const snapLeft = board.left + col * board.cell;
       const snapTop  = board.top  + row * board.cell;
 
@@ -638,11 +629,10 @@ function onPointerUp(e) {
 }
 
 function onResizeReflow() {
-  // 重新計算棋盤與所有已吸附塊
   measureBoard();
   const area = document.getElementById('puzzleArea');
+  const areaRect = area.getBoundingClientRect();
 
-  // 依目前 slotIndex 重算位置與尺寸（未吸附者維持在上方散落位置）
   pieces.forEach(piece => {
     piece.style.width = piece.style.height = board.cell + 'px';
 
@@ -663,17 +653,14 @@ function onResizeReflow() {
         const r = Math.floor(idx / 3);
         const snapLeft = board.left + c * board.cell;
         const snapTop  = board.top  + r * board.cell;
-        const areaRect = area.getBoundingClientRect();
         piece.style.left = (snapLeft - areaRect.left) + 'px';
         piece.style.top  = (snapTop  - areaRect.top ) + 'px';
       }
     }
   });
 
-  // 若揭示層存在，也同步位置與尺寸
   const reveal = document.getElementById('puzzleReveal');
   if (reveal && reveal.style.display !== 'none') {
-    const areaRect = area.getBoundingClientRect();
     reveal.style.width  = board.size + 'px';
     reveal.style.height = board.size + 'px';
     reveal.style.left   = (board.left - areaRect.left) + 'px';
@@ -693,18 +680,16 @@ function checkPuzzleComplete() {
   return true;
 }
 
-/* ✅ 完成後：淡入清晰原圖 → 停留 3 秒 → 關閉覆蓋層並到下一關 */
+/* ✅ 完成後：隱藏「重來／完成」→ 顯示清晰圖 3 秒 → 自動下一關 */
 function completePuzzle() {
   if (!checkPuzzleComplete()) {
     showMissionNotice("🧩 還沒完成喔！請把所有拼圖放到正確位置。");
     return;
   }
 
-  // 鎖住按鈕避免誤觸
-  const rb = document.getElementById('resetPuzzleButton');
-  const cb = document.getElementById('completePuzzleButton');
-  if (rb) rb.disabled = true;
-  if (cb) cb.disabled = true;
+  /* ✅ 立刻把兩個按鈕隱藏，避免以為還要再按一次 */
+  const actions = document.getElementById('puzzleActions');
+  if (actions) actions.style.display = 'none';
 
   measureBoard();
   const area = document.getElementById('puzzleArea');
@@ -712,7 +697,6 @@ function completePuzzle() {
   const reveal = document.getElementById('puzzleReveal');
   if (!area || !reveal) return;
 
-  // 設定揭示層內容與位置（完整清晰圖）
   reveal.style.display = 'block';
   reveal.style.width  = board.size + 'px';
   reveal.style.height = board.size + 'px';
@@ -722,14 +706,12 @@ function completePuzzle() {
   reveal.style.backgroundSize  = `${board.size}px ${board.size}px`;
   reveal.style.backgroundPosition = `0px 0px`;
 
-  // 小延遲確保瀏覽器套用樣式後再做淡入
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       reveal.style.opacity = '1';
     });
   });
 
-  // 3 秒後自動進下一關
   revealTimerId = setTimeout(() => {
     revealTimerId = null;
     reveal.style.display = 'none';
@@ -788,7 +770,7 @@ function checkAnswer(choice) {
   } else btn.querySelector(".mark").textContent = "❌";
 }
 
-/* ==========================================================
+    /* ==========================================================
    🏆 排行榜（含狀態通知）
    ========================================================== */
 let players = [
@@ -957,3 +939,5 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
+    
