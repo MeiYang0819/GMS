@@ -180,6 +180,18 @@
     }
     .dragging { box-shadow: 0 6px 16px rgba(0,0,0,0.35); }
 
+    /* ✅ 清晰原圖「揭示層」：完成後淡入顯示 3 秒 */
+    #puzzleReveal {
+      position: absolute;
+      z-index: 5;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      pointer-events: none;
+      border-radius: 12px;
+      background-repeat: no-repeat;
+      background-size: cover; /* 實際尺寸在 JS 以像素設定 */
+    }
+
     /* 下方排行與地圖 */
     #bottom-area { display: flex; height: 45%; border-top: 4px solid #fff; }
     #leaderboard {
@@ -286,6 +298,9 @@
       <button id="resetPuzzleButton" onclick="resetPuzzle()">重來</button>
       <button id="completePuzzleButton" onclick="completePuzzle()">完成</button>
     </div>
+
+    <!-- ✅ 完成後顯示清晰原圖的「揭示層」 -->
+    <div id="puzzleReveal" style="display:none;"></div>
   </div>
 </div>
 
@@ -326,7 +341,7 @@ function nextMission() {
       </div>
       <button style="background-color:#ffb703;margin-top:25px;" onclick="checkPhotoAndNext()">下一關 ▶</button>`;
     step++;
-  } else if (step === 3 || step === 4) { // 第四或第五关根据任务类型决定是否显示上传框 / 拼圖
+  } else if (step === 3 || step === 4) {
     if (baseMissions[step] === "找新人拍照：與新人合照 📸") {
       card.innerHTML = `
         <h1>🎯 第 ${step + 1} 關</h1>
@@ -337,7 +352,6 @@ function nextMission() {
         </div>
         <button style="background-color:#ffb703;margin-top:25px;" onclick="checkPhotoAndNext()">下一關 ▶</button>`;
     } else {
-      /* ✅ 顯示唯一的「開始拼圖」，點下開覆蓋層並直接進入拼圖 */
       card.innerHTML = `
         <h1>🎯 第 ${step + 1} 關</h1>
         <div id="missionNotice"></div>
@@ -388,6 +402,7 @@ let assignedSlots = new Array(9).fill(null); // 0..8 -> piece 或 null
 let activePiece = null;
 let dragStart = { x: 0, y: 0 };
 let pieceStart = { x: 0, y: 0 };
+let revealTimerId = null;                 // ✅ 完成後 3 秒倒數用
 
 /* 3x3 棋盤（不畫格線）的幾何資訊 */
 const board = { cell: 0, size: 0, left: 0, top: 0, areaLeft: 0, areaTop: 0 };
@@ -412,6 +427,17 @@ function startPuzzle() {
 }
 
 function resetPuzzle() {
+  // 取消可能存在的揭示倒數
+  if (revealTimerId) { clearTimeout(revealTimerId); revealTimerId = null; }
+  // 隱藏揭示層
+  const reveal = document.getElementById('puzzleReveal');
+  if (reveal) { reveal.style.display = 'none'; reveal.style.opacity = '0'; }
+  // 解鎖按鈕
+  const rb = document.getElementById('resetPuzzleButton');
+  const cb = document.getElementById('completePuzzleButton');
+  if (rb) rb.disabled = false;
+  if (cb) cb.disabled = false;
+
   createPuzzle();
 }
 
@@ -612,6 +638,17 @@ function onResizeReflow() {
       }
     }
   });
+
+  // 若揭示層存在，也同步位置與尺寸
+  const reveal = document.getElementById('puzzleReveal');
+  if (reveal && reveal.style.display !== 'none') {
+    reveal.style.width  = board.size + 'px';
+    reveal.style.height = board.size + 'px';
+    reveal.style.left   = (board.left - board.areaLeft) + 'px';
+    reveal.style.top    = (board.top  - board.areaTop ) + 'px';
+    reveal.style.backgroundSize = `${board.size}px ${board.size}px`;
+    reveal.style.backgroundPosition = `0px 0px`;
+  }
 }
 
 function checkPuzzleComplete() {
@@ -624,14 +661,50 @@ function checkPuzzleComplete() {
   return true;
 }
 
+/* ✅ 完成後：淡入清晰原圖 → 停留 3 秒 → 關閉覆蓋層並到下一關 */
 function completePuzzle() {
   if (!checkPuzzleComplete()) {
     showMissionNotice("🧩 還沒完成喔！請把所有拼圖放到正確位置。");
     return;
   }
-  closePuzzle();
-  showMissionNotice("✅ 拼圖完成！");
-  nextMission();
+
+  // 鎖住按鈕避免誤觸
+  const rb = document.getElementById('resetPuzzleButton');
+  const cb = document.getElementById('completePuzzleButton');
+  if (rb) rb.disabled = true;
+  if (cb) cb.disabled = true;
+
+  measureBoard();
+  const area = document.getElementById('puzzleArea');
+  const reveal = document.getElementById('puzzleReveal');
+  if (!area || !reveal) return;
+
+  // 設定揭示層內容與位置（完整清晰圖）
+  reveal.style.display = 'block';
+  reveal.style.width  = board.size + 'px';
+  reveal.style.height = board.size + 'px';
+  reveal.style.left   = (board.left - board.areaLeft) + 'px';
+  reveal.style.top    = (board.top  - board.areaTop ) + 'px';
+  reveal.style.backgroundImage = `url(${puzzleImage.src})`;
+  reveal.style.backgroundSize  = `${board.size}px ${board.size}px`;
+  reveal.style.backgroundPosition = `0px 0px`;
+
+  // 小延遲確保瀏覽器套用樣式後再做淡入
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      reveal.style.opacity = '1';
+    });
+  });
+
+  // 3 秒後自動進下一關
+  revealTimerId = setTimeout(() => {
+    revealTimerId = null;
+    reveal.style.display = 'none';
+    reveal.style.opacity = '0';
+    closePuzzle();
+    showMissionNotice("✅ 拼圖完成！");
+    nextMission();
+  }, 3000);
 }
 
 /* ==========================================================
@@ -681,7 +754,6 @@ function checkAnswer(choice) {
     }, 1200);
   } else btn.querySelector(".mark").textContent = "❌";
 }
-
 
         /* ==========================================================
    🏆 排行榜（含狀態通知）
