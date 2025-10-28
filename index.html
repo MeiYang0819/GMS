@@ -324,34 +324,52 @@ if (Math.random() > 0.5) {
 function nextMission() {
   const card = document.getElementById("mission-card");
   if (step === 0) {
+    /* ✅ 第一關：暱稱必填才可按下一關（並支援 Enter） */
     card.innerHTML = `
       <h1>🎯 第 1 關</h1>
       <div id="missionNotice"></div>
       <p>${baseMissions[0]}</p>
       <input type="text" id="nicknameInput" placeholder="填寫暱稱..." />
-      <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
+      <button id="btnNickNext" style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()" disabled>下一關 ▶</button>`;
+
+    // 直接在插入後綁定事件（不重排其他程式）
+    const nickInput = document.getElementById('nicknameInput');
+    const btnNickNext = document.getElementById('btnNickNext');
+    const updateNickBtn = () => {
+      btnNickNext.disabled = !nickInput.value.trim();
+    };
+    nickInput.addEventListener('input', updateNickBtn);
+    nickInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && nickInput.value.trim()) nextMission();
+    });
+    updateNickBtn(); // 初始鎖住
     step++;
+
   } else if (step === 1) {
+    /* ✅ 第二關：選到照片就自動進下一關，同時保留原「下一關」檢查按鈕 */
     card.innerHTML = `
       <h1>🎯 第 2 關</h1>
       <div id="missionNotice"></div>
       <p>${baseMissions[1]}</p>
       <div id="photoUploadBox">
-        <input type="file" id="photoInput" accept="image/*" />
+        <input type="file" id="photoInput" accept="image/*" onchange="onPhotoSelected()" />
       </div>
       <button style="background-color:#ffb703;margin-top:25px;" onclick="checkPhotoAndNext()">下一關 ▶</button>`;
     step++;
-  } else if (step === 3 || step === 4) {
+
+  } else if (step === 3 || step === 4) { // 第四或第五关根据任务类型决定是否显示上传框 / 拼圖
     if (baseMissions[step] === "找新人拍照：與新人合照 📸") {
+      /* ✅ 拍照關：同樣選到照片就自動進下一關 */
       card.innerHTML = `
         <h1>🎯 第 ${step + 1} 關</h1>
         <div id="missionNotice"></div>
         <p>${baseMissions[step]}</p>
         <div id="photoUploadBox">
-          <input type="file" id="photoInput" accept="image/*" />
+          <input type="file" id="photoInput" accept="image/*" onchange="onPhotoSelected()" />
         </div>
         <button style="background-color:#ffb703;margin-top:25px;" onclick="checkPhotoAndNext()">下一關 ▶</button>`;
     } else {
+      /* ✅ 顯示唯一的「開始拼圖」，點下開覆蓋層並直接進入拼圖 */
       card.innerHTML = `
         <h1>🎯 第 ${step + 1} 關</h1>
         <div id="missionNotice"></div>
@@ -359,6 +377,7 @@ function nextMission() {
         <button style="background-color:#ffb703;margin-top:25px;" onclick="openPuzzle()">開始拼圖 ▶</button>`;
     }
     step++;
+
   } else if (step < baseMissions.length - 1) {
     card.innerHTML = `
       <h1>🎯 第 ${step + 1} 關</h1>
@@ -366,6 +385,7 @@ function nextMission() {
       <p>${baseMissions[step]}</p>
       <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
     step++;
+
   } else if (step === baseMissions.length - 1) {
     startQuiz(); step++;
   } else {
@@ -375,7 +395,7 @@ function nextMission() {
   }
 }
 
-/* 🖼️ 第二關：上傳檢查與預覽 */
+/* 🖼️ 第二關：上傳檢查與預覽（保留原邏輯） */
 function checkPhotoAndNext() {
   const input = document.getElementById('photoInput');
   const file = input?.files[0];
@@ -384,6 +404,17 @@ function checkPhotoAndNext() {
     return;
   }
   nextMission();
+}
+
+/* ✅ 新增：選到照片即自動前往下一關（第二關與拍照關共用） */
+function onPhotoSelected() {
+  const input = document.getElementById('photoInput');
+  const file = input?.files && input.files[0];
+  if (file) {
+    showMissionNotice("📸 已選擇照片，前往下一關！");
+    // 小延遲讓使用者看到提示
+    setTimeout(() => nextMission(), 300);
+  }
 }
 
 /* ==========================================================
@@ -487,7 +518,7 @@ function createPuzzle() {
     piece.style.width = piece.style.height = board.cell + 'px';
 
     /* 馬賽克強度（百分比 → 像素） */
-    const blurPx = Math.max(0, Math.round(board.cell * (window.PUZZLE_MOSAIC_PERCENT || 0) / 100));
+    const blurPx = Math.max(0, Math.round(board.cell * (window.PUZZLE_MOSAIC_PERCENT || 2) / 100));
     piece.style.filter = `blur(${blurPx}px)`;
 
     /* 用「像素法」切片：絕不重複、零縫對齊 */
@@ -610,7 +641,6 @@ function onResizeReflow() {
   // 重新計算棋盤與所有已吸附塊
   measureBoard();
   const area = document.getElementById('puzzleArea');
-  const areaRect = area.getBoundingClientRect();
 
   // 依目前 slotIndex 重算位置與尺寸（未吸附者維持在上方散落位置）
   pieces.forEach(piece => {
@@ -633,8 +663,9 @@ function onResizeReflow() {
         const r = Math.floor(idx / 3);
         const snapLeft = board.left + c * board.cell;
         const snapTop  = board.top  + r * board.cell;
-        piece.style.left = (snapLeft - board.areaLeft) + 'px';
-        piece.style.top  = (snapTop  - board.areaTop ) + 'px';
+        const areaRect = area.getBoundingClientRect();
+        piece.style.left = (snapLeft - areaRect.left) + 'px';
+        piece.style.top  = (snapTop  - areaRect.top ) + 'px';
       }
     }
   });
@@ -642,10 +673,11 @@ function onResizeReflow() {
   // 若揭示層存在，也同步位置與尺寸
   const reveal = document.getElementById('puzzleReveal');
   if (reveal && reveal.style.display !== 'none') {
+    const areaRect = area.getBoundingClientRect();
     reveal.style.width  = board.size + 'px';
     reveal.style.height = board.size + 'px';
-    reveal.style.left   = (board.left - board.areaLeft) + 'px';
-    reveal.style.top    = (board.top  - board.areaTop ) + 'px';
+    reveal.style.left   = (board.left - areaRect.left) + 'px';
+    reveal.style.top    = (board.top  - areaRect.top ) + 'px';
     reveal.style.backgroundSize = `${board.size}px ${board.size}px`;
     reveal.style.backgroundPosition = `0px 0px`;
   }
@@ -676,6 +708,7 @@ function completePuzzle() {
 
   measureBoard();
   const area = document.getElementById('puzzleArea');
+  const areaRect = area.getBoundingClientRect();
   const reveal = document.getElementById('puzzleReveal');
   if (!area || !reveal) return;
 
@@ -683,8 +716,8 @@ function completePuzzle() {
   reveal.style.display = 'block';
   reveal.style.width  = board.size + 'px';
   reveal.style.height = board.size + 'px';
-  reveal.style.left   = (board.left - board.areaLeft) + 'px';
-  reveal.style.top    = (board.top  - board.areaTop ) + 'px';
+  reveal.style.left   = (board.left - areaRect.left) + 'px';
+  reveal.style.top    = (board.top  - areaRect.top ) + 'px';
   reveal.style.backgroundImage = `url(${puzzleImage.src})`;
   reveal.style.backgroundSize  = `${board.size}px ${board.size}px`;
   reveal.style.backgroundPosition = `0px 0px`;
@@ -755,7 +788,7 @@ function checkAnswer(choice) {
   } else btn.querySelector(".mark").textContent = "❌";
 }
 
-        /* ==========================================================
+/* ==========================================================
    🏆 排行榜（含狀態通知）
    ========================================================== */
 let players = [
