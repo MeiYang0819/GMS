@@ -110,41 +110,114 @@
       font-size: 14px; /* 縮小字體 */
     }
 
-    /* 拼圖區域樣式 */
-#puzzleContainer {
-  text-align: center;
-  margin-top: 20px;
-}
+    /* 拼圖區域樣式（你原本新增的保留） */
+    #puzzleContainer {
+      text-align: center;
+      margin-top: 20px;
+    }
 
-#puzzleLeft {
-  display: inline-block;
-  width: 45%;
-  height: 300px;
-  border: 2px solid #ddd;
-  margin-right: 10px;
-}
+    #puzzleLeft {
+      display: inline-block;
+      width: 45%;
+      height: 300px;
+      border: 2px solid #ddd;
+      margin-right: 10px;
+    }
 
-#puzzleRight {
-  display: inline-block;
-  width: 45%;
-  height: 300px;
-  border: 2px solid #ddd;
-}
+    #puzzleRight {
+      display: inline-block;
+      width: 45%;
+      height: 300px;
+      border: 2px solid #ddd;
+    }
 
-/* 按鈕樣式 */
-button {
-  background-color: #ffb703;
-  border: none;
-  border-radius: 10px;
-  color: #111;
-  font-size: var(--font-base);
-  padding: 10px 25px;
-  cursor: pointer;
-  margin-top: 15px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-button:hover { background-color: #ffd166; }
-   
+    /* 按鈕樣式（你原本的保留） */
+    button {
+      background-color: #ffb703;
+      border: none;
+      border-radius: 10px;
+      color: #111;
+      font-size: var(--font-base);
+      padding: 10px 25px;
+      cursor: pointer;
+      margin-top: 15px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    button:hover { background-color: #ffd166; }
+
+    /* === 下面是我新增的「覆蓋層＋網格」樣式（只插入，不動你原本的） === */
+    /* 全螢幕覆蓋層 */
+    #puzzleContainer {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: none;          /* 預設關閉 */
+      z-index: 9999;          /* 蓋住頁面 */
+    }
+    /* 置中的拼圖面板（Grid 佈局：左 3x3、右散塊、下方按鈕列） */
+    #puzzleArea {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: min(96vw, 900px);
+      height: min(86vh, 640px);
+      background: #fffdf2;
+      border-radius: 16px;
+      padding: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+
+      display: none; /* 由 JS 切換 */
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr auto;
+      gap: 12px;
+    }
+    #puzzleLeft {
+      grid-column: 1; grid-row: 1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 6px;
+      padding: 6px;
+      background: #fafafa;
+      border: 2px dashed #ddd;
+      width: 100%; height: 100%;
+    }
+    .puzzle-slot {
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      background: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    #puzzleRight {
+      grid-column: 2; grid-row: 1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-content: flex-start;
+      padding: 6px;
+      background: #f7f7f7;
+      border: 2px solid #ddd;
+      width: 100%; height: 100%;
+      overflow: auto;
+    }
+    .puzzlePiece {
+      width: calc(33.333% - 4px);
+      aspect-ratio: 1 / 1;
+      background-size: 300% 300%;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+      filter: blur(0.5px); /* 5% 馬賽克近似 */
+    }
+    #resetPuzzleButton { grid-column: 1; grid-row: 2; justify-self: start; }
+    #completePuzzleButton { grid-column: 2; grid-row: 2; justify-self: end; display: none; }
+    #startPuzzleButton {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+    }
+
     /* 下方排行與地圖 */
     #bottom-area { display: flex; height: 45%; border-top: 4px solid #fff; }
     #leaderboard {
@@ -237,18 +310,6 @@ button:hover { background-color: #ffd166; }
     </div>
   </div>
 
-    <!-- 這部分放在任務區塊內部 -->
-  <div id="puzzleContainer" style="display: none;">
-    <button id="startPuzzleButton" onclick="startPuzzle()">開始拼圖</button>
-    <div id="puzzleArea" style="display: none;">
-      <div id="puzzleLeft"></div>
-      <div id="puzzleRight"></div>
-      <button id="resetPuzzleButton" onclick="resetPuzzle()">重來</button>
-      <button id="completePuzzleButton" onclick="completePuzzle()">完成</button>
-    </div>
-  </div>
-</div>
-    
   <div id="bottom-area">
     <div id="leaderboard">
       <h2>🏆 排行榜</h2>
@@ -263,6 +324,17 @@ button:hover { background-color: #ffd166; }
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<!-- ✅ 全螢幕拼圖覆蓋層（保留你的結構，只加覆蓋/排版） -->
+<div id="puzzleContainer" style="display: none;">
+  <button id="startPuzzleButton" onclick="startPuzzle()">開始拼圖</button>
+  <div id="puzzleArea" style="display: none;">
+    <div id="puzzleLeft"></div>
+    <div id="puzzleRight"></div>
+    <button id="resetPuzzleButton" onclick="resetPuzzle()">重來</button>
+    <button id="completePuzzleButton" onclick="completePuzzle()">完成</button>
+  </div>
+</div>
 
 <script>
 /* ==========================================================
@@ -301,7 +373,7 @@ function nextMission() {
       </div>
       <button style="background-color:#ffb703;margin-top:25px;" onclick="checkPhotoAndNext()">下一關 ▶</button>`;
     step++;
-  } else if (step === 3 || step === 4) { // 第四或第五关根据任务类型决定是否显示上传框
+  } else if (step === 3 || step === 4) { // 第四或第五关根据任务类型决定是否显示上传框 / 拼圖
     if (baseMissions[step] === "找新人拍照：與新人合照 📸") {
       card.innerHTML = `
         <h1>🎯 第 ${step + 1} 關</h1>
@@ -312,11 +384,12 @@ function nextMission() {
         </div>
         <button style="background-color:#ffb703;margin-top:25px;" onclick="checkPhotoAndNext()">下一關 ▶</button>`;
     } else {
+      /* ✅ 這裡顯示「開始拼圖」按鈕，打開全螢幕拼圖覆蓋層 */
       card.innerHTML = `
         <h1>🎯 第 ${step + 1} 關</h1>
         <div id="missionNotice"></div>
         <p>${baseMissions[step]}</p>
-        <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
+        <button style="background-color:#ffb703;margin-top:25px;" onclick="openPuzzle()">開始拼圖 ▶</button>`;
     }
     step++;
   } else if (step < baseMissions.length - 1) {
@@ -346,85 +419,129 @@ function checkPhotoAndNext() {
   nextMission();
 }
 
-/* 拼圖遊戲邏輯 */
+/* === 拼圖覆蓋層開關（新增） === */
+function openPuzzle() {
+  const overlay = document.getElementById('puzzleContainer');
+  if (!overlay) return;
+  overlay.style.display = 'block';
+  const startBtn = document.getElementById('startPuzzleButton');
+  const area = document.getElementById('puzzleArea');
+  if (startBtn) startBtn.style.display = 'inline-block';
+  if (area) area.style.display = 'none';
+}
+function closePuzzle() {
+  const overlay = document.getElementById('puzzleContainer');
+  if (overlay) overlay.style.display = 'none';
+}
+
+/* 拼圖遊戲邏輯（修正版：左邊 3x3 槽位、右邊散塊、拖放到槽位） */
 let puzzlePieces = [];
 let puzzleImage = new Image();
 puzzleImage.src = 'assets/MYs_logo_1.png';
 
 function startPuzzle() {
-  document.getElementById('startPuzzleButton').style.display = 'none';
-  document.getElementById('puzzleArea').style.display = 'block';
+  const startBtn = document.getElementById('startPuzzleButton');
+  const area = document.getElementById('puzzleArea');
+  if (startBtn) startBtn.style.display = 'none';
+  if (area) area.style.display = 'grid';
   createPuzzle();
 }
 
 function createPuzzle() {
   const puzzleLeft = document.getElementById('puzzleLeft');
   const puzzleRight = document.getElementById('puzzleRight');
+  if (!puzzleLeft || !puzzleRight) return;
 
-  // 創建拼圖塊
+  /* 先清空 */
+  puzzleLeft.innerHTML = '';
+  puzzleRight.innerHTML = '';
   puzzlePieces = [];
+
+  /* 建立 3x3 槽位 */
   for (let i = 0; i < 9; i++) {
-    const piece = document.createElement('div');
-    piece.className = 'puzzlePiece';
-    piece.style.width = '30%';
-    piece.style.height = '30%';
-    piece.style.backgroundSize = '300% 300%';
-    piece.style.backgroundImage = `url(${puzzleImage.src})`;
-    piece.style.backgroundPosition = `${(i % 3) * 33.33}% ${(Math.floor(i / 3)) * 33.33}%`;
-    piece.draggable = true;
-    piece.addEventListener('dragstart', onPieceDragStart);
-    puzzlePieces.push(piece);
-    puzzleRight.appendChild(piece);
+    const slot = document.createElement('div');
+    slot.className = 'puzzle-slot';
+    slot.dataset.index = i;
+    slot.addEventListener('dragover', e => e.preventDefault());
+    slot.addEventListener('drop', onSlotDrop);
+    puzzleLeft.appendChild(slot);
   }
 
-  // 拼圖塊拖曳
-  puzzlePieces.forEach((piece, index) => {
-    piece.addEventListener('dragover', onPieceDragOver);
-    piece.addEventListener('drop', (e) => onPieceDrop(e, index));
+  /* 建立 9 個拼圖塊（亂序） */
+  const order = [0,1,2,3,4,5,6,7,8].sort(() => Math.random() - 0.5);
+  order.forEach(i => {
+    const piece = document.createElement('div');
+    piece.className = 'puzzlePiece';
+    piece.dataset.indexOriginal = i; /* ✅ 拖曳識別 */
+    piece.draggable = true;
+    piece.addEventListener('dragstart', onPieceDragStart);
+    piece.style.backgroundImage = `url(${puzzleImage.src})`;
+    piece.style.backgroundPosition = `${(i % 3) * 33.333}% ${(Math.floor(i / 3)) * 33.333}%`;
+    puzzlePieces.push(piece);
+    puzzleRight.appendChild(piece);
   });
+
+  /* 重置完成按鈕 */
+  const doneBtn = document.getElementById('completePuzzleButton');
+  if (doneBtn) doneBtn.style.display = 'none';
 }
 
 function onPieceDragStart(event) {
-  event.dataTransfer.setData('pieceIndex', event.target.dataset.index);
+  const idx = event.target?.dataset?.indexOriginal;
+  if (!idx) return;
+  event.dataTransfer.setData('indexOriginal', idx);
 }
 
-function onPieceDragOver(event) {
+function onSlotDrop(event) {
   event.preventDefault();
-}
+  const pieceIndex = event.dataTransfer.getData('indexOriginal');
+  if (pieceIndex === '' || pieceIndex == null) return;
+  const piece = document.querySelector(`.puzzlePiece[data-index-original="${pieceIndex}"]`);
+  if (!piece) return;
 
-function onPieceDrop(event, index) {
-  event.preventDefault();
-  const pieceIndex = event.dataTransfer.getData('pieceIndex');
-  const targetPiece = puzzlePieces[index];
-  const sourcePiece = puzzlePieces[pieceIndex];
-  
-  // 交換拼圖塊
-  const tempBackground = sourcePiece.style.backgroundPosition;
-  sourcePiece.style.backgroundPosition = targetPiece.style.backgroundPosition;
-  targetPiece.style.backgroundPosition = tempBackground;
+  /* 若槽位已有其他塊，先把舊塊丟回右側 */
+  if (event.currentTarget.firstChild) {
+    document.getElementById('puzzleRight').appendChild(event.currentTarget.firstChild);
+  }
+  event.currentTarget.appendChild(piece);
 
-  // 檢查拼圖是否完成
+  /* 是否全部放滿且正確？ */
+  const doneBtn = document.getElementById('completePuzzleButton');
   if (checkPuzzleComplete()) {
-    document.getElementById('completePuzzleButton').style.display = 'block';
+    if (doneBtn) doneBtn.style.display = 'inline-block';
+  } else {
+    if (doneBtn) doneBtn.style.display = 'none';
   }
 }
 
 function checkPuzzleComplete() {
-  return puzzlePieces.every((piece, index) => {
-    const correctPosition = `${(index % 3) * 33.33}% ${(Math.floor(index / 3)) * 33.33}%`;
-    return piece.style.backgroundPosition === correctPosition;
-  });
+  const slots = document.querySelectorAll('#puzzleLeft .puzzle-slot');
+  if (slots.length !== 9) return false;
+  for (const slot of slots) {
+    const piece = slot.firstChild;
+    if (!piece) return false;
+    const correct = Number(slot.dataset.index);
+    const origin = Number(piece.dataset.indexOriginal);
+    if (origin !== correct) return false;
+  }
+  return true;
 }
 
 function resetPuzzle() {
-  document.getElementById('startPuzzleButton').style.display = 'inline-block';
-  document.getElementById('puzzleArea').style.display = 'none';
-  puzzlePieces = [];
+  /* 保持覆蓋層開啟、面板已顯示，只重新洗牌 */
+  createPuzzle();
 }
 
 function completePuzzle() {
-  alert('拼圖完成！');
-  resetPuzzle();
+  if (!checkPuzzleComplete()) {
+    showMissionNotice("🧩 還沒完成喔！請把所有拼圖放到正確位置。");
+    return;
+  }
+  /* 關閉覆蓋層、提示並進入下一關 */
+  const overlay = document.getElementById('puzzleContainer');
+  if (overlay) overlay.style.display = 'none';
+  showMissionNotice("✅ 拼圖完成！");
+  nextMission();
 }
   
  /* ==========================================================
@@ -643,4 +760,4 @@ function preventKeyboardPushUp() {
 preventKeyboardPushUp();
 </script>
 </body>
-</html> 
+</html>
