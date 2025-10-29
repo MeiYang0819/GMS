@@ -111,21 +111,21 @@
       padding: 10px;
     }
 
-    /* 你原本的拼圖區塊（保留） */
+    /* 拼圖區域樣式（你原先的，保留不動） */
     #puzzleContainer { text-align: center; margin-top: 20px; }
     #puzzleLeft { display: inline-block; width: 45%; height: 300px; border: 2px solid #ddd; margin-right: 10px; }
     #puzzleRight { display: inline-block; width: 45%; height: 300px; border: 2px solid #ddd; }
     button { background-color: #ffb703; border: none; border-radius: 10px; color: #111; font-size: var(--font-base); padding: 10px 25px; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
     button:hover { background-color: #ffd166; }
-   
-    /* === 全螢幕拼圖覆蓋層（上：散塊；下：單一大框；重來置中） === */
+
+    /* === 新增：全螢幕拼圖覆蓋層（上：散塊；下：單一大框；重來置中） === */
     #puzzleContainer {
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.45); /* 🎨 遮罩顏色（可調） */
       display: none;          /* 由 JS 控制 */
       z-index: 9999;
-      margin-top: 0;
+      margin-top: 0;          /* 覆蓋舊樣式的 margin */
     }
     #puzzleArea {
       position: absolute;
@@ -145,15 +145,17 @@
     }
     #puzzleTop {
       position: relative;
-      background: #d9d2e9;   /* 🎨 上方散塊區底色（可調） */
-      border: 2px solid #ddd;/* 🎨 上方散塊區外框（可調） */
+      /* 🎨 這裡改「上方散塊區」的底色／框線 */
+      background: #d9d2e9;
+      border: 2px solid #ddd;
       border-radius: 12px;
       overflow: hidden;
     }
     #puzzleBottom {
       position: relative;
-      background: #d9ead3;   /* 🎨 下方接圖大框底色（可調） */
-      border: 2px dashed #ddd;/* 🎨 下方接圖大框外框（可調） */
+      /* 🎨 這裡改「下方接圖大框」的底色／框線（不畫 3x3 格線） */
+      background: #d9ead3;
+      border: 2px dashed #ddd;
       border-radius: 12px;
       overflow: hidden;
     }
@@ -173,12 +175,12 @@
 
     .puzzlePiece {
       position: absolute;            /* 由 JS 絕對定位 */
-      width: 100px; height: 100px;   /* 初始，會被 JS 覆寫 */
+      width: 100px; height: 100px;   /* 進場會被 JS 覆寫為 cellSize */
       background-repeat: no-repeat;
       border-radius: 8px;
       border: 1px solid #ddd;
       box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-      touch-action: none;            /* 允許 Pointer 拖曳（手機可用） */
+      touch-action: none;            /* 允許 Pointer 拖曳 */
       user-select: none;
     }
     .dragging { box-shadow: 0 6px 16px rgba(0,0,0,0.35); }
@@ -192,14 +194,15 @@
       pointer-events: none;
       border-radius: 12px;
       background-repeat: no-repeat;
-      background-size: cover;
+      background-size: cover; /* 實際尺寸在 JS 以像素設定 */
     }
 
-    /* 🎉 新增：拼圖完成提示（顯示在覆蓋層最上方，就像你的截圖紅框） */
+    /* 🎉 完成提示橫幅：往下移＋內容置中 */
     #puzzleBanner {
       position: absolute;
       z-index: 10;                  /* 高於 reveal */
-      top: 8px; left: 12px; right: 12px;
+      top: 20px;                    /* ⬇ 往下移一點（可調） */
+      left: 12px; right: 12px;
       min-height: 44px;
       background: rgba(255,255,255,0.94); /* 🎨 橫幅底色（可調） */
       border: 2px solid #f8dada;          /* 🎨 橫幅外框（可調） */
@@ -207,16 +210,18 @@
       padding: 8px 12px;
       font-weight: 700;
       color: #111;
-      text-align: center;
+      text-align: center;           /* 水平置中（保險） */
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       opacity: 0;
       transition: opacity .25s ease;
       pointer-events: none;         /* 只顯示，不攔滑動 */
-      display: none;                /* 由 JS 控制顯示 */
+      display: none;                /* 顯示時由 JS 改為 flex */
+      justify-content: center;      /* 水平置中內容 */
+      align-items: center;          /* 垂直置中內容 */
     }
     #puzzleBanner.show { opacity: 1; }
 
-    /* 測驗：只有 .selected 才上色，避免未選就變色 */
+    /* 只在測驗「選到」的那一題按鈕上色；新題不保留 */
     .option-grid button.selected {
       filter: saturate(1.1) brightness(1.05);
       box-shadow: 0 0 0 3px rgba(0,0,0,0.15) inset;
@@ -724,7 +729,7 @@ function completePuzzle() {
   const banner = document.getElementById('puzzleBanner');
   if (banner) {
     banner.textContent = "🎉 恭喜完成拼圖！3 秒後進入下一關…";
-    banner.style.display = 'block';
+    banner.style.display = 'flex';   /* ← 改為 flex 讓上下左右置中生效 */
     requestAnimationFrame(() => banner.classList.add('show'));
   }
 
