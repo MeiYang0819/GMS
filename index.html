@@ -10,17 +10,17 @@
 
   <style>
     :root {
-      --font-family-main: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif;
-      --font-base: 22px;
-      --font-lg: 30px;
-      --font-xl: 42px;
-      --muted: #6b7280;
-      --ink: #111827;
+      --font-family-main: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif; /* 全站主要字型 */
+      --font-base: 22px;  /* 全站文字基準大小（調整整體文字大小） */
+      --font-lg: 30px;    /* 大字級（副標） */
+      --font-xl: 42px;    /* 特大字級（主標） */
+      --muted: #6b7280;   /* 次要文字顏色（灰） */
+      --ink: #111827;     /* 主要文字顏色（深） */
     }
     body {
       margin: 0;
       font-family: var(--font-family-main);
-      background: linear-gradient(0deg, #ebb3a9 0%, #f5a28c 45%, #ff906e 100%);
+      background: linear-gradient(0deg, #ebb3a9 0%, #f5a28c 45%, #ff906e 100%); /* 🎨 主背景漸層（可調） */
       color: var(--ink);
       overflow: hidden;
       text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
@@ -28,9 +28,9 @@
     #app { display: flex; flex-direction: column; height: 100vh; }
     #main-area { flex: 1; display: flex; justify-content: center; align-items: center; min-height: 55vh; overflow-y: auto; }
 
-    /* 🎴 主卡 */
+    /* 🎴 主卡（中央卡片外觀） */
     .main-card {
-      background: linear-gradient(0deg, rgba(247,237,143,1) 0%, rgba(241,223,57,1) 71%, rgba(237,214,5,1) 100%);
+      background: linear-gradient(0deg, rgba(247,237,143,1) 0%, rgba(241,223,57,1) 71%, rgba(237,214,5,1) 100%); /* 🎨 主卡背景（可調） */
       border-radius: 24px;
       box-shadow: 0 0 20px rgba(0,0,0,0.2);
       text-align: center;
@@ -43,13 +43,13 @@
     .main-card h1 { font-size: var(--font-xl); margin: 10px 0; }
     .main-card p { font-size: var(--font-base); color: var(--muted); }
 
-    /* ✅ 永遠存在的狀態列 */
+    /* ✅ 永遠存在的狀態列（畫面上方提示區） */
     #missionNotice {
       width: 90%;
       margin: 10px auto 14px;
       min-height: 34px;
-      background: rgba(255,240,240,0.96);
-      border: 2px solid #f8dada;
+      background: rgba(255,240,240,0.96); /* 🎨 狀態列背景色（可調） */
+      border: 2px solid #f8dada;          /* 🎨 狀態列外框色（可調） */
       border-radius: 10px;
       padding: 6px 14px;
       font-weight: 700;
@@ -63,7 +63,7 @@
     .notice-show { opacity: 1 !important; }
 
     button {
-      background-color: #ffb703;
+      background-color: #ffb703; /* 🎨 一般按鈕底色 */
       border: none;
       border-radius: 10px;
       color: #111;
@@ -74,40 +74,41 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
       -webkit-tap-highlight-color: transparent; /* 防止 iOS 殘留高亮 */
     }
-    button:hover { background-color: #ffd166; }
+    button:hover { background-color: #ffd166; } /* 🎨 一般按鈕 hover 色 */
     button:focus, button:focus-visible { outline: none; } /* 避免殘留 focus 外觀 */
 
-    /* 🟨 暱稱輸入框樣式 */
-    #nicknameInput {
-      width: 60%; /* 縮小寬度 */
+    /* 🟨 暱稱輸入框樣式（密碼頁也會套同樣樣式） */
+    #nicknameInput,
+    #gatePwd {              /* 👈 新增：密碼輸入框沿用相同樣式，避免 iOS 放大 */
+      width: 60%; 
       max-width: 280px;
       height: 40px;
       margin: 12px auto;
       display: block;
       border-radius: 10px;
       border: 2px solid #ddd;
-      background-color: #f2f2f2;
-      font-size: 16px;
+      background-color: #f2f2f2; /* 🎨 輸入框底色 */
+      font-size: 16px;           /* ✅ >=16px 可避免 iOS 自動放大 */
       text-align: center;
       outline: none;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1) inset;
     }
-    #nicknameInput::placeholder { color: #999; }
+    #nicknameInput::placeholder,
+    #gatePwd::placeholder { color: #999; }
 
-    /* 第二關的檔案選擇框樣式 */
+    /* 第二關的檔案選擇框樣式（與暱稱同寬） */
     #photoInput {
-      width: 60%; /* 與第一關一致 */
+      width: 60%;
       max-width: 280px;
       margin: 12px auto;
       display: block;
       border-radius: 10px;
       border: 2px solid #ddd;
-      background-color: #f2f2f2;
-      font-size: 16px;
+      background-color: #f2f2f2; /* 🎨 檔案框底色 */
+      font-size: 14px;
       text-align: center;
       outline: none;
       padding: 10px;
-      font-size: 14px; /* 縮小字體 */
     }
 
     /* 拼圖區域樣式（你原先的，保留不動） */
@@ -116,12 +117,12 @@
     #puzzleRight { display: inline-block; width: 45%; height: 300px; border: 2px solid #ddd; }
     button { background-color: #ffb703; border: none; border-radius: 10px; color: #111; font-size: var(--font-base); padding: 10px 25px; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
     button:hover { background-color: #ffd166; }
-
+   
     /* === 新增：全螢幕拼圖覆蓋層（上：散塊；下：單一大框；重來置中） === */
     #puzzleContainer {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.45);
+      background: rgba(0,0,0,0.45); /* 🎨 遮罩顏色（可調） */
       display: none;          /* 由 JS 控制 */
       z-index: 9999;
       margin-top: 0;          /* 覆蓋舊樣式的 margin */
@@ -132,7 +133,7 @@
       transform: translate(-50%,-50%);
       width: min(96vw, 900px);
       height: min(86vh, 700px);
-      background: #fffdf2;
+      background: #fffdf2; /* 🎨 拼圖內部板底色（可調） */
       border-radius: 16px;
       padding: 12px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.35);
@@ -179,7 +180,7 @@
       border-radius: 8px;
       border: 1px solid #ddd;
       box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-      touch-action: none;            /* 允許 Pointer 拖曳 */
+      touch-action: none;            /* 允許 Pointer 拖曳（手機可用） */
       user-select: none;
     }
     .dragging { box-shadow: 0 6px 16px rgba(0,0,0,0.35); }
@@ -201,12 +202,19 @@
       filter: saturate(1.1) brightness(1.05);
       box-shadow: 0 0 0 3px rgba(0,0,0,0.15) inset;
     }
+    /* ⛔ 防止行動裝置 hover/active 殘留造成「未選就變色」 */
+    .option-grid button:hover,
+    .option-grid button:active,
+    .option-grid button:focus {
+      background-color: #ffb703; /* 維持初始顏色，不因 hover 變淡 */
+      outline: none;
+    }
 
     /* 下方排行與地圖 */
     #bottom-area { display: flex; height: 45%; border-top: 4px solid #fff; }
     #leaderboard {
       flex: 1;
-      background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%);
+      background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%); /* 🎨 排行板底色（可調） */
       overflow-y: auto;
       overflow-x: hidden;
       padding: 0 0 60px 0;
@@ -340,7 +348,7 @@ function nextMission() {
   const card = document.getElementById("mission-card");
 
   if (step === 0) {
-    /* ✅ 第一關 */
+    /* ✅ 第一關：暱稱 */
     card.innerHTML = `
       <h1>🎯 第 1 關</h1>
       <div id="missionNotice"></div>
@@ -352,7 +360,7 @@ function nextMission() {
     step++;
 
   } else if (step === 1) {
-    /* ✅ 第二關 */
+    /* ✅ 第二關：上傳簽名/照片 */
     card.innerHTML = `
       <h1>🎯 第 2 關</h1>
       <div id="missionNotice"></div>
@@ -404,7 +412,7 @@ function nextMission() {
   }
 }
 
-/* 🔒 密碼閘道：決定顯示密碼頁或直接開始測驗 */
+/* 🔒 密碼閘道：決定顯示密碼頁或直接開始測驗（版面與第一關一致） */
 function goToGateOrQuiz() {
   const card = document.getElementById("mission-card");
   if (NEED_GATE && !GATE_DONE) {
@@ -412,7 +420,7 @@ function goToGateOrQuiz() {
       <h1>🔒 密碼驗證</h1>
       <div id="missionNotice"></div>
       <p>請輸入密碼以進入第 6 關</p>
-      <input type="password" id="gatePwd" placeholder="輸入密碼..." />
+      <input type="password" id="gatePwd" placeholder="輸入密碼..." inputmode="numeric" maxlength="6" />
       <button id="gateBtn" style="background-color:#ffb703;margin-top:18px;" onclick="verifyGate()">確認 ▶</button>`;
     const gate = document.getElementById('gatePwd');
     gate.addEventListener('keydown', (e) => { if (e.key === 'Enter') verifyGate(); });
@@ -461,9 +469,9 @@ function onPhotoSelected() {
    ========================================================== */
 
 /* 你可以調整這個百分比（0~100 建議 0~15）來改變馬賽克強度 */
-window.PUZZLE_MOSAIC_PERCENT = 2;
+window.PUZZLE_MOSAIC_PERCENT = 2; /* 🎨 馬賽克強度百分比（可調） */
 
-const PUZZLE_IMG_SRC = 'assets/MYs_logo_1.png';
+const PUZZLE_IMG_SRC = 'assets/MYs_logo_1.png'; /* 拼圖來源圖片路徑 */
 let puzzleImage = new Image();
 puzzleImage.src = PUZZLE_IMG_SRC;
 
@@ -723,7 +731,8 @@ function completePuzzle() {
     reveal.style.display = 'none';
     reveal.style.opacity = '0';
     closePuzzle();
-    nextMission(); /* ← 回主卡；若剛好要進第 6 關則會顯示密碼頁 */
+    nextMission();                                 /* ← 回主卡或密碼頁 */
+    setTimeout(() => showMissionNotice("🎉 恭喜完成拼圖！"), 60); /* ✅ 關閉覆蓋層後在主卡再提示一次 */
   }, 3000);
 }
 
@@ -828,7 +837,7 @@ function renderLeaderboard() {
     const prev = lastRanks[p.name];
     if (prev !== undefined && prev !== i) {
       if (prev > i) showMissionNotice(`${p.name} ⬆️ 上升至第 ${i + 1} 名！🎉`);
-      else showMissionNotice(`${p.name} ⬆️ 下降至第 ${i + 1} 名～😅`);
+      else showMissionNotice(`${p.name} ⬇️ 下降至第 ${i + 1} 名～😅`); /* ⬇️ 修正箭頭方向 */
     }
     lastRanks[p.name] = i;
   });
