@@ -290,20 +290,51 @@
     .option-grid button { width: 90%; position: relative; }
     .option-grid button .mark { position: absolute; right: 10px; top: 5px; font-size: 24px; }
 
-    @media (max-width: 768px) {
-      #bottom-area {
-        flex-direction: row; overflow-x: auto; overflow-y: hidden;
-        white-space: nowrap; height: 45vh; scroll-snap-type: x mandatory;
-      }
-      #leaderboard, #map {
-        flex: none; width: 100vw; height: 100%;
-        scroll-snap-align: start; display: inline-block;
-      }
+    /* === 新增：右上角總分 HUD + 浮動加/扣分提示 === */
+    #scoreHud {
+      position: fixed;
+      top: 8px;
+      right: 10px;
+      z-index: 10000;
+      background: rgba(255,255,255,0.95); /* 🎨 HUD 底色（可調） */
+      border: 2px solid #f8dada;         /* 🎨 HUD 外框（可調） */
+      border-radius: 10px;
+      padding: 6px 12px;
+      font-weight: 800;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      user-select: none;
+      pointer-events: none;
+    }
+    #scorePop {
+      position: fixed;
+      top: 48px;       /* 在 HUD 下方 */
+      right: 12px;
+      z-index: 10000;
+      pointer-events: none;
+      font-weight: 800;
+    }
+    .popscore {
+      opacity: 0;
+      animation: popfade 1.2s ease forwards;
+      margin-top: 2px;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.6);
+    }
+    .popscore.gain { color: #0b7a0b; }  /* 加分綠 */
+    .popscore.loss { color: #c1121f; }  /* 扣分紅 */
+    @keyframes popfade {
+      0%   { opacity: 0; transform: translateY(0); }
+      10%  { opacity: 1; transform: translateY(-2px); }
+      90%  { opacity: 1; transform: translateY(-10px); }
+      100% { opacity: 0; transform: translateY(-16px); }
     }
   </style>
 </head>
 
   <body>
+
+  <!-- ✅ 右上角總分 HUD 與浮動分數提示（插入） -->
+  <div id="scoreHud">總分：0</div>
+  <div id="scorePop"></div>
 
   <div id="app">
   <div id="main-area">
@@ -409,17 +440,17 @@ function nextMission() {
         <h1>🎯 第 ${step + 1} 關</h1>
         <div id="missionNotice"></div>
         <p>${baseMissions[step]}</p>
-        <button style="background-color:#ffb703;margin-top:25px;" onclick="openPuzzle()">開始拼圖 ▶</button>`;
+        <button style="background-color:#ffb703;margin-top:25px;" onclick="onGenericNext()">下一關 ▶</button>`;
     }
     step++;
 
   } else if (step < baseMissions.length - 1) {
-    /* 其餘一般關卡 */
+    /* 其餘一般關卡（像第 3 關找招待） */
     card.innerHTML = `
       <h1>🎯 第 ${step + 1} 關</h1>
       <div id="missionNotice"></div>
       <p>${baseMissions[step]}</p>
-      <button style="background-color:#ffb703;margin-top:25px;" onclick="nextMission()">下一關 ▶</button>`;
+      <button style="background-color:#ffb703;margin-top:25px;" onclick="onGenericNext()">下一關 ▶</button>`;
     step++;
 
   } else if (step === baseMissions.length - 1) {
@@ -459,11 +490,12 @@ function verifyGate() {
   goToGateOrQuiz();
 }
 
-/* ✅ 第一關：暱稱必填 */
+/* ✅ 第一關：暱稱必填（成功即加分 +10，僅一次） */
 function attemptNickNext() {
   const nickInput = document.getElementById('nicknameInput');
   const name = (nickInput?.value || '').trim();
   if (!name) { showMissionNotice("⚠️ 請填寫暱稱！"); return; }
+  ensureOnce('nick', () => addScore(10));  /* 報到 10 分 */
   nextMission();
 }
 
@@ -474,17 +506,37 @@ function checkPhotoAndNext() {
   if (!file) { showMissionNotice("⚠️ 請先上傳一張照片再繼續！"); return; }
   nextMission();
 }
-/* ✅ 選到照片即自動往下 */
+/* ✅ 選到照片即自動往下，並依任務文字判斷發分（簽名 15 / 合照 15） */
 function onPhotoSelected() {
   const input = document.getElementById('photoInput');
   const file = input?.files && input.files[0];
-  if (file) { showMissionNotice("📸 已選擇照片，前往下一關！"); setTimeout(() => nextMission(), 300); }
+  if (file) {
+    const missionText = document.querySelector('#mission-card p')?.textContent || '';
+    if (missionText.includes('簽名')) {
+      ensureOnce('sign', () => addScore(15));     /* 簽到+拍簽名 15 */
+    } else if (missionText.includes('合照')) {
+      ensureOnce('photo', () => addScore(15));    /* 新人合影 15 */
+    }
+    showMissionNotice("📸 已選擇照片，前往下一關！");
+    setTimeout(() => nextMission(), 300);
+  }
+}
+
+/* ✅ 其餘一般關卡的「下一關」按鈕（用任務文字判斷找招待） */
+function onGenericNext() {
+  const missionText = document.querySelector('#mission-card p')?.textContent || '';
+  if (missionText.includes('找招待')) {
+    ensureOnce('concierge', () => addScore(15));   /* 找招待 15 */
+  }
+  nextMission();
 }
 
 /* ==========================================================
    🧩 拼圖（上：散塊；下：單一大框；零縫對齊；Pointer）
    ========================================================== */
 window.PUZZLE_MOSAIC_PERCENT = 2; /* 🎨 馬賽克強度百分比（可調） */
+const PUZZLE_BASELINE_SEC = 10;   /* ⏱ 基準秒數（超過才開始扣分） */
+const PUZZLE_DECAY_SEC_PER_POINT = 5; /* ⏱ 超過後每 5 秒扣 1 分（你指定） */
 
 const PUZZLE_IMG_SRC = 'assets/MYs_logo_1.png';
 let puzzleImage = new Image();
@@ -496,6 +548,7 @@ let activePiece = null;
 let dragStart = { x: 0, y: 0 };
 let pieceStart = { x: 0, y: 0 };
 let revealTimerId = null;
+let puzzleStartAt = 0;  /* ⏱ 計時起點 */
 
 /* 3x3 棋盤（不畫格線）的幾何資訊 */
 const board = { cell: 0, size: 0, left: 0, top: 0, areaLeft: 0, areaTop: 0 };
@@ -506,6 +559,7 @@ function openPuzzle() {
   if (!overlay || !area) return;
   overlay.style.display = 'block';
   area.style.display = 'grid';
+  puzzleStartAt = performance.now(); /* ⏱ 開始計時 */
   startPuzzle();
 }
 function closePuzzle() {
@@ -534,6 +588,7 @@ function resetPuzzle() {
   /* ✅ 關閉完成橫幅 */
   const banner = document.getElementById('puzzleBanner');
   if (banner) { banner.style.display = 'none'; banner.classList.remove('show'); banner.textContent = ''; }
+  puzzleStartAt = performance.now(); /* ⏱ 重來時重置時間 */
   createPuzzle();
 }
 
@@ -712,9 +767,16 @@ function checkPuzzleComplete() {
   return true;
 }
 
-/* ✅ 完成：覆蓋層內顯示恭喜橫幅 → 顯示清晰圖 3 秒 → 自動下一關 */
+/* ✅ 完成：覆蓋層內顯示恭喜橫幅 → 顯示清晰圖 3 秒 → 自動下一關（並計分） */
 function completePuzzle() {
   if (!checkPuzzleComplete()) { showMissionNotice("🧩 還沒完成喔！請把所有拼圖放到正確位置。"); return; }
+
+  /* 先計算分數（15 - floor((T-10)/5)，最低 0） */
+  const T = (performance.now() - puzzleStartAt) / 1000;
+  const over = Math.max(0, T - PUZZLE_BASELINE_SEC);
+  const minus = Math.floor(over / PUZZLE_DECAY_SEC_PER_POINT);
+  const scoreGain = Math.max(0, 15 - minus);
+  ensureOnce('puzzle', () => addScore(scoreGain));  /* 🧩 拼圖得分 */
 
   /* 1) 隱藏按鈕區，避免誤按 */
   const actions = document.getElementById('puzzleActions');
@@ -725,11 +787,11 @@ function completePuzzle() {
   if (topBox) { topBox.style.visibility = 'hidden'; topBox.style.pointerEvents = 'none'; }
   pieces.forEach(p => { p.style.visibility = 'hidden'; p.style.pointerEvents = 'none'; });
 
-  /* 3) 顯示覆蓋層頂端的恭喜橫幅（如截圖紅框位置） */
+  /* 3) 顯示覆蓋層頂端的恭喜橫幅（如你指定位置） */
   const banner = document.getElementById('puzzleBanner');
   if (banner) {
-    banner.textContent = "🎉 恭喜完成拼圖！3 秒後進入下一關…";
-    banner.style.display = 'flex';   /* ← 改為 flex 讓上下左右置中生效 */
+    banner.textContent = `🎉 恭喜完成拼圖！本次 +${scoreGain} 分，3 秒後進入下一關…`;
+    banner.style.display = 'flex';   /* 讓置中生效 */
     requestAnimationFrame(() => banner.classList.add('show'));
   }
 
@@ -803,10 +865,12 @@ function checkAnswer(choice) {
   const allBtns = document.querySelectorAll('.option-grid button');
   allBtns.forEach(b => b.classList.remove('selected'));
   const btn = document.getElementById("opt" + choice);
-  btn.classList.add('selected');
+  const mark = btn.querySelector(".mark");
 
   if (choice === correct) {
-    btn.querySelector(".mark").textContent = "✔️";
+    /* 正確：+5 分（不顯示勾勾） */
+    addScore(5);
+    btn.classList.add('selected');
     answered = true;
     quizIndex++;
     if (quizIndex < quizData.length) setTimeout(showQuestion, 900);
@@ -820,11 +884,44 @@ function checkAnswer(choice) {
       showMissionNotice("🎉 全數挑戰完成！");
     }, 900);
   } else {
-    btn.querySelector(".mark").textContent = "❌";
+    /* 錯誤：-1 分＋顯示 ❌（可累積至負分） */
+    addScore(-1);
+    if (mark) mark.textContent = "❌";
   }
 }
 
-        /* ==========================================================
+/* ==========================================================
+   🟢 計分核心：HUD、浮動提示、一次性旗標
+   ========================================================== */
+let totalScore = 0;
+const scoreFlags = { nick:false, sign:false, concierge:false, puzzle:false, photo:false };
+
+function updateScoreHUD() {
+  const hud = document.getElementById('scoreHud');
+  if (hud) hud.textContent = `總分：${totalScore}`;
+}
+function popScore(n) {
+  const pop = document.getElementById('scorePop');
+  if (!pop) return;
+  const div = document.createElement('div');
+  div.className = 'popscore ' + (n >= 0 ? 'gain' : 'loss');
+  div.textContent = (n >= 0 ? '+' : '') + n + ' 分';
+  pop.appendChild(div);
+  setTimeout(() => div.remove(), 1300);
+}
+function addScore(n) {
+  totalScore += n;
+  updateScoreHUD();
+  popScore(n);
+}
+function ensureOnce(flagKey, fn) {
+  if (scoreFlags[flagKey]) return;
+  scoreFlags[flagKey] = true;
+  try { fn && fn(); } catch (e) {}
+}
+updateScoreHUD(); /* 初始化 HUD */
+
+/* ==========================================================
    🏆 排行榜（含狀態通知）
    ========================================================== */
 let players = [
