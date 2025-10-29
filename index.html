@@ -11,11 +11,11 @@
   <style>
     :root {
       --font-family-main: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif; /* 全站主要字型 */
-      --font-base: 22px;  /* 全站文字基準大小（調整整體文字大小） */
-      --font-lg: 30px;    /* 大字級（副標） */
-      --font-xl: 42px;    /* 特大字級（主標） */
-      --muted: #6b7280;   /* 次要文字顏色（灰） */
-      --ink: #111827;     /* 主要文字顏色（深） */
+      --font-base: 22px;  /* 全站文字基準大小（可調） */
+      --font-lg: 30px;    /* 大字級（可調） */
+      --font-xl: 42px;    /* 特大字級（可調） */
+      --muted: #6b7280;   /* 次要文字顏色（可調） */
+      --ink: #111827;     /* 主要文字顏色（可調） */
     }
     body {
       margin: 0;
@@ -28,7 +28,7 @@
     #app { display: flex; flex-direction: column; height: 100vh; }
     #main-area { flex: 1; display: flex; justify-content: center; align-items: center; min-height: 55vh; overflow-y: auto; }
 
-    /* 🎴 主卡（中央卡片外觀） */
+    /* 🎴 主卡 */
     .main-card {
       background: linear-gradient(0deg, rgba(247,237,143,1) 0%, rgba(241,223,57,1) 71%, rgba(237,214,5,1) 100%); /* 🎨 主卡背景（可調） */
       border-radius: 24px;
@@ -63,7 +63,7 @@
     .notice-show { opacity: 1 !important; }
 
     button {
-      background-color: #ffb703; /* 🎨 一般按鈕底色 */
+      background-color: #ffb703; /* 🎨 一般按鈕底色（可調） */
       border: none;
       border-radius: 10px;
       color: #111;
@@ -72,23 +72,23 @@
       cursor: pointer;
       margin-top: 15px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      -webkit-tap-highlight-color: transparent; /* 防止 iOS 殘留高亮 */
+      -webkit-tap-highlight-color: transparent; /* 防 iOS 殘留高亮 */
     }
-    button:hover { background-color: #ffd166; } /* 🎨 一般按鈕 hover 色 */
-    button:focus, button:focus-visible { outline: none; } /* 避免殘留 focus 外觀 */
+    button:hover { background-color: #ffd166; }
+    button:focus, button:focus-visible { outline: none; }
 
-    /* 🟨 暱稱輸入框樣式（密碼頁也會套同樣樣式） */
+    /* 🟨 暱稱/密碼輸入框樣式（避免 iOS 放大） */
     #nicknameInput,
-    #gatePwd {              /* 👈 新增：密碼輸入框沿用相同樣式，避免 iOS 放大 */
-      width: 60%; 
+    #gatePwd {
+      width: 60%;
       max-width: 280px;
       height: 40px;
       margin: 12px auto;
       display: block;
       border-radius: 10px;
       border: 2px solid #ddd;
-      background-color: #f2f2f2; /* 🎨 輸入框底色 */
-      font-size: 16px;           /* ✅ >=16px 可避免 iOS 自動放大 */
+      background-color: #f2f2f2; /* 🎨 輸入框底色（可調） */
+      font-size: 16px;           /* ✅ >=16px 避免 iOS 自動放大 */
       text-align: center;
       outline: none;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1) inset;
@@ -96,7 +96,7 @@
     #nicknameInput::placeholder,
     #gatePwd::placeholder { color: #999; }
 
-    /* 第二關的檔案選擇框樣式（與暱稱同寬） */
+    /* 第二關：檔案選擇框 */
     #photoInput {
       width: 60%;
       max-width: 280px;
@@ -104,28 +104,28 @@
       display: block;
       border-radius: 10px;
       border: 2px solid #ddd;
-      background-color: #f2f2f2; /* 🎨 檔案框底色 */
+      background-color: #f2f2f2; /* 🎨 檔案框底色（可調） */
       font-size: 14px;
       text-align: center;
       outline: none;
       padding: 10px;
     }
 
-    /* 拼圖區域樣式（你原先的，保留不動） */
+    /* 你原本的拼圖區塊（保留） */
     #puzzleContainer { text-align: center; margin-top: 20px; }
     #puzzleLeft { display: inline-block; width: 45%; height: 300px; border: 2px solid #ddd; margin-right: 10px; }
     #puzzleRight { display: inline-block; width: 45%; height: 300px; border: 2px solid #ddd; }
     button { background-color: #ffb703; border: none; border-radius: 10px; color: #111; font-size: var(--font-base); padding: 10px 25px; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
     button:hover { background-color: #ffd166; }
    
-    /* === 新增：全螢幕拼圖覆蓋層（上：散塊；下：單一大框；重來置中） === */
+    /* === 全螢幕拼圖覆蓋層（上：散塊；下：單一大框；重來置中） === */
     #puzzleContainer {
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.45); /* 🎨 遮罩顏色（可調） */
       display: none;          /* 由 JS 控制 */
       z-index: 9999;
-      margin-top: 0;          /* 覆蓋舊樣式的 margin */
+      margin-top: 0;
     }
     #puzzleArea {
       position: absolute;
@@ -133,7 +133,7 @@
       transform: translate(-50%,-50%);
       width: min(96vw, 900px);
       height: min(86vh, 700px);
-      background: #fffdf2; /* 🎨 拼圖內部板底色（可調） */
+      background: #fffdf2; /* 🎨 覆蓋層內底色（可調） */
       border-radius: 16px;
       padding: 12px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.35);
@@ -145,17 +145,15 @@
     }
     #puzzleTop {
       position: relative;
-      /* 🎨 這裡改「上方散塊區」的底色／框線 */
-      background: #d9d2e9;
-      border: 2px solid #ddd;
+      background: #d9d2e9;   /* 🎨 上方散塊區底色（可調） */
+      border: 2px solid #ddd;/* 🎨 上方散塊區外框（可調） */
       border-radius: 12px;
       overflow: hidden;
     }
     #puzzleBottom {
       position: relative;
-      /* 🎨 這裡改「下方接圖大框」的底色／框線（不畫 3x3 格線） */
-      background: #d9ead3;
-      border: 2px dashed #ddd;
+      background: #d9ead3;   /* 🎨 下方接圖大框底色（可調） */
+      border: 2px dashed #ddd;/* 🎨 下方接圖大框外框（可調） */
       border-radius: 12px;
       overflow: hidden;
     }
@@ -175,7 +173,7 @@
 
     .puzzlePiece {
       position: absolute;            /* 由 JS 絕對定位 */
-      width: 100px; height: 100px;   /* 進場會被 JS 覆寫為 cellSize */
+      width: 100px; height: 100px;   /* 初始，會被 JS 覆寫 */
       background-repeat: no-repeat;
       border-radius: 8px;
       border: 1px solid #ddd;
@@ -194,19 +192,39 @@
       pointer-events: none;
       border-radius: 12px;
       background-repeat: no-repeat;
-      background-size: cover; /* 實際尺寸在 JS 以像素設定 */
+      background-size: cover;
     }
 
-    /* 只在測驗「選到」的那一題按鈕上色；新題不保留 */
+    /* 🎉 新增：拼圖完成提示（顯示在覆蓋層最上方，就像你的截圖紅框） */
+    #puzzleBanner {
+      position: absolute;
+      z-index: 10;                  /* 高於 reveal */
+      top: 8px; left: 12px; right: 12px;
+      min-height: 44px;
+      background: rgba(255,255,255,0.94); /* 🎨 橫幅底色（可調） */
+      border: 2px solid #f8dada;          /* 🎨 橫幅外框（可調） */
+      border-radius: 12px;
+      padding: 8px 12px;
+      font-weight: 700;
+      color: #111;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      opacity: 0;
+      transition: opacity .25s ease;
+      pointer-events: none;         /* 只顯示，不攔滑動 */
+      display: none;                /* 由 JS 控制顯示 */
+    }
+    #puzzleBanner.show { opacity: 1; }
+
+    /* 測驗：只有 .selected 才上色，避免未選就變色 */
     .option-grid button.selected {
       filter: saturate(1.1) brightness(1.05);
       box-shadow: 0 0 0 3px rgba(0,0,0,0.15) inset;
     }
-    /* ⛔ 防止行動裝置 hover/active 殘留造成「未選就變色」 */
     .option-grid button:hover,
     .option-grid button:active,
     .option-grid button:focus {
-      background-color: #ffb703; /* 維持初始顏色，不因 hover 變淡 */
+      background-color: #ffb703; /* 維持初始顏色 */
       outline: none;
     }
 
@@ -246,9 +264,7 @@
     .flash { animation: scoreFlash 1s ease; }
 
     #map { flex: 1; border-left: 4px solid #fff; position: relative; overflow: hidden; }
-    /* 🎨 想改「地圖後面框框裡面的顏色」→ 改這裡的背景色 */
-    .leaflet-container { width: 100%; height: 100%; background: #f5f5f5; }
-    /* 🎨 想改地圖左側白色分隔線顏色 → 改 #map 的 border-left */
+    .leaflet-container { width: 100%; height: 100%; background: #f5f5f5; } /* 🎨 地圖底色（可調） */
     .leaflet-control-attribution {
       background: rgba(180,180,180,0.9);
       border-radius: 6px;
@@ -319,6 +335,7 @@
       <button id="completePuzzleButton" onclick="completePuzzle()">完成</button>
     </div>
     <div id="puzzleReveal" style="display:none;"></div>
+    <div id="puzzleBanner" style="display:none;"></div> <!-- 🎉 完成提示橫幅（顯示在覆蓋層頂端） -->
   </div>
 </div>
 
@@ -412,7 +429,7 @@ function nextMission() {
   }
 }
 
-/* 🔒 密碼閘道：決定顯示密碼頁或直接開始測驗（版面與第一關一致） */
+/* 🔒 密碼閘道（版面同第一關） */
 function goToGateOrQuiz() {
   const card = document.getElementById("mission-card");
   if (NEED_GATE && !GATE_DONE) {
@@ -429,20 +446,15 @@ function goToGateOrQuiz() {
     step++;       /* ✅ 密碼通過後才推進 step */
   }
 }
-
-/* 🔒 密碼核驗（正確才進第 6 關） */
 function verifyGate() {
   const v = (document.getElementById('gatePwd')?.value || '').trim();
-  if (v !== '0313') {
-    showMissionNotice("❌ 密碼錯誤，請再試一次！");
-    return;
-  }
+  if (v !== '0313') { showMissionNotice("❌ 密碼錯誤，請再試一次！"); return; }
   GATE_DONE = true;
   showMissionNotice("✅ 密碼正確，進入第 6 關！");
   goToGateOrQuiz();
 }
 
-/* ✅ 第一關暱稱檢查：未填不前進並提示 */
+/* ✅ 第一關：暱稱必填 */
 function attemptNickNext() {
   const nickInput = document.getElementById('nicknameInput');
   const name = (nickInput?.value || '').trim();
@@ -450,14 +462,14 @@ function attemptNickNext() {
   nextMission();
 }
 
-/* 🖼️ 第二關：上傳檢查與預覽（保留原邏輯） */
+/* 🖼️ 第二關：上傳檢查 */
 function checkPhotoAndNext() {
   const input = document.getElementById('photoInput');
   const file = input?.files[0];
   if (!file) { showMissionNotice("⚠️ 請先上傳一張照片再繼續！"); return; }
   nextMission();
 }
-/* ✅ 選到照片即自動前往下一關（第二關與拍照關共用） */
+/* ✅ 選到照片即自動往下 */
 function onPhotoSelected() {
   const input = document.getElementById('photoInput');
   const file = input?.files && input.files[0];
@@ -467,11 +479,9 @@ function onPhotoSelected() {
 /* ==========================================================
    🧩 拼圖（上：散塊；下：單一大框；零縫對齊；Pointer）
    ========================================================== */
-
-/* 你可以調整這個百分比（0~100 建議 0~15）來改變馬賽克強度 */
 window.PUZZLE_MOSAIC_PERCENT = 2; /* 🎨 馬賽克強度百分比（可調） */
 
-const PUZZLE_IMG_SRC = 'assets/MYs_logo_1.png'; /* 拼圖來源圖片路徑 */
+const PUZZLE_IMG_SRC = 'assets/MYs_logo_1.png';
 let puzzleImage = new Image();
 puzzleImage.src = PUZZLE_IMG_SRC;
 
@@ -505,17 +515,20 @@ function resetPuzzle() {
   if (revealTimerId) { clearTimeout(revealTimerId); revealTimerId = null; }
   const reveal = document.getElementById('puzzleReveal');
   if (reveal) { reveal.style.display = 'none'; reveal.style.opacity = '0'; }
-  /* ✅ 恢復上方散塊區與拼圖塊的可見與互動 */
+  /* ✅ 恢復可見/互動 */
   const topBox = document.getElementById('puzzleTop');
   if (topBox) { topBox.style.visibility = 'visible'; topBox.style.pointerEvents = 'auto'; }
   pieces.forEach(p => { p.style.visibility = 'visible'; p.style.pointerEvents = 'auto'; });
-  /* ✅ 重設按鈕區顯示（重來／完成回來） */
+  /* ✅ 顯示按鈕區 */
   const actions = document.getElementById('puzzleActions');
   if (actions) actions.style.display = 'flex';
   const rb = document.getElementById('resetPuzzleButton');
   const cb = document.getElementById('completePuzzleButton');
   if (rb) rb.disabled = false;
   if (cb) { cb.disabled = false; cb.textContent = "完成"; }
+  /* ✅ 關閉完成橫幅 */
+  const banner = document.getElementById('puzzleBanner');
+  if (banner) { banner.style.display = 'none'; banner.classList.remove('show'); banner.textContent = ''; }
   createPuzzle();
 }
 
@@ -694,21 +707,28 @@ function checkPuzzleComplete() {
   return true;
 }
 
-/* ✅ 完成：隱藏按鈕與散塊 → 顯示清晰圖 3 秒 → 下一關（此時會進入密碼關卡） */
+/* ✅ 完成：覆蓋層內顯示恭喜橫幅 → 顯示清晰圖 3 秒 → 自動下一關 */
 function completePuzzle() {
   if (!checkPuzzleComplete()) { showMissionNotice("🧩 還沒完成喔！請把所有拼圖放到正確位置。"); return; }
 
-  /* 1) 立刻把按鈕區隱藏，避免以為要再按一次 */
+  /* 1) 隱藏按鈕區，避免誤按 */
   const actions = document.getElementById('puzzleActions');
   if (actions) actions.style.display = 'none';
 
-  /* 2) 隱藏上方散塊區與所有拼圖塊（保留佔位避免跳動） */
+  /* 2) 隱藏上方散塊與拼圖塊（保留佔位避免跳動） */
   const topBox = document.getElementById('puzzleTop');
   if (topBox) { topBox.style.visibility = 'hidden'; topBox.style.pointerEvents = 'none'; }
   pieces.forEach(p => { p.style.visibility = 'hidden'; p.style.pointerEvents = 'none'; });
 
-  /* 3) 顯示清晰原圖 3 秒，並在狀態列提示 */
-  showMissionNotice("🎉 恭喜完成拼圖！");
+  /* 3) 顯示覆蓋層頂端的恭喜橫幅（如截圖紅框位置） */
+  const banner = document.getElementById('puzzleBanner');
+  if (banner) {
+    banner.textContent = "🎉 恭喜完成拼圖！3 秒後進入下一關…";
+    banner.style.display = 'block';
+    requestAnimationFrame(() => banner.classList.add('show'));
+  }
+
+  /* 4) 顯示清晰原圖 3 秒 */
   measureBoard();
   const area = document.getElementById('puzzleArea');
   const areaRect = area.getBoundingClientRect();
@@ -723,16 +743,16 @@ function completePuzzle() {
   reveal.style.backgroundImage = `url(${puzzleImage.src})`;
   reveal.style.backgroundSize  = `${board.size}px ${board.size}px`;
   reveal.style.backgroundPosition = `0px 0px`;
-
   requestAnimationFrame(() => { requestAnimationFrame(() => { reveal.style.opacity = '1'; }); });
 
+  /* 5) 收尾：關閉覆蓋層 → 下一關 */
   revealTimerId = setTimeout(() => {
     revealTimerId = null;
     reveal.style.display = 'none';
     reveal.style.opacity = '0';
+    if (banner) { banner.style.display = 'none'; banner.classList.remove('show'); }
     closePuzzle();
-    nextMission();                                 /* ← 回主卡或密碼頁 */
-    setTimeout(() => showMissionNotice("🎉 恭喜完成拼圖！"), 60); /* ✅ 關閉覆蓋層後在主卡再提示一次 */
+    nextMission(); /* ← 直接進下一關（或密碼頁） */
   }, 3000);
 }
 
@@ -766,7 +786,7 @@ function showQuestion() {
   html += `</div>`;
   card.innerHTML = html;
 
-  /* ✅ 清除上一題任何殘留 focus / 顏色（新題進來一律乾淨） */
+  /* ✅ 清除上一題殘留 focus/顏色 */
   setTimeout(() => { try { document.activeElement && document.activeElement.blur(); } catch(_) {} }, 0);
 }
 function checkAnswer(choice) {
@@ -837,7 +857,7 @@ function renderLeaderboard() {
     const prev = lastRanks[p.name];
     if (prev !== undefined && prev !== i) {
       if (prev > i) showMissionNotice(`${p.name} ⬆️ 上升至第 ${i + 1} 名！🎉`);
-      else showMissionNotice(`${p.name} ⬇️ 下降至第 ${i + 1} 名～😅`); /* ⬇️ 修正箭頭方向 */
+      else showMissionNotice(`${p.name} ⬇️ 下降至第 ${i + 1} 名～😅`);
     }
     lastRanks[p.name] = i;
   });
@@ -948,7 +968,7 @@ map.getContainer().addEventListener('touchend', () => {
   multiTouch = false; map.touchZoom.disable(); map.dragging.disable();
 });
 
-/* 🧷 全域防止鍵盤彈出導致畫面上移（所有輸入與上傳框適用） */
+/* 🧷 全域防止鍵盤彈出導致畫面上移 */
 function preventKeyboardPushUp() {
   document.addEventListener('focusin', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
@@ -960,7 +980,7 @@ function preventKeyboardPushUp() {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
       document.body.style.position = '';
       document.body.style.width = '';
-      window.scrollTo(0, 0); // 回到原位
+      window.scrollTo(0, 0);
     }
   });
 }
