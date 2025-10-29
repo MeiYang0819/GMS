@@ -10,42 +10,39 @@
 
   <style>
     :root {
-      --font-family-main: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif; /* 全站主要字型 */
-      --font-base: 22px;  /* 全站文字基準大小（可自行調整） */
-      --font-lg: 30px;    /* 大字級 */
-      --font-xl: 42px;    /* 特大字級 */
-      --muted: #6b7280;   /* 次要文字顏色（灰） */
-      --ink: #111827;     /* 主要文字顏色（深） */
+      --font-family-main: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif; /* 預設字型（主字型 → 次字型） */
+      --font-base: 22px; /* 主要字級（大多數按鈕與段落） */
+      --font-lg: 30px;  /* 較大標題字級 */
+      --font-xl: 42px;  /* 首頁大標題字級 */
+      --muted: #6b7280; /* 次要文字顏色 */
+      --ink: #111827;   /* 主要文字顏色 */
     }
 
     body {
       margin: 0;
       font-family: var(--font-family-main);
-      background: linear-gradient(0deg, #ebb3a9 0%, #f5a28c 45%, #ff906e 100%); /* 🎨 主背景漸層 */
+      background: linear-gradient(0deg, #ebb3a9 0%, #f5a28c 45%, #ff906e 100%); /* 頁面背景漸層 */
       color: var(--ink);
       overflow: hidden;
       text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
     }
 
-    #app {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      position: relative; /* ✅ 讓 HUD 以 #app 為定位基準，稍後會計算貼到主卡右下 */
+    #app { display: flex; flex-direction: column; height: 100vh; }
+
+    /* 上半主區域（主卡片容器） */
+    #main-area { 
+      flex: 1; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      min-height: 55vh; 
+      overflow-y: auto; 
+      position: relative; /* 讓 HUD 以此為視覺參考（JS 仍做精準定位） */
     }
 
-    #main-area {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 55vh;
-      overflow-y: auto;
-    }
-
-    /* 🎴 主卡（上半部面板） */
+    /* 🎴 主卡（任務文字、按鈕所在） */
     .main-card {
-      background: linear-gradient(0deg, rgba(247,237,143,1) 0%, rgba(241,223,57,1) 71%, rgba(237,214,5,1) 100%); /* 🎨 主卡背景色 可調 */
+      background: linear-gradient(0deg, rgba(247,237,143,1) 0%, rgba(241,223,57,1) 71%, rgba(237,214,5,1) 100%);
       border-radius: 24px;
       box-shadow: 0 0 20px rgba(0,0,0,0.2);
       text-align: center;
@@ -54,17 +51,19 @@
       padding: 30px 20px;
       min-height: 380px;
       transition: all 0.6s ease;
+      position: relative; /* HUD 要「貼」在這張卡片的右下角（JS 計算座標） */
     }
-    .main-card h1 { font-size: var(--font-xl); margin: 10px 0; }
-    .main-card p  { font-size: var(--font-base); color: var(--muted); }
 
-    /* ✅ 永遠存在的狀態列（訊息提示條） */
+    .main-card h1 { font-size: var(--font-xl); margin: 10px 0; }
+    .main-card p { font-size: var(--font-base); color: var(--muted); }
+
+    /* ✅ 永遠存在的狀態列（顯示提示） */
     #missionNotice {
       width: 90%;
       margin: 10px auto 14px;
       min-height: 34px;
-      background: rgba(255,240,240,0.96); /* 🎨 狀態列背景色 可調 */
-      border: 2px solid #f8dada;          /* 🎨 狀態列框線色 可調 */
+      background: rgba(255,240,240,0.96);
+      border: 2px solid #f8dada;
       border-radius: 10px;
       padding: 6px 14px;
       font-weight: 700;
@@ -77,9 +76,9 @@
     }
     .notice-show { opacity: 1 !important; }
 
-    /* 按鈕 */
+    /* 共用按鈕樣式 */
     button {
-      background-color: #ffb703; /* 🎨 按鈕底色 可調 */
+      background-color: #ffb703;
       border: none;
       border-radius: 10px;
       color: #111;
@@ -88,14 +87,13 @@
       cursor: pointer;
       margin-top: 15px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      -webkit-tap-highlight-color: transparent; /* 防 iOS 殘留高亮 */
+      -webkit-tap-highlight-color: transparent; /* 防止 iOS 殘留高亮 */
     }
     button:hover { background-color: #ffd166; }
-    button:focus, button:focus-visible { outline: none; }
+    button:focus, button:focus-visible { outline: none; } /* 避免殘留 focus 外觀 */
 
-    /* 🟨 暱稱/密碼輸入框（與第一關同版型） */
-    #nicknameInput,
-    #gatePwd {
+    /* 🟨 第一關暱稱輸入框樣式（你原本的規格） */
+    #nicknameInput {
       width: 60%;
       max-width: 280px;
       height: 40px;
@@ -103,16 +101,15 @@
       display: block;
       border-radius: 10px;
       border: 2px solid #ddd;
-      background-color: #f2f2f2; /* 🎨 底色 可調 */
-      font-size: 16px;           /* ✅ >=16px 避免 iOS 自動放大 */
+      background-color: #f2f2f2;
+      font-size: 16px;
       text-align: center;
       outline: none;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1) inset;
     }
-    #nicknameInput::placeholder,
-    #gatePwd::placeholder { color: #999; }
+    #nicknameInput::placeholder { color: #999; }
 
-    /* 第二關：檔案選擇框（套用同風格） */
+    /* 第二關的檔案選擇框樣式（維持與第一關一致） */
     #photoInput {
       width: 60%;
       max-width: 280px;
@@ -120,124 +117,118 @@
       display: block;
       border-radius: 10px;
       border: 2px solid #ddd;
-      background-color: #f2f2f2; /* 🎨 檔案框底色 可調 */
+      background-color: #f2f2f2;
       font-size: 14px;
       text-align: center;
       outline: none;
       padding: 10px;
     }
 
-    /* === 右下角總分 HUD + 浮動加/扣分提示（位置由 JS 貼到主卡右下） === */
+    /* === 新增：總分 HUD（顯示在主卡右下角；淡黃色） === */
     #scoreHud {
-      position: absolute;                 /* ✅ 不是 fixed，會以 #app 為基準再算到主卡右下 */
-      z-index: 10000;
-      background: rgba(255, 249, 207, 0.95); /* 🎨 淡黃色 HUD 底色 */
-      border: 2px solid #f8dada;            /* 🎨 HUD 外框 */
-      border-radius: 10px;
-      padding: 6px 12px;
-      font-weight: 800;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-      user-select: none;
-      pointer-events: none;
-      left: 0; top: 0; /* 初始，將被 JS 覆寫 */
+      position: absolute;            /* JS 會計算 left/top 讓它貼在主卡右下角 */
+      z-index: 30;
+      background: #fff7cc;           /* 你要的淡黃色 */
+      color: #111;
+      border-radius: 14px;
+      border: 2px solid rgba(0,0,0,0.06);
+      padding: 10px 14px;
+      font-weight: 700;
+      font-size: 18px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+      white-space: nowrap;
+      pointer-events: none;          /* 不擋點擊 */
+      visibility: hidden;            /* 初始由 JS 定位後再顯示 */
     }
+    /* +15 / -1 的小泡泡提示 */
     #scorePop {
-      position: absolute;   /* ✅ 跟著 HUD 移動，顯示加分/扣分動畫 */
-      z-index: 10000;
-      pointer-events: none;
+      position: absolute;
+      z-index: 31;
+      background: rgba(255,255,255,0.85);
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 10px;
+      padding: 6px 10px;
       font-weight: 800;
-      left: 0; top: 0;      /* 初始，將被 JS 覆寫 */
-    }
-    .popscore {
+      font-size: 16px;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+      pointer-events: none;
       opacity: 0;
-      animation: popfade 1.2s ease forwards;
-      margin-top: 2px;
-      text-shadow: 0 1px 0 rgba(255,255,255,0.6);
+      transform: translateY(8px);
+      transition: opacity .25s ease, transform .25s ease;
     }
-    .popscore.gain { color: #0b7a0b; }  /* 加分：綠 */
-    .popscore.loss { color: #c1121f; }  /* 扣分：紅 */
-    @keyframes popfade {
-      0%   { opacity: 0; transform: translateY(0); }
-      10%  { opacity: 1; transform: translateY(-2px); }
-      90%  { opacity: 1; transform: translateY(-10px); }
-      100% { opacity: 0; transform: translateY(-16px); }
+    #scorePop.show {
+      opacity: 1;
+      transform: translateY(0);
     }
 
-    /* === 全螢幕拼圖覆蓋層（上：散塊區；下：單一大框，不畫格線） === */
+    /* === 全螢幕拼圖覆蓋層（上：散塊；下：單一大框；重來置中） === */
     #puzzleContainer {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.45); /* 🎨 拼圖覆蓋層背景（半透明黑） */
-      display: none;                /* 由 JS 控制開關 */
-      z-index: 9999;                /* 在 HUD 下方；HUD 會被隱藏所以沒關係 */
+      background: rgba(0,0,0,0.45);
+      display: none;          /* 由 JS 控制 */
+      z-index: 9999;
       margin-top: 0;
     }
     #puzzleArea {
       position: absolute;
-      top: 50%;
-      left: 50%;
+      top: 50%; left: 50%;
       transform: translate(-50%,-50%);
       width: min(96vw, 900px);
       height: min(86vh, 700px);
-      background: #fffdf2;      /* 🎨 拼圖框主底色 */
+      background: #fffdf2;
       border-radius: 16px;
       padding: 12px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-      display: none;            /* 由 JS 控制 */
+      display: none; /* 由 JS 控制 */
       grid-template-columns: 1fr;
       grid-template-rows: 1fr 1fr auto;
       gap: 12px;
       overflow: hidden;
     }
-
-    /* 🟩 上方：隨機散落的拼圖 */
+    /* 🟪 上方散塊區：要改底色/框線在這裡改 */
     #puzzleTop {
       position: relative;
-      background: #d9d2e9; /* 🎨 上方散塊區底色 可調 */
-      border: 2px solid #ddd; /* 🎨 邊框色 可調 */
+      background: #d9d2e9;   /* ← 你可改顏色 */
+      border: 2px solid #ddd;
       border-radius: 12px;
       overflow: hidden;
     }
-
-    /* 🟨 下方：單一大框（不畫 3x3 線），用來吸附拼圖 */
+    /* 🟩 下方接圖區（單一大框，不畫 3x3 格線）：要改底色/框線在這裡改 */
     #puzzleBottom {
       position: relative;
-      background: #d9ead3;     /* 🎨 下方大框底色 可調 */
-      border: 2px dashed #ddd; /* 🎨 邊框色 可調 */
+      background: #d9ead3;   /* ← 你可改顏色 */
+      border: 2px dashed #ddd;
       border-radius: 12px;
       overflow: hidden;
     }
-
-    /* 按鈕區（重來置中、完成在右） */
     #puzzleActions {
       position: relative;
       display: flex;
-      justify-content: center;  /* ✅ 重來置中 */
+      justify-content: center;      /* ✅ 重來置中 */
       align-items: center;
       min-height: 56px;
       gap: 12px;
     }
     #completePuzzleButton {
       position: absolute;
-      right: 0;                 /* 完成固定在右側 */
-      display: none;            /* 拼好才顯示 */
+      right: 0;                      /* 完成固定右側 */
+      display: none;
     }
 
-    /* 每一個拼圖塊（由 JS 放大縮小、定位） */
     .puzzlePiece {
-      position: absolute;
-      width: 100px;
-      height: 100px;
+      position: absolute;            /* 由 JS 絕對定位 */
+      width: 100px; height: 100px;   /* 進場會被 JS 覆寫為 cellSize */
       background-repeat: no-repeat;
       border-radius: 8px;
       border: 1px solid #ddd;
       box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-      touch-action: none; /* 支援 Pointer 拖移（手指、滑鼠） */
+      touch-action: none;            /* 允許 Pointer 拖曳（行動裝置） */
       user-select: none;
     }
     .dragging { box-shadow: 0 6px 16px rgba(0,0,0,0.35); }
 
-    /* 完成時顯示的清晰圖（覆蓋在下方框上） */
+    /* ✅ 清晰原圖「揭示層」：完成後淡入顯示 3 秒 */
     #puzzleReveal {
       position: absolute;
       z-index: 5;
@@ -246,29 +237,10 @@
       pointer-events: none;
       border-radius: 12px;
       background-repeat: no-repeat;
-      background-size: cover;
-      display: none;
+      background-size: cover; /* 實際尺寸在 JS 以像素設定 */
     }
 
-    /* 完成提示 Banner（置中、往下些） */
-    #puzzleBanner {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      top: 18px;                  /* 可以調整距離上方的位移 */
-      background: rgba(255,240,180,0.95); /* 🎨 橘黃淡色，可自行改 */
-      color: #222;
-      padding: 8px 14px;
-      border-radius: 10px;
-      border: 2px solid #f5d08a;
-      font-weight: 800;
-      text-align: center;         /* ✅ 文字左右置中 */
-      display: none;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-      z-index: 6;
-    }
-
-    /* 測驗題目：選到後的暫時高亮（新題不保留） */
+    /* 測驗選項：只在本題被選到的按鈕上色；新題不保留 */
     .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; justify-items: center; margin-top: 25px; }
     .option-grid button { width: 90%; position: relative; }
     .option-grid button .mark { position: absolute; right: 10px; top: 5px; font-size: 24px; }
@@ -277,16 +249,11 @@
       box-shadow: 0 0 0 3px rgba(0,0,0,0.15) inset;
     }
 
-    /* 下半部（排行榜 + 地圖） */
-    #bottom-area {
-      display: flex;
-      height: 45%;
-      border-top: 4px solid #fff;
-    }
-
+    /* 下半排行與地圖（保留你的佈局） */
+    #bottom-area { display: flex; height: 45%; border-top: 4px solid #fff; }
     #leaderboard {
       flex: 1;
-      background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%); /* 🎨 排行榜底色 */
+      background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%);
       overflow-y: auto;
       overflow-x: hidden;
       padding: 0 0 60px 0;
@@ -296,20 +263,13 @@
       justify-content: flex-start;
       position: relative;
     }
-
     #leaderboard h2 { font-size: 26px; margin: 8px 0 12px; color: #111; display: flex; justify-content: center; }
-
     #leaderboard .hint-box {
-      position: absolute;
-      top: 10px;
-      right: 10px;
+      position: absolute; top: 10px; right: 10px;
       background: rgba(220,220,220,0.92);
-      border-radius: 8px;
-      padding: 4px 10px;
-      font-size: 14px;
+      border-radius: 8px; padding: 4px 10px; font-size: 14px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      white-space: nowrap;
-      z-index: 9999;
+      white-space: nowrap; z-index: 9999;
     }
 
     table { width: 100%; border-collapse: collapse; border-spacing: 0; font-size: 18px; color: #111; margin: 0; }
@@ -325,7 +285,9 @@
     .flash { animation: scoreFlash 1s ease; }
 
     #map { flex: 1; border-left: 4px solid #fff; position: relative; overflow: hidden; }
-    .leaflet-container { width: 100%; height: 100%; background: #f5f5f5; } /* 🎨 想改地圖後面框框的顏色→改這裡 */
+    /* 🎨 想改「地圖後面框框裡面的顏色」→ 改這裡的背景色 */
+    .leaflet-container { width: 100%; height: 100%; background: #f5f5f5; }
+    /* 🎨 想改地圖左側白色分隔線顏色 → 改 #map 的 border-left */
     .leaflet-control-attribution {
       background: rgba(180,180,180,0.9);
       border-radius: 6px;
@@ -335,41 +297,27 @@
     #map::before {
       content: "右滑排行 👉";
       position: absolute;
-      top: 8px;
-      left: 10px;
+      top: 8px; left: 10px;
       background: rgba(240,240,240,0.9);
       padding: 3px 10px;
       border-radius: 8px;
-      font-size: 14px;
-      color: #111;
-      z-index: 9999;
+      font-size: 14px; color: #111; z-index: 9999;
     }
 
     @media (max-width: 768px) {
       #bottom-area {
-        flex-direction: row;
-        overflow-x: auto;
-        overflow-y: hidden;
-        white-space: nowrap;
-        height: 45vh;
-        scroll-snap-type: x mandatory;
+        flex-direction: row; overflow-x: auto; overflow-y: hidden;
+        white-space: nowrap; height: 45vh; scroll-snap-type: x mandatory;
       }
       #leaderboard, #map {
-        flex: none;
-        width: 100vw;
-        height: 100%;
-        scroll-snap-align: start;
-        display: inline-block;
+        flex: none; width: 100vw; height: 100%;
+        scroll-snap-align: start; display: inline-block;
       }
     }
   </style>
 </head>
 
 <body>
-
-  <!-- ✅ 總分 HUD 與浮動分數提示（會靠 JS 貼到主卡右下角） -->
-  <div id="scoreHud">總分：0</div>
-  <div id="scorePop"></div>
 
   <div id="app">
     <div id="main-area">
@@ -379,6 +327,11 @@
         <p>歡迎參加幹掉雙面陳闖關活動～<br>請點擊開始進行挑戰！</p>
         <button onclick="nextMission()">開始任務 ▶</button>
       </div>
+
+      <!-- ✅ 新增：總分 HUD（JS 會自動定位到主卡右下角） -->
+      <div id="scoreHud">總分：<span id="scoreTotal">0</span></div>
+      <!-- ✅ 新增：+15 / -1 浮動提示（跟著 HUD 走） -->
+      <div id="scorePop"></div>
     </div>
 
     <div id="bottom-area">
@@ -396,115 +349,31 @@
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-  <!-- ✅ 全螢幕拼圖覆蓋層（上散塊／下大框／完成揭示） -->
+  <!-- ✅ 全螢幕拼圖覆蓋層 -->
   <div id="puzzleContainer" style="display: none;">
     <div id="puzzleArea" style="display: none;">
+      <!-- 🔼 上方：散落的拼圖塊（要改底色/框線去 CSS 改 #puzzleTop） -->
       <div id="puzzleTop"></div>
+      <!-- 🔽 下方：單一大框（不畫格線，讓拼好的圖貼合） -->
       <div id="puzzleBottom"></div>
       <div id="puzzleActions">
         <button id="resetPuzzleButton" onclick="resetPuzzle()">重來</button>
         <button id="completePuzzleButton" onclick="completePuzzle()">完成</button>
       </div>
-      <div id="puzzleReveal"></div>
-      <div id="puzzleBanner"></div>
+      <!-- 🎯 完成後 3 秒顯示清晰原圖的揭示層 -->
+      <div id="puzzleReveal" style="display:none;"></div>
     </div>
   </div>
 
 <script>
-/* ===================================================================
-   🧮 分數 HUD：顯示「總分」與浮動 +N / -N，並貼在主卡右下角
-   =================================================================== */
-let totalScore = 0;
-const hudEl  = document.getElementById('scoreHud');
-const popEl  = document.getElementById('scorePop');
-
-function updateScoreHUD() {
-  if (hudEl) hudEl.textContent = `總分：${totalScore}`;
-  queuePlaceHud(); /* 內容變動後重新定位 */
-}
-
-function popScore(n) {
-  if (!popEl) return;
-  const div = document.createElement('div');
-  div.className = 'popscore ' + (n >= 0 ? 'gain' : 'loss');
-  div.textContent = (n >= 0 ? '+' : '') + n + ' 分';
-  popEl.appendChild(div);
-  setTimeout(() => div.remove(), 1300);
-}
-
-function addScore(n) {
-  totalScore += n;
-  updateScoreHUD();
-  popScore(n);
-}
-
-updateScoreHUD();
-
-/* 讓 HUD 貼在主卡右下角 */
-function placeScoreHud() {
-  const app  = document.getElementById('app');
-  const card = document.getElementById('mission-card');
-  if (!app || !card || !hudEl || !popEl) return;
-
-  const appRect  = app.getBoundingClientRect();
-  const cardRect = card.getBoundingClientRect();
-
-  // 先暫時隱藏以正確量測尺寸
-  hudEl.style.visibility = 'hidden';
-  hudEl.style.left = '0px';
-  hudEl.style.top  = '0px';
-
-  const margin = 12;
-  const hudRect = hudEl.getBoundingClientRect();
-
-  const left = Math.max(0, cardRect.right - appRect.left - hudRect.width  - margin);
-  const top  = Math.max(0, cardRect.bottom - appRect.top - hudRect.height - margin);
-
-  hudEl.style.left = left + 'px';
-  hudEl.style.top  = top  + 'px';
-  hudEl.style.visibility = 'visible';
-
-  // 浮動加分顯示在 HUD 上方一點
-  const popLeft = left + hudRect.width - 60;
-  const popTop  = top - 40;
-  popEl.style.left = popLeft + 'px';
-  popEl.style.top  = popTop  + 'px';
-}
-
-function queuePlaceHud() {
-  requestAnimationFrame(() => requestAnimationFrame(placeScoreHud));
-}
-
-(function initHudPlacement(){
-  const card = document.getElementById('mission-card');
-  if (card && window.MutationObserver) {
-    const obs = new MutationObserver(() => queuePlaceHud());
-    obs.observe(card, { childList: true, subtree: true });
-  }
-  window.addEventListener('resize', queuePlaceHud);
-  window.addEventListener('orientationchange', queuePlaceHud);
-  queuePlaceHud();
-})();
-
-/* ✅ 在拼圖期間暫時隱藏 HUD（總分與浮動提示） */
-function hideHUD() {
-  if (hudEl) hudEl.style.display = 'none';
-  if (popEl) popEl.style.display = 'none';
-}
-function showHUD() {
-  if (hudEl) hudEl.style.display = 'block';
-  if (popEl) popEl.style.display = 'block';
-  queuePlaceHud(); /* 回來後重新定位到主卡右下 */
-}
-
-/* ===================================================================
-   🎯 任務流程控制（暱稱 → 上傳 → 關卡 → 密碼 → 測驗）
-   =================================================================== */
+/* ==========================================================
+   🎯 任務流程控制區（含暱稱輸入於第一關 + 照片上傳於第二關）
+   ========================================================== */
 let step = 0;
 
-/* 🔒 密碼閘道旗標（進第六關前） */
-let NEED_GATE = true;
-let GATE_DONE = false;
+/* 🔒 密碼閘道旗標（保留你之前的設定） */
+let NEED_GATE = true;   // 是否需要經過密碼頁
+let GATE_DONE = false;  // 密碼是否通過
 
 const baseMissions = [
   "簽到：請完成簽到並輸入暱稱！",
@@ -514,30 +383,16 @@ const baseMissions = [
   "小遊戲：完成拼圖挑戰！",
   "測驗：回答婚禮小問題 💡"
 ];
-
-/* 第 4 / 5 關隨機互換 */
 if (Math.random() > 0.5) {
   [baseMissions[3], baseMissions[4]] = [baseMissions[4], baseMissions[3]];
 }
 
-/* 狀態列工具 */
-function showMissionNotice(text) {
-  const notice = document.getElementById("missionNotice");
-  if (!notice) return;
-  notice.textContent = text || "";
-  notice.classList.add("notice-show");
-  clearTimeout(window._noticeTimer);
-  window._noticeTimer = setTimeout(() => {
-    notice.classList.remove("notice-show");
-    setTimeout(() => { notice.textContent = ""; }, 400);
-  }, 3000);
-}
-
 function nextMission() {
   const card = document.getElementById("mission-card");
+  if (!card) return;
 
   if (step === 0) {
-    /* ✅ 第 1 關：暱稱 */
+    /* ✅ 第一關：暱稱輸入（沒填不可前進） */
     card.innerHTML = `
       <h1>🎯 第 1 關</h1>
       <div id="missionNotice"></div>
@@ -547,10 +402,10 @@ function nextMission() {
     const nickInput = document.getElementById('nicknameInput');
     nickInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptNickNext(); });
     step++;
-    queuePlaceHud();
+    queuePlaceHud(); /* 主卡內容變更後重新定位 HUD */
 
   } else if (step === 1) {
-    /* ✅ 第 2 關：簽名上傳 */
+    /* ✅ 第二關：照片上傳（未選檔不可前進；選檔自動提示並可前進） */
     card.innerHTML = `
       <h1>🎯 第 2 關</h1>
       <div id="missionNotice"></div>
@@ -563,7 +418,7 @@ function nextMission() {
     queuePlaceHud();
 
   } else if (step === 3 || step === 4) {
-    /* ✅ 第 4 或 5 關（可能是合照或拼圖） */
+    /* ✅ 第四或第五關（依隨機：拍照 or 拼圖） */
     if (baseMissions[step] === "找新人拍照：與新人合照 📸") {
       card.innerHTML = `
         <h1>🎯 第 ${step + 1} 關</h1>
@@ -584,7 +439,7 @@ function nextMission() {
     queuePlaceHud();
 
   } else if (step < baseMissions.length - 1) {
-    /* 其餘一般關卡（保留彈性） */
+    /* 其餘一般關卡（只是展示） */
     card.innerHTML = `
       <h1>🎯 第 ${step + 1} 關</h1>
       <div id="missionNotice"></div>
@@ -594,39 +449,41 @@ function nextMission() {
     queuePlaceHud();
 
   } else if (step === baseMissions.length - 1) {
-    /* 🔒 進第 6 關（測驗）前：密碼 0313 */
+    /* 🔒 進入第 6 關前 → 密碼閘道（0313） */
     goToGateOrQuiz();
 
   } else {
-    /* 最終完成頁 */
-    card.innerHTML = `
-      <h1>🎉 恭喜完成所有任務</h1>
+    /* 最終收尾（保留） */
+    card.innerHTML = `<h1>🎉 恭喜完成所有任務</h1>
       <div id="missionNotice"></div>
       <p>感謝一起讓雙面陳往生</p>`;
     queuePlaceHud();
   }
 }
 
-/* 🔒 密碼頁 or 直接進測驗 */
+/* 🔒 密碼閘道：決定顯示密碼頁或直接開始測驗 */
 function goToGateOrQuiz() {
   const card = document.getElementById("mission-card");
+  if (!card) return;
+
   if (NEED_GATE && !GATE_DONE) {
     card.innerHTML = `
       <h1>🔒 密碼驗證</h1>
       <div id="missionNotice"></div>
       <p>請輸入密碼以進入第 6 關</p>
-      <input type="password" id="gatePwd" placeholder="輸入密碼..." inputmode="numeric" maxlength="6" />
+      <input type="password" id="gatePwd" placeholder="輸入密碼..." />
       <button id="gateBtn" style="background-color:#ffb703;margin-top:18px;" onclick="verifyGate()">確認 ▶</button>`;
     const gate = document.getElementById('gatePwd');
     gate.addEventListener('keydown', (e) => { if (e.key === 'Enter') verifyGate(); });
     queuePlaceHud();
   } else {
-    startQuiz();
-    step++;
+    startQuiz();  /* ✅ 直接開始第六關測驗 */
+    step++;       /* ✅ 密碼通過後才推進 step */
     queuePlaceHud();
   }
 }
 
+/* 🔒 密碼核驗（正確才進第 6 關） */
 function verifyGate() {
   const v = (document.getElementById('gatePwd')?.value || '').trim();
   if (v !== '0313') {
@@ -638,44 +495,39 @@ function verifyGate() {
   goToGateOrQuiz();
 }
 
-/* 第一關：暱稱必填 */
+/* ✅ 第一關暱稱檢查：未填不前進並提示 */
 function attemptNickNext() {
   const nickInput = document.getElementById('nicknameInput');
   const name = (nickInput?.value || '').trim();
   if (!name) { showMissionNotice("⚠️ 請填寫暱稱！"); return; }
-  // 這裡可呼叫 addScore(10) 等等，若你要開啟計分
   nextMission();
 }
 
-/* 第二關：檢查照片是否已選擇（保留） */
+/* 🖼️ 第二關：上傳檢查與預覽（保留原邏輯） */
 function checkPhotoAndNext() {
   const input = document.getElementById('photoInput');
   const file = input?.files[0];
   if (!file) { showMissionNotice("⚠️ 請先上傳一張照片再繼續！"); return; }
   nextMission();
 }
+/* ✅ 選到照片即提示並可前往下一關（第二關與拍照關共用） */
 function onPhotoSelected() {
   const input = document.getElementById('photoInput');
   const file = input?.files && input.files[0];
-  if (file) {
-    showMissionNotice("📸 已選擇照片，前往下一關！");
-    setTimeout(() => nextMission(), 300);
-  }
+  if (file) { showMissionNotice("📸 已選擇照片，前往下一關！"); }
 }
 
-/* ===================================================================
-   🧩 拼圖（上散塊／下大框；零縫吸附；完成顯示清晰圖 3 秒→回主卡）
-   =================================================================== */
+/* ==========================================================
+   🧩 拼圖（上：散塊；下：單一大框；零縫對齊；Pointer）
+   ========================================================== */
 
 /* 你可以調整這個百分比（0~100 建議 0~15）來改變馬賽克強度 */
 window.PUZZLE_MOSAIC_PERCENT = 2;
 
-/* 拼圖圖片路徑 */
 const PUZZLE_IMG_SRC = 'assets/MYs_logo_1.png';
 let puzzleImage = new Image();
 puzzleImage.src = PUZZLE_IMG_SRC;
 
-/* 內部狀態 */
 let pieces = [];
 let assignedSlots = new Array(9).fill(null);
 let activePiece = null;
@@ -690,64 +542,44 @@ function openPuzzle() {
   const overlay = document.getElementById('puzzleContainer');
   const area = document.getElementById('puzzleArea');
   if (!overlay || !area) return;
-
-  /* ✅ 進入拼圖時隱藏 HUD */
-  hideHUD();
-
   overlay.style.display = 'block';
   area.style.display = 'grid';
+
+  /* 🚫 進入拼圖：暫時隱藏 HUD */
+  if (hudEl) hudEl.style.display = 'none';
+  if (popEl) { popEl.classList.remove('show'); popEl.style.opacity = 0; }
+
   startPuzzle();
 }
-
 function closePuzzle() {
   const overlay = document.getElementById('puzzleContainer');
   if (overlay) overlay.style.display = 'none';
 
-  /* ✅ 離開拼圖時顯示 HUD 並重新定位 */
-  showHUD();
+  /* ✅ 離開拼圖：恢復 HUD 並重新定位 */
+  if (hudEl) { hudEl.style.display = 'block'; queuePlaceHud(); }
 }
 
 function startPuzzle() {
   createPuzzle();
   window.addEventListener('resize', onResizeReflow);
 }
-
 function resetPuzzle() {
   if (revealTimerId) { clearTimeout(revealTimerId); revealTimerId = null; }
-
   const reveal = document.getElementById('puzzleReveal');
-  if (reveal) {
-    reveal.style.display = 'none';
-    reveal.style.opacity = '0';
-  }
+  if (reveal) { reveal.style.display = 'none'; reveal.style.opacity = '0'; }
 
-  /* 恢復散塊與互動 */
+  /* ✅ 恢復上方散塊區與拼圖塊的可見與互動 */
   const topBox = document.getElementById('puzzleTop');
-  if (topBox) {
-    topBox.style.visibility = 'visible';
-    topBox.style.pointerEvents = 'auto';
-  }
-  pieces.forEach(p => {
-    p.style.visibility = 'visible';
-    p.style.pointerEvents = 'auto';
-  });
+  if (topBox) { topBox.style.visibility = 'visible'; topBox.style.pointerEvents = 'auto'; }
+  pieces.forEach(p => { p.style.visibility = 'visible'; p.style.pointerEvents = 'auto'; });
 
-  /* 顯示按鈕區（重來／完成） */
+  /* ✅ 重設按鈕區顯示（重來／完成回來） */
   const actions = document.getElementById('puzzleActions');
   if (actions) actions.style.display = 'flex';
+  const rb = document.getElementById('resetPuzzleButton');
   const cb = document.getElementById('completePuzzleButton');
-  if (cb) {
-    cb.disabled = false;
-    cb.textContent = "完成";
-    cb.style.display = 'none'; /* 重新開始時先隱藏，拼好再顯示 */
-  }
-
-  /* 隱藏完成 Banner */
-  const banner = document.getElementById('puzzleBanner');
-  if (banner) {
-    banner.style.display = 'none';
-    banner.textContent = '';
-  }
+  if (rb) rb.disabled = false;
+  if (cb) { cb.disabled = false; cb.textContent = "完成"; }
 
   createPuzzle();
 }
@@ -775,9 +607,7 @@ function createPuzzle() {
   pieces.forEach(p => p.remove());
   pieces = [];
   assignedSlots = new Array(9).fill(null);
-
-  const doneBtn = document.getElementById('completePuzzleButton');
-  if (doneBtn) doneBtn.style.display = 'none';
+  document.getElementById('completePuzzleButton').style.display = 'none';
 
   measureBoard();
 
@@ -796,14 +626,13 @@ function createPuzzle() {
     const blurPx = Math.max(0, Math.round(board.cell * (window.PUZZLE_MOSAIC_PERCENT || 0) / 100));
     piece.style.filter = `blur(${blurPx}px)`;
 
-    piece.style.backgroundImage    = `url(${puzzleImage.src})`;
-    piece.style.backgroundSize     = `${board.size}px ${board.size}px`;
+    piece.style.backgroundImage  = `url(${puzzleImage.src})`;
+    piece.style.backgroundSize   = `${board.size}px ${board.size}px`;
     piece.style.backgroundPosition = `-${col * board.cell}px -${row * board.cell}px`;
 
     piece.dataset.indexOriginal = i;
     piece.dataset.slotIndex = '';
 
-    /* 隨機放到上方散塊區 */
     const randX = topRect.left + Math.random() * Math.max(1, (topRect.width  - board.cell));
     const randY = topRect.top  + Math.random() * Math.max(1, (topRect.height - board.cell));
     piece.style.left = (randX - areaRect.left) + 'px';
@@ -816,24 +645,18 @@ function createPuzzle() {
 }
 
 function enablePointerDrag(el) { el.addEventListener('pointerdown', onPointerDown); }
-
 function onPointerDown(e) {
   activePiece = e.currentTarget;
   activePiece.classList.add('dragging');
   activePiece.setPointerCapture(e.pointerId);
-
   const left = parseFloat(activePiece.style.left || '0');
   const top  = parseFloat(activePiece.style.top  || '0');
-  dragStart.x = e.clientX;
-  dragStart.y = e.clientY;
-  pieceStart.x = left;
-  pieceStart.y = top;
-
+  dragStart.x = e.clientX; dragStart.y = e.clientY;
+  pieceStart.x = left; pieceStart.y = top;
   activePiece.addEventListener('pointermove', onPointerMove);
   activePiece.addEventListener('pointerup', onPointerUp);
   activePiece.addEventListener('pointercancel', onPointerUp);
 }
-
 function onPointerMove(e) {
   if (!activePiece) return;
   const dx = e.clientX - dragStart.x;
@@ -841,10 +664,8 @@ function onPointerMove(e) {
   activePiece.style.left = (pieceStart.x + dx) + 'px';
   activePiece.style.top  = (pieceStart.y + dy) + 'px';
 }
-
 function onPointerUp(e) {
   if (!activePiece) return;
-
   activePiece.classList.remove('dragging');
   activePiece.releasePointerCapture(e.pointerId);
 
@@ -853,13 +674,10 @@ function onPointerUp(e) {
   const areaRect = area.getBoundingClientRect();
   const bottomRect = bottomBox.getBoundingClientRect();
   const pieceRect = activePiece.getBoundingClientRect();
-
   const cx = pieceRect.left + pieceRect.width / 2;
   const cy = pieceRect.top  + pieceRect.height / 2;
 
   let snapped = false;
-
-  /* 若釋放點在下方大框內 → 吸附到最近的 3x3 格（不畫線，但用格座標） */
   if (cx >= bottomRect.left && cx <= bottomRect.right && cy >= bottomRect.top && cy <= bottomRect.bottom) {
     measureBoard();
     const relX = Math.min(board.size, Math.max(0, cx - board.left));
@@ -884,12 +702,10 @@ function onPointerUp(e) {
       snapped = true;
     }
   }
-
   if (!snapped) {
     const old = activePiece.dataset.slotIndex;
     if (old !== '' && old !== undefined && old !== null) {
-      const oldIdx = Number(old);
-      if (!Number.isNaN(oldIdx)) assignedSlots[oldIdx] = null;
+      const oldIdx = Number(old); if (!Number.isNaN(oldIdx)) assignedSlots[oldIdx] = null;
       activePiece.dataset.slotIndex = '';
     }
   }
@@ -908,22 +724,19 @@ function onResizeReflow() {
   measureBoard();
   const area = document.getElementById('puzzleArea');
   const areaRect = area.getBoundingClientRect();
-
   pieces.forEach(piece => {
     piece.style.width = piece.style.height = board.cell + 'px';
     const blurPx = Math.max(0, Math.round(board.cell * (window.PUZZLE_MOSAIC_PERCENT || 0) / 100));
     piece.style.filter = `blur(${blurPx}px)`;
     const i = Number(piece.dataset.indexOriginal);
-    const col = i % 3;
-    const row = Math.floor(i / 3);
+    const col = i % 3; const row = Math.floor(i / 3);
     piece.style.backgroundSize = `${board.size}px ${board.size}px`;
     piece.style.backgroundPosition = `-${col * board.cell}px -${row * board.cell}px`;
     const si = piece.dataset.slotIndex;
     if (si !== '' && si !== undefined && si !== null) {
       const idx = Number(si);
       if (!Number.isNaN(idx)) {
-        const c = idx % 3;
-        const r = Math.floor(idx / 3);
+        const c = idx % 3; const r = Math.floor(idx / 3);
         const snapLeft = board.left + c * board.cell;
         const snapTop  = board.top  + r * board.cell;
         piece.style.left = (snapLeft - areaRect.left) + 'px';
@@ -931,18 +744,16 @@ function onResizeReflow() {
       }
     }
   });
-
   const reveal = document.getElementById('puzzleReveal');
   if (reveal && reveal.style.display !== 'none') {
     reveal.style.width  = board.size + 'px';
     reveal.style.height = board.size + 'px';
     reveal.style.left   = (board.left - areaRect.left) + 'px';
     reveal.style.top    = (board.top  - areaRect.top ) + 'px';
-    reveal.style.backgroundSize     = `${board.size}px ${board.size}px`;
+    reveal.style.backgroundSize = `${board.size}px ${board.size}px`;
     reveal.style.backgroundPosition = `0px 0px`;
   }
 }
-
 function checkPuzzleComplete() {
   for (let i = 0; i < 9; i++) {
     const piece = assignedSlots[i];
@@ -953,11 +764,9 @@ function checkPuzzleComplete() {
   return true;
 }
 
+/* ✅ 完成：隱藏按鈕與散塊 → 顯示清晰圖 3 秒 → 下一關（此時會進入密碼關卡） */
 function completePuzzle() {
-  if (!checkPuzzleComplete()) {
-    showMissionNotice("🧩 還沒完成喔！請把所有拼圖放到正確位置。");
-    return;
-  }
+  if (!checkPuzzleComplete()) { showMissionNotice("🧩 還沒完成喔！請把所有拼圖放到正確位置。"); return; }
 
   /* 1) 立刻把按鈕區隱藏，避免以為要再按一次 */
   const actions = document.getElementById('puzzleActions');
@@ -968,42 +777,36 @@ function completePuzzle() {
   if (topBox) { topBox.style.visibility = 'hidden'; topBox.style.pointerEvents = 'none'; }
   pieces.forEach(p => { p.style.visibility = 'hidden'; p.style.pointerEvents = 'none'; });
 
-  /* 3) 顯示清晰原圖與完成 Banner（3 秒後關閉拼圖並回主卡） */
+  /* 3) 顯示清晰原圖 3 秒，並在狀態列提示 */
+  showMissionNotice("🎉 恭喜完成拼圖！");
   measureBoard();
   const area = document.getElementById('puzzleArea');
   const areaRect = area.getBoundingClientRect();
   const reveal = document.getElementById('puzzleReveal');
-  const banner = document.getElementById('puzzleBanner');
+  if (!area || !reveal) return;
 
-  // 顯示清晰圖
   reveal.style.display = 'block';
   reveal.style.width  = board.size + 'px';
   reveal.style.height = board.size + 'px';
   reveal.style.left   = (board.left - areaRect.left) + 'px';
   reveal.style.top    = (board.top  - areaRect.top ) + 'px';
-  reveal.style.backgroundImage    = `url(${puzzleImage.src})`;
-  reveal.style.backgroundSize     = `${board.size}px ${board.size}px`;
+  reveal.style.backgroundImage = `url(${puzzleImage.src})`;
+  reveal.style.backgroundSize  = `${board.size}px ${board.size}px`;
   reveal.style.backgroundPosition = `0px 0px`;
   requestAnimationFrame(() => { requestAnimationFrame(() => { reveal.style.opacity = '1'; }); });
 
-  // 顯示「恭喜完成拼圖！」文字（置中、往下些）
-  banner.textContent = "🎉 恭喜完成拼圖！";
-  banner.style.display = 'block';
-
-  // 3 秒後收合拼圖，回主卡（HUD 會在 closePuzzle() 時顯示）
   revealTimerId = setTimeout(() => {
     revealTimerId = null;
     reveal.style.display = 'none';
     reveal.style.opacity = '0';
-    banner.style.display = 'none';
     closePuzzle();
-    nextMission(); /* 進下一關（若是第 6 關會先顯示密碼頁） */
+    nextMission(); /* ← 回主卡；若剛好要進第 6 關則會顯示密碼頁 */
   }, 3000);
 }
 
-/* ===================================================================
-   📘 第 6 關：婚禮趣味問答（六題四選一）
-   =================================================================== */
+/* ==========================================================
+   📘 第6關：婚禮趣味問答（六題四選一）
+   ========================================================== */
 const quizData = [
   { q: "💍 誰愛吃香蕉？", o: ["小慧", "阿佑", "大軒", "成成"], a: 0 },
   { q: "🍰 誰有心髒病？", o: ["小慧", "阿佑", "大軒", "姜薑"], a: 2 },
@@ -1012,46 +815,36 @@ const quizData = [
   { q: "🎁 毛毛是ㄟ咪的？", o: ["大徒弟", "小笨蛋", "中智障", "以上皆是"], a: 3 },
   { q: "💐 合約可以過得去嗎？", o: ["可以", "不可能", "不知道", "一切有變數"], a: 3 }
 ];
+let quizIndex = 0, answered = false;
 
-let quizIndex = 0;
-let answered = false;
-
-function startQuiz() {
-  quizIndex = 0;
-  showQuestion();
-}
-
+function startQuiz() { quizIndex = 0; showQuestion(); }
 function showQuestion() {
   answered = false;
 
   const card = document.getElementById("mission-card");
   const q = quizData[quizIndex];
-
   let html = `
     <h1>💡 第 ${quizIndex + 1} 題</h1>
     <div id="missionNotice"></div>
     <p>${q.q}</p>
     <div class="option-grid">`;
-
   q.o.forEach((opt, i) => {
     html += `<button id="opt${i}" onclick="checkAnswer(${i})">${opt}<span class="mark"></span></button>`;
   });
-
   html += `</div>`;
   card.innerHTML = html;
 
-  // 清除上一題的 focus 狀態與高亮（新題一律乾淨）
+  /* ✅ 清除上一題任何殘留 focus / 顏色（新題進來一律乾淨） */
   setTimeout(() => { try { document.activeElement && document.activeElement.blur(); } catch(_) {} }, 0);
 
-  queuePlaceHud(); // 題目切換後重新定位 HUD
+  queuePlaceHud(); /* 題目更新後重放 HUD（仍在主卡右下） */
 }
-
 function checkAnswer(choice) {
   if (answered) return;
   const q = quizData[quizIndex];
   const correct = q.a;
 
-  // 僅在本題暫時上色
+  /* ✅ 只在本題暫時上色 */
   const allBtns = document.querySelectorAll('.option-grid button');
   allBtns.forEach(b => b.classList.remove('selected'));
   const btn = document.getElementById("opt" + choice);
@@ -1061,27 +854,25 @@ function checkAnswer(choice) {
     btn.querySelector(".mark").textContent = "✔️";
     answered = true;
     quizIndex++;
-    if (quizIndex < quizData.length) {
-      setTimeout(showQuestion, 900);
-    } else {
-      setTimeout(() => {
-        const card = document.getElementById("mission-card");
-        card.innerHTML = `
-          <h1>🎉 全數挑戰完成</h1>
-          <div id="missionNotice"></div>
-          <p>太讚了！你已完成所有關卡！</p>`;
-        showMissionNotice("🎉 全數挑戰完成！");
-        queuePlaceHud();
-      }, 900);
-    }
+    if (quizIndex < quizData.length) setTimeout(showQuestion, 900);
+    else setTimeout(() => {
+      /* 🎉 全數挑戰完成頁 */
+      const card = document.getElementById("mission-card");
+      card.innerHTML = `
+        <h1>🎉 全數挑戰完成</h1>
+        <div id="missionNotice"></div>
+        <p>太讚了！你已完成所有關卡！</p>`;
+      showMissionNotice("🎉 全數挑戰完成！");
+      queuePlaceHud();
+    }, 900);
   } else {
     btn.querySelector(".mark").textContent = "❌";
   }
 }
 
-/* ===================================================================
-   🏆 排行榜（示意資料，含高亮提示）
-   =================================================================== */
+/* ==========================================================
+   🏆 排行榜（含狀態通知）
+   ========================================================== */
 let players = [
   { name: "大變態林阿軒", score: 100 },
   { name: "愛逃避姜新禹", score: 96 },
@@ -1094,24 +885,33 @@ let players = [
   { name: "雖阿郎莊告白", score: 83 },
   { name: "狗牛屎楊紐約", score: 82 }
 ];
-
 let lastRanks = {};
+
+function showMissionNotice(text) {
+  const notice = document.getElementById("missionNotice");
+  if (!notice) return;
+  notice.textContent = text || "";
+  notice.classList.add("notice-show");
+  clearTimeout(window._noticeTimer);
+  window._noticeTimer = setTimeout(() => {
+    notice.classList.remove("notice-show");
+    setTimeout(() => { notice.textContent = ""; }, 400);
+  }, 3000);
+}
 
 function renderLeaderboard() {
   players.sort((a, b) => b.score - a.score);
   const tbody = document.getElementById("rank-body");
   if (!tbody) return;
   tbody.innerHTML = "";
-
   players.forEach((p, i) => {
     const prev = lastRanks[p.name];
     if (prev !== undefined && prev !== i) {
-      if (prev > i) showMissionNotice(`⬆️ ${p.name} 上升至第 ${i + 1} 名！🎉`);
-      else          showMissionNotice(`⬇️ ${p.name} 下降至第 ${i + 1} 名～😅`);
+      if (prev > i) showMissionNotice(`${p.name} ⬆️ 上升至第 ${i + 1} 名！🎉`);
+      else showMissionNotice(`${p.name} ⬆️ 下降至第 ${i + 1} 名～😅`);
     }
     lastRanks[p.name] = i;
   });
-
   players.forEach((p, i) => {
     if (i < 4 || i >= players.length - 2) {
       const tr = document.createElement("tr");
@@ -1145,9 +945,9 @@ setInterval(() => {
 
 renderLeaderboard();
 
-/* ===================================================================
-   🗺️ 地圖設定（簡易室內平面）
-   =================================================================== */
+/* ==========================================================
+   🗺️ 地圖設定區（修正滑動衝突）
+   ========================================================== */
 const map = L.map("map", {
   crs: L.CRS.Simple,
   minZoom: -3,
@@ -1170,11 +970,14 @@ img.onload = function () {
   map.setMaxBounds(bounds);
   map.fitBounds(bounds, { animate: false });
 
-  /* 手機略縮小地圖比例 */
-  if (window.innerWidth <= 768) { map.setZoom(map.getZoom() - 1.6); }
-  else                           { map.setZoom(map.getZoom() - 1.2); }
+  // ✅ 手機視窗略縮小地圖比例
+  if (window.innerWidth <= 768) {
+    map.setZoom(map.getZoom() - 1.6);
+  } else {
+    map.setZoom(map.getZoom() - 1.2);
+  }
 
-  /* 關卡與 Bonus 點位 */
+  // ✅ 關卡與 Bonus 點位
   const points = [
     { name: "關卡一", coords: [h * 0.45, w * 0.45], color: "red" },
     { name: "關卡二", coords: [h * 0.35, w * 0.70], color: "red" },
@@ -1200,7 +1003,7 @@ img.onload = function () {
     .addTo(map);
 };
 
-/* 修正滑動衝突（支援雙指縮放、單指左右滑頁） */
+/* ✅ 修正滑動衝突（支援雙指縮放、單指左右滑頁） */
 map.on('touchstart', function(e){ e.preventDefault(); });
 map.getContainer().addEventListener('touchmove', e => e.stopPropagation(), { passive: true });
 map.getContainer().addEventListener('wheel', e => e.stopPropagation(), { passive: true });
@@ -1210,12 +1013,10 @@ let multiTouch = false;
 map.getContainer().addEventListener('touchstart', e => {
   multiTouch = e.touches.length > 1;
   if (multiTouch) { map.touchZoom.enable(); map.dragging.enable(); }
-  else            { map.touchZoom.disable(); map.dragging.disable(); }
+  else { map.touchZoom.disable(); map.dragging.disable(); }
 });
 map.getContainer().addEventListener('touchend', () => {
-  multiTouch = false;
-  map.touchZoom.disable();
-  map.dragging.disable();
+  multiTouch = false; map.touchZoom.disable(); map.dragging.disable();
 });
 
 /* 🧷 全域防止鍵盤彈出導致畫面上移（所有輸入與上傳框適用） */
@@ -1230,11 +1031,94 @@ function preventKeyboardPushUp() {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
       document.body.style.position = '';
       document.body.style.width = '';
-      window.scrollTo(0, 0);
+      window.scrollTo(0, 0); // 回到原位
     }
   });
 }
 preventKeyboardPushUp();
+
+/* ==========================================================
+   🧭 總分 HUD：建立、更新、定位（貼在主卡右下角）
+   ========================================================== */
+
+/* 可調參數（你覺得 HUD 要再上移，就把 LIFT 加大；右下邊距就改 MARGIN） */
+window.SCORE_HUD_MARGIN = 12;  // 與卡片右、下邊緣距離（px）
+window.SCORE_HUD_LIFT   = 24;  // 額外往上抬高距離（px；越大越往上）
+
+let totalScore = 0;         // 你的總分數值（這裡先當顯示，詳細加減分可用 addScore）
+let hudEl = document.getElementById('scoreHud');
+let popEl = document.getElementById('scorePop');
+let _placeHudTimer = null;
+
+function updateScoreHUD() {
+  const el = document.getElementById('scoreTotal');
+  if (el) el.textContent = totalScore;
+}
+
+/* 顯示 +15 / -1 小泡泡提示，跟著 HUD 飄一下（可呼叫就能用） */
+function showScorePop(text) {
+  if (!popEl || !hudEl) return;
+  popEl.textContent = text;
+  popEl.classList.add('show');
+  clearTimeout(popEl._t);
+  popEl._t = setTimeout(() => { popEl.classList.remove('show'); }, 900);
+}
+
+/* 封裝：加分或扣分並更新 HUD（ex: addScore(+15, "+15")） */
+function addScore(delta, hint) {
+  totalScore += delta;
+  updateScoreHUD();
+  if (hint) showScorePop(hint);
+}
+
+/* 重新排位置（主卡內容變動、視窗尺寸變更時要呼叫） */
+function queuePlaceHud() {
+  clearTimeout(_placeHudTimer);
+  _placeHudTimer = setTimeout(placeScoreHud, 0);
+}
+
+/* 把 HUD 貼到主卡右下角（並可往上抬高一點） */
+function placeScoreHud() {
+  const app  = document.getElementById('app');
+  const card = document.getElementById('mission-card');
+  if (!app || !card || !hudEl || !popEl) return;
+
+  const appRect  = app.getBoundingClientRect();
+  const cardRect = card.getBoundingClientRect();
+
+  // 量一次 HUD 自身尺寸
+  hudEl.style.visibility = 'hidden';
+  hudEl.style.left = '0px';
+  hudEl.style.top  = '0px';
+
+  const hudRect = hudEl.getBoundingClientRect();
+  const margin = Number(window.SCORE_HUD_MARGIN || 12);
+  const lift   = Number(window.SCORE_HUD_LIFT   || 0);
+
+  const left = Math.max(0, cardRect.right - appRect.left - hudRect.width - margin);
+  let top    = Math.max(0, cardRect.bottom - appRect.top - hudRect.height - margin - lift);
+
+  // 保證仍在卡片內
+  const minTopInsideCard = cardRect.top - appRect.top + margin;
+  if (top < minTopInsideCard) top = minTopInsideCard;
+
+  hudEl.style.left = left + 'px';
+  hudEl.style.top  = top  + 'px';
+  hudEl.style.visibility = 'visible';
+
+  // 讓 +分泡泡跟在 HUD 右上方
+  const curHudRect = hudEl.getBoundingClientRect();
+  const popLeft = left + curHudRect.width - 60;
+  const popTop  = top  - 40;
+  popEl.style.left = popLeft + 'px';
+  popEl.style.top  = popTop  + 'px';
+}
+
+/* 初始化 HUD */
+updateScoreHUD();
+queuePlaceHud();
+window.addEventListener('resize', queuePlaceHud);
+
 </script>
 </body>
 </html>
