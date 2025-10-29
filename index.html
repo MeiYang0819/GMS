@@ -262,7 +262,6 @@
       }
     }
   </style>
-</head>
 
   <body>
 
@@ -305,8 +304,9 @@
     <div id="puzzleReveal" style="display:none;"></div>
   </div>
 </div>
+</head>
 
-    <script>
+  <script>
 /* ==========================================================
    🎯 任務流程控制區（含暱稱輸入於第一關 + 照片上傳於第二關）
    ========================================================== */
@@ -425,7 +425,7 @@ function onPhotoSelected() {
    ========================================================== */
 
 /* 你可以調整這個百分比（0~100 建議 0~15）來改變馬賽克強度 */
-window.PUZZLE_MOSAIC_PERCENT = 3;
+window.PUZZLE_MOSAIC_PERCENT = 5;
 
 const PUZZLE_IMG_SRC = 'assets/MYs_logo_1.png';
 let puzzleImage = new Image();
@@ -784,7 +784,7 @@ function checkAnswer(choice) {
   } else btn.querySelector(".mark").textContent = "❌";
 }
 
-        /* ==========================================================
+      /* ==========================================================
    🏆 排行榜（含狀態通知）
    ========================================================== */
 let players = [
