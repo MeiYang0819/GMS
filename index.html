@@ -258,7 +258,7 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  top: 30px;                    /* ✅ 顯示位置：要再靠近上方就改小，往下就改大 */
+  top: 80px;                    /* ✅ 顯示位置：要再靠近上方就改小，往下就改大 */
   background: rgba(255,240,180,0.95); /* 🎨 淡黃底，可自行修改 */
   color: #222;
   padding: 8px 14px;
@@ -422,7 +422,7 @@ const hudEl  = document.getElementById('scoreHud');        /* HUD 容器 */
 const popEl  = document.getElementById('scorePop');        /* 浮動分數容器 */
 
 /* 🎛️ 可調參數：HUD 往上提距離（單位 px）。想再高一點就改大一些。*/
-window.SCORE_HUD_OFFSET_Y = 28;
+window.SCORE_HUD_OFFSET_Y = 22;
 
 function updateScoreHUD() {
   if (hudEl) hudEl.textContent = `總分：${totalScore}`;
@@ -461,7 +461,7 @@ function placeScoreHud() {
   hudEl.style.left = '0px';
   hudEl.style.top  = '0px';
 
-  const margin = 12;
+  const margin = 7;
   const hudRect = hudEl.getBoundingClientRect();
 
   /* ✅ 座標：主卡右下，並往上提 SCORE_HUD_OFFSET_Y */
@@ -1316,6 +1316,7 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
 
 
 
