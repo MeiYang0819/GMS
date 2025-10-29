@@ -153,7 +153,7 @@
       animation: popfade 1.2s ease forwards;
       margin-top: 2px;
       text-shadow: 0 1px 0 rgba(255,255,255,0.6);
-      font-size: 30px; /* ← 浮動「+15分」字級，改你要的大小 */
+      font-size: 20px; /* ← 浮動「+15分」字級，改你要的大小 */
     }
     .popscore.gain { color: #0b7a0b; }  /* 加分：綠 */
     .popscore.loss { color: #c1121f; }  /* 扣分：紅 */
@@ -692,20 +692,20 @@ function checkPhotoAndNext() {
   const input = document.getElementById('photoInput');
   const file = input?.files[0];
   if (!file) { showMissionNotice("⚠️ 請先上傳一張照片再繼續！"); return; }
-  /* 依據當前關卡 key 決定要加哪種分 */
+  // ✅ 只有在按「下一關」時才加分＆進入下一關
   if (currentMissionKey === 'sign')  awardOnce('sign', 15);
   if (currentMissionKey === 'photo') awardOnce('photo', 15);
   nextMission();
 }
+
+/* ✅ 上傳時只做提示，不自動跳關、不加分 */
 function onPhotoSelected() {
   const input = document.getElementById('photoInput');
   const file = input?.files && input.files[0];
   if (file) {
-    /* 只要使用者選了檔案就先加分（防重複機制保護），再自動往下一關 */
-    if (currentMissionKey === 'sign')  awardOnce('sign', 15);
-    if (currentMissionKey === 'photo') awardOnce('photo', 15);
-    showMissionNotice("📸 已選擇照片，前往下一關！");
-    setTimeout(() => nextMission(), 300);
+    showMissionNotice("📸 已選擇照片，請按「下一關」繼續。");
+  } else {
+    showMissionNotice("⚠️ 尚未選擇照片。");
   }
 }
 
@@ -1316,6 +1316,7 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
 
 
 
