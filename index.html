@@ -150,7 +150,7 @@
     #puzzleBottom {
       position: relative;
       background: #fafafa;
-      border: 2px dashed #ddd;      /* 單一大框，不畫 3x3 格線 */
+      border: 2px dashed #ddd;      /* 單一大框，不畫 3x3 格線；要改底色/框線看這行 */
       border-radius: 12px;
       overflow: hidden;
     }
@@ -228,7 +228,9 @@
     .flash { animation: scoreFlash 1s ease; }
 
     #map { flex: 1; border-left: 4px solid #fff; position: relative; overflow: hidden; }
+    /* 🎨 想改「地圖後面框框裡面的顏色」→ 改這裡的背景色 */
     .leaflet-container { width: 100%; height: 100%; background: #f5f5f5; }
+    /* 🎨 想改地圖左側白色分隔線顏色 → 改 #map 的 border-left */
     .leaflet-control-attribution {
       background: rgba(180,180,180,0.9);
       border-radius: 6px;
@@ -304,7 +306,7 @@
   </div>
 </div>
 
-<script>
+    <script>
 /* ==========================================================
    🎯 任務流程控制區（含暱稱輸入於第一關 + 照片上傳於第二關）
    ========================================================== */
@@ -350,7 +352,7 @@ function nextMission() {
       <button style="background-color:#ffb703;margin-top:25px;" onclick="checkPhotoAndNext()">下一關 ▶</button>`;
     step++;
 
-  } else if (step === 3 || step === 4) { 
+  } else if (step === 3 || step === 4) { // 第四或第五關
     if (baseMissions[step] === "找新人拍照：與新人合照 📸") {
       card.innerHTML = `
         <h1>🎯 第 ${step + 1} 關</h1>
@@ -423,7 +425,7 @@ function onPhotoSelected() {
    ========================================================== */
 
 /* 你可以調整這個百分比（0~100 建議 0~15）來改變馬賽克強度 */
-window.PUZZLE_MOSAIC_PERCENT = 5;
+window.PUZZLE_MOSAIC_PERCENT = 3;
 
 const PUZZLE_IMG_SRC = 'assets/MYs_logo_1.png';
 let puzzleImage = new Image();
@@ -462,6 +464,11 @@ function resetPuzzle() {
   if (revealTimerId) { clearTimeout(revealTimerId); revealTimerId = null; }
   const reveal = document.getElementById('puzzleReveal');
   if (reveal) { reveal.style.display = 'none'; reveal.style.opacity = '0'; }
+
+  /* ✅ 恢復上方散塊區與拼圖塊的可見與互動 */
+  const topBox = document.getElementById('puzzleTop');
+  if (topBox) { topBox.style.visibility = 'visible'; topBox.style.pointerEvents = 'auto'; }
+  pieces.forEach(p => { p.style.visibility = 'visible'; p.style.pointerEvents = 'auto'; });
 
   /* ✅ 重設按鈕區顯示（重來／完成回來） */
   const actions = document.getElementById('puzzleActions');
@@ -515,6 +522,7 @@ function createPuzzle() {
     piece.className = 'puzzlePiece';
     piece.style.width = piece.style.height = board.cell + 'px';
 
+    /* 馬賽克強度（百分比 → 像素） */
     const blurPx = Math.max(0, Math.round(board.cell * (window.PUZZLE_MOSAIC_PERCENT || 0) / 100));
     piece.style.filter = `blur(${blurPx}px)`;
 
@@ -680,17 +688,23 @@ function checkPuzzleComplete() {
   return true;
 }
 
-/* ✅ 完成後：隱藏「重來／完成」→ 顯示清晰圖 3 秒 → 自動下一關 */
+/* ✅ 完成後：隱藏「重來／完成」與上方散塊/所有拼圖塊 → 顯示清晰圖 3 秒 → 自動下一關 */
 function completePuzzle() {
   if (!checkPuzzleComplete()) {
     showMissionNotice("🧩 還沒完成喔！請把所有拼圖放到正確位置。");
     return;
   }
 
-  /* ✅ 立刻把兩個按鈕隱藏，避免以為還要再按一次 */
+  /* 1) 立刻把按鈕區隱藏，避免以為要再按一次 */
   const actions = document.getElementById('puzzleActions');
   if (actions) actions.style.display = 'none';
 
+  /* 2) 隱藏上方散塊區與所有拼圖塊（保留佔位避免跳動） */
+  const topBox = document.getElementById('puzzleTop');
+  if (topBox) { topBox.style.visibility = 'hidden'; topBox.style.pointerEvents = 'none'; }
+  pieces.forEach(p => { p.style.visibility = 'hidden'; p.style.pointerEvents = 'none'; });
+
+  /* 3) 顯示清晰原圖 3 秒 */
   measureBoard();
   const area = document.getElementById('puzzleArea');
   const areaRect = area.getBoundingClientRect();
@@ -770,7 +784,7 @@ function checkAnswer(choice) {
   } else btn.querySelector(".mark").textContent = "❌";
 }
 
-    /* ==========================================================
+        /* ==========================================================
    🏆 排行榜（含狀態通知）
    ========================================================== */
 let players = [
@@ -939,5 +953,3 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
-
-    
