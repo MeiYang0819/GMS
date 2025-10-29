@@ -118,14 +118,14 @@
     button { background-color: #ffb703; border: none; border-radius: 10px; color: #111; font-size: var(--font-base); padding: 10px 25px; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
     button:hover { background-color: #ffd166; }
 
-    /* === 新增：全螢幕拼圖覆蓋層（上：散塊；下：單一大框；重來置中） === */
+    /* === 全螢幕拼圖覆蓋層（上：散塊；下：單一大框；重來置中） === */
     #puzzleContainer {
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.45); /* 🎨 遮罩顏色（可調） */
       display: none;          /* 由 JS 控制 */
       z-index: 9999;
-      margin-top: 0;          /* 覆蓋舊樣式的 margin */
+      margin-top: 0;
     }
     #puzzleArea {
       position: absolute;
@@ -200,7 +200,7 @@
     /* 🎉 完成提示橫幅：往下移＋內容置中 */
     #puzzleBanner {
       position: absolute;
-      z-index: 10;                  /* 高於 reveal */
+      z-index: 10;
       top: 20px;                    /* ⬇ 往下移一點（可調） */
       left: 12px; right: 12px;
       min-height: 44px;
@@ -210,14 +210,14 @@
       padding: 8px 12px;
       font-weight: 700;
       color: #111;
-      text-align: center;           /* 水平置中（保險） */
+      text-align: center;
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
       opacity: 0;
       transition: opacity .25s ease;
-      pointer-events: none;         /* 只顯示，不攔滑動 */
-      display: none;                /* 顯示時由 JS 改為 flex */
-      justify-content: center;      /* 水平置中內容 */
-      align-items: center;          /* 垂直置中內容 */
+      pointer-events: none;
+      display: none;
+      justify-content: center;
+      align-items: center;
     }
     #puzzleBanner.show { opacity: 1; }
 
@@ -233,11 +233,11 @@
       outline: none;
     }
 
-    /* 下方排行與地圖 */
+    /* 下方排行與地圖（★這裡完全不動你的設定★） */
     #bottom-area { display: flex; height: 45%; border-top: 4px solid #fff; }
     #leaderboard {
       flex: 1;
-      background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%); /* 🎨 排行板底色（可調） */
+      background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%);
       overflow-y: auto;
       overflow-x: hidden;
       padding: 0 0 60px 0;
@@ -290,14 +290,14 @@
     .option-grid button { width: 90%; position: relative; }
     .option-grid button .mark { position: absolute; right: 10px; top: 5px; font-size: 24px; }
 
-    /* === 新增：右上角總分 HUD + 浮動加/扣分提示 === */
+    /* === 右下角總分 HUD + 浮動加/扣分提示（改位子＋淡黃色） === */
     #scoreHud {
       position: fixed;
-      top: 8px;
+      bottom: 12px;           /* ⬇ 右下角 */
       right: 10px;
       z-index: 10000;
-      background: rgba(255,255,255,0.95); /* 🎨 HUD 底色（可調） */
-      border: 2px solid #f8dada;         /* 🎨 HUD 外框（可調） */
+      background: rgba(255, 249, 207, 0.95); /* 🎨 淡黃色 HUD 底色（可調） */
+      border: 2px solid #f8dada;             /* 🎨 HUD 外框（可調） */
       border-radius: 10px;
       padding: 6px 12px;
       font-weight: 800;
@@ -307,7 +307,7 @@
     }
     #scorePop {
       position: fixed;
-      top: 48px;       /* 在 HUD 下方 */
+      bottom: 58px;     /* 浮在 HUD 上方 */
       right: 12px;
       z-index: 10000;
       pointer-events: none;
@@ -327,55 +327,66 @@
       90%  { opacity: 1; transform: translateY(-10px); }
       100% { opacity: 0; transform: translateY(-16px); }
     }
+
+    @media (max-width: 768px) {
+      #bottom-area {
+        flex-direction: row; overflow-x: auto; overflow-y: hidden;
+        white-space: nowrap; height: 45vh; scroll-snap-type: x mandatory;
+      }
+      #leaderboard, #map {
+        flex: none; width: 100vw; height: 100%;
+        scroll-snap-align: start; display: inline-block;
+      }
+    }
   </style>
 </head>
 
-  <body>
+<body>
 
-  <!-- ✅ 右上角總分 HUD 與浮動分數提示（插入） -->
+  <!-- ✅ 右下角總分 HUD 與浮動分數提示 -->
   <div id="scoreHud">總分：0</div>
   <div id="scorePop"></div>
 
   <div id="app">
-  <div id="main-area">
-    <div class="main-card" id="mission-card">
-      <h1>🕙闖關任務🕒</h1>
-      <div id="missionNotice"></div>
-      <p>歡迎參加幹掉雙面陳闖關活動～<br>請點擊開始進行挑戰！</p>
-      <button onclick="nextMission()">開始任務 ▶</button>
+    <div id="main-area">
+      <div class="main-card" id="mission-card">
+        <h1>🕙闖關任務🕒</h1>
+        <div id="missionNotice"></div>
+        <p>歡迎參加幹掉雙面陳闖關活動～<br>請點擊開始進行挑戰！</p>
+        <button onclick="nextMission()">開始任務 ▶</button>
+      </div>
+    </div>
+
+    <div id="bottom-area">
+      <div id="leaderboard">
+        <h2>🏆 排行榜</h2>
+        <span class="hint-box">👈 左滑地圖</span>
+        <table>
+          <thead><tr><th>名次</th><th>暱稱</th><th>分數</th></tr></thead>
+          <tbody id="rank-body"></tbody>
+        </table>
+      </div>
+      <div id="map"></div>
     </div>
   </div>
 
-  <div id="bottom-area">
-    <div id="leaderboard">
-      <h2>🏆 排行榜</h2>
-      <span class="hint-box">👈 左滑地圖</span>
-      <table>
-        <thead><tr><th>名次</th><th>暱稱</th><th>分數</th></tr></thead>
-        <tbody id="rank-body"></tbody>
-      </table>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <!-- ✅ 全螢幕拼圖覆蓋層 -->
+  <div id="puzzleContainer" style="display: none;">
+    <div id="puzzleArea" style="display: none;">
+      <div id="puzzleTop"></div>
+      <div id="puzzleBottom"></div>
+      <div id="puzzleActions">
+        <button id="resetPuzzleButton" onclick="resetPuzzle()">重來</button>
+        <button id="completePuzzleButton" onclick="completePuzzle()">完成</button>
+      </div>
+      <div id="puzzleReveal" style="display:none;"></div>
+      <div id="puzzleBanner" style="display:none;"></div> <!-- 🎉 完成提示橫幅 -->
     </div>
-    <div id="map"></div>
   </div>
-</div>
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<!-- ✅ 全螢幕拼圖覆蓋層 -->
-<div id="puzzleContainer" style="display: none;">
-  <div id="puzzleArea" style="display: none;">
-    <div id="puzzleTop"></div>
-    <div id="puzzleBottom"></div>
-    <div id="puzzleActions">
-      <button id="resetPuzzleButton" onclick="resetPuzzle()">重來</button>
-      <button id="completePuzzleButton" onclick="completePuzzle()">完成</button>
-    </div>
-    <div id="puzzleReveal" style="display:none;"></div>
-    <div id="puzzleBanner" style="display:none;"></div> <!-- 🎉 完成提示橫幅（顯示在覆蓋層頂端） -->
-  </div>
-</div>
-
-    <script>
+<script>
 /* ==========================================================
    🎯 任務流程控制區（含暱稱輸入於第一關 + 照片上傳於第二關）
    ========================================================== */
@@ -536,7 +547,7 @@ function onGenericNext() {
    ========================================================== */
 window.PUZZLE_MOSAIC_PERCENT = 2; /* 🎨 馬賽克強度百分比（可調） */
 const PUZZLE_BASELINE_SEC = 10;   /* ⏱ 基準秒數（超過才開始扣分） */
-const PUZZLE_DECAY_SEC_PER_POINT = 5; /* ⏱ 超過後每 5 秒扣 1 分（你指定） */
+const PUZZLE_DECAY_SEC_PER_POINT = 5; /* ⏱ 超過後每 5 秒扣 1 分 */
 
 const PUZZLE_IMG_SRC = 'assets/MYs_logo_1.png';
 let puzzleImage = new Image();
@@ -782,16 +793,16 @@ function completePuzzle() {
   const actions = document.getElementById('puzzleActions');
   if (actions) actions.style.display = 'none';
 
-  /* 2) 隱藏上方散塊與拼圖塊（保留佔位避免跳動） */
+  /* 2) 隱藏上方散塊與拼圖塊 */
   const topBox = document.getElementById('puzzleTop');
   if (topBox) { topBox.style.visibility = 'hidden'; topBox.style.pointerEvents = 'none'; }
   pieces.forEach(p => { p.style.visibility = 'hidden'; p.style.pointerEvents = 'none'; });
 
-  /* 3) 顯示覆蓋層頂端的恭喜橫幅（如你指定位置） */
+  /* 3) 顯示覆蓋層頂端的恭喜橫幅 */
   const banner = document.getElementById('puzzleBanner');
   if (banner) {
     banner.textContent = `🎉 恭喜完成拼圖！本次 +${scoreGain} 分，3 秒後進入下一關…`;
-    banner.style.display = 'flex';   /* 讓置中生效 */
+    banner.style.display = 'flex';
     requestAnimationFrame(() => banner.classList.add('show'));
   }
 
