@@ -422,7 +422,7 @@ const hudEl  = document.getElementById('scoreHud');        /* HUD 容器 */
 const popEl  = document.getElementById('scorePop');        /* 浮動分數容器 */
 
 /* 🎛️ 可調參數：HUD 往上提距離（單位 px）。想再高一點就改大一些。*/
-window.SCORE_HUD_OFFSET_Y = 22;
+window.SCORE_HUD_OFFSET_Y = 30;
 
 function updateScoreHUD() {
   if (hudEl) hudEl.textContent = `總分：${totalScore}`;
@@ -1316,6 +1316,7 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
 
 
 
