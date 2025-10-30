@@ -365,6 +365,26 @@
         display: inline-block;
       }
     }
+
+    /* ------------------------------------------------------------------
+       ★ 新增：第三關桌號輸入框樣式（與第一關同版型可自行調整）
+       你可調整寬度/高度/邊框顏色等，保持與 nickname/gatePwd 一致
+       ------------------------------------------------------------------ */
+    #hostInput {
+      width: 60%;
+      max-width: 280px;
+      height: 40px;
+      margin: 12px auto;
+      display: block;
+      border-radius: 10px;
+      border: 2px solid #ddd;
+      background-color: #f2f2f2;
+      font-size: 16px;    /* ✅ >=16px 避免 iOS 自動放大 */
+      text-align: center;
+      outline: none;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1) inset;
+    }
+    #hostInput::placeholder { color: #999; }
   </style>
 </head>
 
@@ -592,13 +612,22 @@ function nextMission() {
     queuePlaceHud();
 
   } else if (step === 2) {
-    /* ✅ 第 3 關：找招待（按下一關＋15 分） */
+    /* ----------------------------------------------------------------
+       ★ 調整：第 3 關改成「輸入桌號驗證」（與第一關同版面）
+         - 支援輸入數字或「X號桌」，範圍 1～50
+         - 可按 Enter 送出
+         - 通過才加分並前進
+       ---------------------------------------------------------------- */
     currentMissionKey = 'host';
     card.innerHTML = `
       <h1>🎯 第 3 關</h1>
       <div id="missionNotice"></div>
-      <p>${baseMissions[2]}</p>
-      <button style="background-color:#ffb703;margin-top:25px;" onclick="awardHostAndNext()">下一關 ▶</button>`;
+      <p>請輸入您的桌號（可填「8」或「8號桌」，1～50）</p>
+      <input type="text" id="hostInput" placeholder="例如：8 或 8號桌" />
+      <button style="background-color:#ffb703;margin-top:25px;" onclick="attemptHostNext()">下一關 ▶</button>`;
+    /* ★ 新增：支援 Enter 送出 */
+    const hostInput = document.getElementById('hostInput');
+    hostInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptHostNext(); });
     step++;
     queuePlaceHud();
 
@@ -1357,6 +1386,3 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
-
-
-
