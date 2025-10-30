@@ -640,8 +640,17 @@ function nextMission() {
   }
 }
 
-/* 第3關 專用：加分後換關 */
-function awardHostAndNext() {
+/* 第3關：驗證桌號（1～50；可輸入數字或「X號桌」），通過才加分並前進 */
+function attemptHostNext() {
+  const raw = (document.getElementById('hostInput')?.value || '').trim();
+  const s = raw.replace(/\s+/g, '');
+  const m = s.match(/^(\d+)(?:號桌)?$/);  /* 接受 8 或 8號桌 */
+  const n = m ? parseInt(m[1], 10) : NaN;
+
+  if (!m || !(n >= 1 && n <= 50)) {
+    showMissionNotice("⚠️ 請輸入通關密碼");
+    return;
+  }
   awardOnce('host', 15); /* 只加一次 */
   nextMission();
 }
@@ -1348,5 +1357,6 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
 
 
