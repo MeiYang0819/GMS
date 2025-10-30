@@ -164,7 +164,7 @@
       100% { opacity: 0; transform: translateY(-16px); }
     }
 
-        /* === 全螢幕拼圖覆蓋層（上：散塊區；下：單一大框，不畫格線） === */
+    /* === 全螢幕拼圖覆蓋層（上：散塊區；下：單一大框，不畫格線） === */
     #puzzleContainer {
       position: fixed;
       inset: 0;
@@ -392,6 +392,35 @@
         display: inline-block;
       }
     }
+
+    /* ===========================
+       ★ A4 橫式地圖視窗（新增）
+       =========================== */
+    /* 讓 #map 成為置中容器 */
+    #map {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    /* A4 橫式比例視窗：固定 297:210（≈1.414） */
+    #mapA4 {
+      width: 95%;
+      max-height: calc(100% - 16px); /* 不超出下半區高度，留邊距 */
+      aspect-ratio: 297 / 210;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #f5f5f5;           /* 與地圖底色一致，避免留白突兀 */
+      box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+    }
+    /* 讓 Leaflet 填滿 A4 盒子 */
+    #mapA4 .leaflet-container { width: 100%; height: 100%; }
+
+    @media (max-width: 768px) {
+      #mapA4 {
+        width: 92vw;
+        max-height: calc(100% - 20px);
+      }
+    }
   </style>
 </head>
 
@@ -420,7 +449,11 @@
           <tbody id="rank-body"></tbody>
         </table>
       </div>
-      <div id="map"></div>
+
+      <!-- ★ 這裡把地圖改成 A4 容器 -->
+      <div id="map">
+        <div id="mapA4"></div>
+      </div>
 
       <!-- ★ 新增：第三頁，下半部可再滑一次 -->
       <div id="extra-panel">
@@ -438,7 +471,7 @@
     </div>
   </div>
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <!-- ✅ 全螢幕拼圖覆蓋層（上散塊／下大框／完成揭示＋Banner） -->
   <div id="puzzleContainer" style="display: none;">
@@ -1304,9 +1337,9 @@ setInterval(() => {
 renderLeaderboard();
 
 /* ===================================================================
-   🗺️ 地圖設定（簡易室內平面）
+   🗺️ 地圖設定（簡易室內平面，A4 視窗）
    =================================================================== */
-const map = L.map("map", {
+const map = L.map("mapA4", {   /* ★ 改：掛在 #mapA4 上 */
   crs: L.CRS.Simple,
   minZoom: -3,
   maxZoom: 4,
@@ -1328,9 +1361,14 @@ img.onload = function () {
   map.setMaxBounds(bounds);
   map.fitBounds(bounds, { animate: false });
 
-  /* 手機略縮小地圖比例 */
+  /* ★ 新增：A4 容器尺寸算好後，讓 Leaflet 重算 */
+  setTimeout(() => map.invalidateSize(), 0);
+  window.addEventListener('resize', () => map.invalidateSize());
+
+  /* 手機略縮小地圖比例（已由 fitBounds + A4 視窗處理，若仍需微調再開啟）
   if (window.innerWidth <= 768) { map.setZoom(map.getZoom() - 1.6); }
   else                           { map.setZoom(map.getZoom() - 1.2); }
+  */
 
   /* 關卡與 Bonus 點位 */
   const points = [
@@ -1396,8 +1434,4 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
-
-
-
-
-
+  
