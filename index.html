@@ -635,23 +635,26 @@ function nextMission() {
   } else if (step === 2) {
     /* ✅ 第 3 關：找招待（需輸入「1號桌～80號桌」方可通過，完成＋15 分） */
     currentMissionKey = 'host';
-    card.innerHTML = `
-      <h1>🎯 第 3 關</h1>
-      <div id="missionNotice"></div>
-      <p>${baseMissions[2]}</p>
-      <input
-        type="text"
-        id="hostInput"
-        placeholder="🚨 輸入通關密碼"
-        inputmode="numeric"
-        style="width:60%;max-width:280px;height:40px;margin:12px auto;
-        display:block;border-radius:10px;border:2px solid #ddd;background-color:#f2f2f2;
-        font-size:16px;text-align:center;outline:none;box-shadow:0 2px 5px rgba(0,0,0,0.1) inset;"/>
-      <button style="background-color:#ffb703;margin-top:18px;" onclick="attemptHostNext()">下一關 ▶</button>`;
-    const hostInput = document.getElementById('hostInput');
-    hostInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptHostNext(); });
-    step++;
-    queuePlaceHud();
+  card.innerHTML = `
+    <h1>🎯 第 3 關</h1>
+    <div id="missionNotice"></div>
+    <p>${baseMissions[2]}</p>
+    <input
+      type="text"
+      id="hostInput"
+      placeholder="請索取並輸入通過密碼"
+      enterkeyhint="go"
+      autocapitalize="off"
+      autocomplete="off"
+      autocorrect="off"
+      style="width:60%;max-width:280px;height:40px;margin:12px auto;
+      display:block;border-radius:10px;border:2px solid #ddd;background-color:#f2f2f2;
+      font-size:16px;text-align:center;outline:none;box-shadow:0 2px 5px rgba(0,0,0,0.1) inset;"/>
+    <button style="background-color:#ffb703;margin-top:18px;" onclick="attemptHostNext()">下一關 ▶</button>`;
+  const hostInput = document.getElementById('hostInput');
+  hostInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptHostNext(); });
+  step++;
+  queuePlaceHud();
 
   } else if (step === 3 || step === 4) {
     /* ✅ 第 4 或 5 關（可能是合照或拼圖） */
@@ -698,20 +701,29 @@ function awardHostAndNext() {
   nextMission();
 }
 
-/* 第3關：必須輸入「1號桌～80號桌」的嚴格格式，才加分並前進 */
+/* 第3關：必須輸入「1號桌～80號桌」，純數字會自動補上「號桌」 */
 function attemptHostNext() {
-  const raw = (document.getElementById('hostInput')?.value || '').trim();
-  // 移除所有空白，避免「12 號桌」等變體通過
+  const el  = document.getElementById('hostInput');
+  const raw = (el?.value || '').trim();
+
+  // 去空白
   const s = raw.replace(/\s+/g, '');
+
+  // 若只輸入數字，自動補「號桌」
+  const s2 = /^\d+$/.test(s) ? (s + '號桌') : s;
+
   // 嚴格限制：1~9、10~79、或 80，且必須接「號桌」
-  const ok = /^(?:[1-9]|[1-7]\d|80)號桌$/.test(s);
+  const ok = /^(?:[1-9]|[1-7]\d|80)號桌$/.test(s2);
 
   if (!ok) {
-    showMissionNotice("⚠️ 請輸入正確格式");
+    showMissionNotice("⚠️ 只能輸入 1號桌～80號桌（例如：12號桌）");
     return;
   }
 
-  awardOnce('host', 15); /* 只加一次 */
+  // 回填規範化字串（可要可不要）
+  el.value = s2;
+
+  awardOnce('host', 15);
   nextMission();
 }
 
@@ -1384,6 +1396,7 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
 
 
 
