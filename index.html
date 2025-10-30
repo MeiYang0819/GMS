@@ -367,24 +367,35 @@
     }
 
     /* ------------------------------------------------------------------
-       ★ 新增：第三關桌號輸入框樣式（與第一關同版型可自行調整）
-       你可調整寬度/高度/邊框顏色等，保持與 nickname/gatePwd 一致
+       ★ 新增：第三頁（桌面端樣式）
+       - 與排行榜採相近底色邏輯，也可自行改成你喜歡的背景
+       - 你可以調整整體背景的三段漸層色
        ------------------------------------------------------------------ */
-    #hostInput {
-      width: 60%;
-      max-width: 280px;
-      height: 40px;
-      margin: 12px auto;
-      display: block;
-      border-radius: 10px;
-      border: 2px solid #ddd;
-      background-color: #f2f2f2;
-      font-size: 16px;    /* ✅ >=16px 避免 iOS 自動放大 */
-      text-align: center;
-      outline: none;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1) inset;
+    #extra-panel{
+      flex: 1;
+      background: linear-gradient(180deg, #ffe0b3 0%, #ffd19e 77%, #ffc37a 100%); /* ★ 可調：第三頁背景 */
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 0 0 60px 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      border-left: 4px solid #fff; /* ★ 可調：與 #map 同樣的分隔線感 */
     }
-    #hostInput::placeholder { color: #999; }
+
+    /* ------------------------------------------------------------------
+       ★ 新增：手機寬度下，讓第三頁也成為可橫滑的一頁
+       - 不改動你原本的 @media 內規則，只補一條 extra-panel 的規則
+       ------------------------------------------------------------------ */
+    @media (max-width: 768px) {
+      #extra-panel{
+        flex: none;
+        width: 100vw;
+        height: 100%;
+        scroll-snap-align: start;
+        display: inline-block;
+      }
+    }
   </style>
 </head>
 
@@ -399,7 +410,7 @@
       <div class="main-card" id="mission-card">
         <h1>🕙闖關任務🕒</h1>
         <div id="missionNotice"></div>
-        <p>歡迎參加幹掉雙面陳闖關活動～<br>請點擊開始進行挑戰！</p>
+        <p>歡迎參加闖關尋寶任務，<br>點擊開始開始進行挑戰！</p>
         <button onclick="nextMission()">開始任務 ▶</button>
       </div>
     </div>
@@ -414,6 +425,21 @@
         </table>
       </div>
       <div id="map"></div>
+
+      <!-- ★ 新增：第三頁，下半部可再滑一次 -->
+      <div id="extra-panel">
+        <h2 style="font-size:26px; margin:8px 0 12px; color:#111; text-align:center;">📣 活動資訊</h2>
+        <div class="extra-wrap" style="padding:12px 16px; font-size:18px;">
+          <!-- ★ 可調內容：你可以把這段換成抽獎辦法、注意事項、加碼任務、贊助名單等 -->
+          <p>抽獎辦法、注意事項、加碼任務、贊助名單…（都可以更改喔喔喔）</p>
+          <ul style="line-height:1.8;margin:0 0 12px 1em;">
+            <li>抽獎登記截止時間<b>20:30</b></li>
+            <li>完成所有關卡可加碼再抽一次</li>
+            <li>服務台位置，舞台右側「兌獎處」</li>
+          </ul>
+        </div>
+      </div>
+      <!-- ★ 新增結束 -->
     </div>
   </div>
 
@@ -551,12 +577,12 @@ function awardOnce(key, points) {
 }
 
 const baseMissions = [
-  "簽到：請完成簽到並輸入暱稱！",
-  "簽名：請上傳您的簽名或照片！",
-  "找招待：請找現場工作人員確認",
-  "找新人拍照：與新人合照 📸",
-  "小遊戲：完成拼圖挑戰！",
-  "測驗：回答婚禮小問題 💡"
+  "💳 完成簽到並輸入暱稱",
+  "✍️ 上傳美美的簽名照片",
+  "👀 尋找總招待索取密碼",
+  "📸 與甜蜜新人一起合影",
+  "🧩 完成拼圖婚紗照挑戰",
+  "💡 接受新人友情大考驗"
 ];
 
 /* 第 4 / 5 關隨機互換 */
@@ -612,22 +638,13 @@ function nextMission() {
     queuePlaceHud();
 
   } else if (step === 2) {
-    /* ----------------------------------------------------------------
-       ★ 調整：第 3 關改成「輸入桌號驗證」（與第一關同版面）
-         - 支援輸入數字或「X號桌」，範圍 1～50
-         - 可按 Enter 送出
-         - 通過才加分並前進
-       ---------------------------------------------------------------- */
+    /* ✅ 第 3 關：找招待（按下一關＋15 分） */
     currentMissionKey = 'host';
     card.innerHTML = `
       <h1>🎯 第 3 關</h1>
       <div id="missionNotice"></div>
-      <p>請輸入您的桌號（可填「8」或「8號桌」，1～50）</p>
-      <input type="text" id="hostInput" placeholder="例如：8 或 8號桌" />
-      <button style="background-color:#ffb703;margin-top:25px;" onclick="attemptHostNext()">下一關 ▶</button>`;
-    /* ★ 新增：支援 Enter 送出 */
-    const hostInput = document.getElementById('hostInput');
-    hostInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptHostNext(); });
+      <p>${baseMissions[2]}</p>
+      <button style="background-color:#ffb703;margin-top:25px;" onclick="awardHostAndNext()">下一關 ▶</button>`;
     step++;
     queuePlaceHud();
 
@@ -664,7 +681,7 @@ function nextMission() {
     card.innerHTML = `
       <h1>🎉 恭喜完成所有任務</h1>
       <div id="missionNotice"></div>
-      <p>感謝一起讓雙面陳往生</p>`;
+      <p>💫　感謝一起活動更加美好</p>`;
     queuePlaceHud();
   }
 }
@@ -692,7 +709,7 @@ function goToGateOrQuiz() {
     card.innerHTML = `
       <h1>🔒 密碼驗證</h1>
       <div id="missionNotice"></div>
-      <p>請輸入密碼以進入第 6 關</p>
+      <p>晚點會公佈密碼進入第６關</p>
       <input type="password" id="gatePwd" placeholder="輸入密碼..." inputmode="numeric" maxlength="6" />
       <button id="gateBtn" style="background-color:#ffb703;margin-top:18px;" onclick="verifyGate()">確認 ▶</button>`;
     const gate = document.getElementById('gatePwd');
@@ -707,12 +724,12 @@ function goToGateOrQuiz() {
 
 function verifyGate() {
   const v = (document.getElementById('gatePwd')?.value || '').trim();
-  if (v !== '0313') {
-    showMissionNotice("❌ 密碼錯誤，請再試一次！");
+  if (v !== '0313') 
+    showMissionNotice("❌ 密碼錯誤，請再試一次");
     return;
   }
   GATE_DONE = true;
-  showMissionNotice("✅ 密碼正確，進入第 6 關！");
+  showMissionNotice("✅ 密碼正確，進入第6關");
   goToGateOrQuiz();
 }
 
@@ -720,7 +737,7 @@ function verifyGate() {
 function attemptNickNext() {
   const nickInput = document.getElementById('nicknameInput');
   const name = (nickInput?.value || '').trim();
-  if (!name) { showMissionNotice("⚠️ 請填寫暱稱！"); return; }
+  if (!name) { showMissionNotice("⚠️ 請填寫暱稱"); return; }
   awardOnce('nick', 10);
   nextMission();
 }
@@ -729,7 +746,7 @@ function attemptNickNext() {
 function checkPhotoAndNext() {
   const input = document.getElementById('photoInput');
   const file = input?.files[0];
-  if (!file) { showMissionNotice("⚠️ 請先上傳一張照片再繼續！"); return; }
+  if (!file) { showMissionNotice("⚠️ 請先上傳一張照片唷"); return; }
   // ✅ 只有在按「下一關」時才加分＆進入下一關
   if (currentMissionKey === 'sign')  awardOnce('sign', 15);
   if (currentMissionKey === 'photo') awardOnce('photo', 15);
@@ -743,7 +760,7 @@ function onPhotoSelected() {
   if (file) {
     showMissionNotice("📸 已選擇照片，請按「下一關」繼續。");
   } else {
-    showMissionNotice("⚠️ 尚未選擇照片。");
+    showMissionNotice("⚠️ 尚未選擇照片呢");
   }
 }
 
@@ -1057,7 +1074,7 @@ function checkPuzzleComplete() {
 /* ✅ 完成：顯示清晰圖＋Banner，計算分數；3 秒後關閉拼圖並在 HUD 顯示加分 */
 function completePuzzle() {
   if (!checkPuzzleComplete()) {
-    showMissionNotice("🧩 還沒完成喔！請把所有拼圖放到正確位置。");
+    showMissionNotice("🧩 還沒完成喔，加油加油加油");
     return;
   }
 
@@ -1089,7 +1106,7 @@ function completePuzzle() {
   requestAnimationFrame(() => { requestAnimationFrame(() => { reveal.style.opacity = '1'; }); });
 
   // 顯示「恭喜完成拼圖！」文字（置中、往下些，依你需求）
-  banner.textContent = "🎉 恭喜完成拼圖！";
+  banner.textContent = "🎉 恭喜完成拼圖";
   banner.style.display = 'block';
 
   /* 4) 計分（基準 10 秒=15 分；每滿 5 秒 -1；下限 0；無條件捨去） */
@@ -1141,7 +1158,7 @@ function showInterQuizGate(nextIndex) {
   card.innerHTML = `
     <h1>🔒 密碼驗證</h1>
     <div id="missionNotice"></div>
-    <p>請輸入密碼以進入下一題</p>
+    <p>請輸入密碼，以進入下一題</p>
     <input type="password" id="gatePwd" placeholder="輸入密碼..." inputmode="numeric" maxlength="6" />
     <button id="gateBtn" style="background-color:#ffb703;margin-top:18px;" onclick="verifyInterQuizGate()">確認 ▶</button>`;
   const input = document.getElementById('gatePwd');
@@ -1154,7 +1171,7 @@ function verifyInterQuizGate() {
   const v = (input?.value || '').trim();
   const neededCode = interQuizCodes[Math.max(0, (_interGateTargetIndex ?? 1) - 1)];
   if (v !== neededCode) {
-    showMissionNotice("❌ 密碼錯誤，請再試一次！");
+    showMissionNotice("❌ 密碼錯誤，請再試一次");
     return;
   }
   // 密碼正確 → 進入下一題
@@ -1217,8 +1234,8 @@ function checkAnswer(choice) {
       card.innerHTML = `
         <h1>🎉 全數挑戰完成</h1>
         <div id="missionNotice"></div>
-        <p>太讚了！你已完成所有關卡！</p>`;
-      showMissionNotice("🎉 全數挑戰完成！");
+        <p>太讚了！你/妳已完成所有關卡！</p>`;
+      showMissionNotice("🎉 全數挑戰完成");
       queuePlaceHud();
     }, 200);
 
@@ -1254,8 +1271,8 @@ function renderLeaderboard() {
   players.forEach((p, i) => {
     const prev = lastRanks[p.name];
     if (prev !== undefined && prev !== i) {
-      if (prev > i) showMissionNotice(`⬆️ ${p.name} 上升至第 ${i + 1} 名！🎉`);
-      else          showMissionNotice(`⬇️ ${p.name} 下降至第 ${i + 1} 名～😅`);
+      if (prev > i) showMissionNotice(`${p.name} ⬆️ 上升至第 ${i + 1} 名！🎉`);
+      else          showMissionNotice(`${p.name} ⬆️ 下降至第 ${i + 1} 名～😅`);
     }
     lastRanks[p.name] = i;
   });
