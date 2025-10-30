@@ -164,7 +164,7 @@
       100% { opacity: 0; transform: translateY(-16px); }
     }
 
-    /* === 全螢幕拼圖覆蓋層（上：散塊區；下：單一大框，不畫格線） === */
+        /* === 全螢幕拼圖覆蓋層（上：散塊區；下：單一大框，不畫格線） === */
     #puzzleContainer {
       position: fixed;
       inset: 0;
@@ -254,23 +254,22 @@
     }
 
     /* 完成提示 Banner（置中、可調整與上緣距離） */
-#puzzleBanner {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: 80px;                    /* ✅ 顯示位置：要再靠近上方就改小，往下就改大 */
-  background: rgba(255,240,180,0.95); /* 🎨 淡黃底，可自行修改 */
-  color: #222;
-  padding: 8px 14px;
-  border-radius: 10px;
-  border: 2px solid #f5d08a;
-  font-weight: 800;
-  text-align: center;
-  display: none;                /* 由 JS 在完成時改為 block */
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-  z-index: 6;                   /* 高於拼圖塊與清晰圖(#puzzleReveal:z-index:5) */
-}
-
+    #puzzleBanner {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 80px;
+      background: rgba(255,240,180,0.95);
+      color: #222;
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 2px solid #f5d08a;
+      font-weight: 800;
+      text-align: center;
+      display: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      z-index: 6;
+    }
 
     /* 測驗題目：選到後的暫時高亮（新題不保留）；不顯示勾勾圖示 */
     .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; justify-items: center; margin-top: 25px; }
@@ -368,8 +367,6 @@
 
     /* ------------------------------------------------------------------
        ★ 新增：第三頁（桌面端樣式）
-       - 與排行榜採相近底色邏輯，也可自行改成你喜歡的背景
-       - 你可以調整整體背景的三段漸層色
        ------------------------------------------------------------------ */
     #extra-panel{
       flex: 1;
@@ -385,7 +382,6 @@
 
     /* ------------------------------------------------------------------
        ★ 新增：手機寬度下，讓第三頁也成為可橫滑的一頁
-       - 不改動你原本的 @media 內規則，只補一條 extra-panel 的規則
        ------------------------------------------------------------------ */
     @media (max-width: 768px) {
       #extra-panel{
@@ -430,7 +426,6 @@
       <div id="extra-panel">
         <h2 style="font-size:26px; margin:8px 0 12px; color:#111; text-align:center;">📣 活動資訊</h2>
         <div class="extra-wrap" style="padding:12px 16px; font-size:18px;">
-          <!-- ★ 可調內容：你可以把這段換成抽獎辦法、注意事項、加碼任務、贊助名單等 -->
           <p>抽獎辦法、注意事項、加碼任務、贊助名單…<br>（都可以更改喔喔喔）</p>
           <ul style="line-height:1.8;margin:0 0 12px 1em;">
             <li>抽獎登記截止時間<b>20:30</b></li>
@@ -459,7 +454,7 @@
     </div>
   </div>
 
-<script>
+  <script>
 /* ===================================================================
    🧮 分數 HUD：顯示「總分」與浮動 +N / -N，並貼在主卡右下角
    =================================================================== */
@@ -650,7 +645,8 @@ function nextMission() {
 
   } else if (step === 3 || step === 4) {
     /* ✅ 第 4 或 5 關（可能是合照或拼圖） */
-    if (baseMissions[step] === "找新人拍照：與新人合照 📸") {
+    const isPhotoMission = /(📸|合影|拍照)/.test(baseMissions[step]);
+    if (isPhotoMission) {
       currentMissionKey = 'photo';  /* 完成＋15 分 */
       card.innerHTML = `
         <h1>🎯 第 ${step + 1} 關</h1>
@@ -684,6 +680,12 @@ function nextMission() {
       <p>💫　感謝一起活動更加美好</p>`;
     queuePlaceHud();
   }
+}
+
+/* 第3關：若只需要按鈕就過關，使用這個（保留你原本 attemptHostNext() 的驗證版本） */
+function awardHostAndNext() {
+  awardOnce('host', 15);
+  nextMission();
 }
 
 /* 第3關：驗證桌號（1～50；可輸入數字或「X號桌」），通過才加分並前進 */
@@ -724,7 +726,7 @@ function goToGateOrQuiz() {
 
 function verifyGate() {
   const v = (document.getElementById('gatePwd')?.value || '').trim();
-  if (v !== '0313') 
+  if (v !== '0313') {
     showMissionNotice("❌ 密碼錯誤，請再試一次");
     return;
   }
@@ -747,7 +749,6 @@ function checkPhotoAndNext() {
   const input = document.getElementById('photoInput');
   const file = input?.files[0];
   if (!file) { showMissionNotice("⚠️ 請先上傳一張照片唷"); return; }
-  // ✅ 只有在按「下一關」時才加分＆進入下一關
   if (currentMissionKey === 'sign')  awardOnce('sign', 15);
   if (currentMissionKey === 'photo') awardOnce('photo', 15);
   nextMission();
@@ -767,16 +768,11 @@ function onPhotoSelected() {
 /* ===================================================================
    🧩 拼圖（上散塊／下大框；零縫吸附；完成顯示清晰圖 3 秒→回主卡）
    =================================================================== */
-
-/* 你可以調整這個百分比（0~100 建議 0~15）來改變馬賽克強度 */
-window.PUZZLE_MOSAIC_PERCENT = 2;
-
-/* 拼圖圖片路徑 */
-const PUZZLE_IMG_SRC = 'assets/MYs_logo_1.png';
+window.PUZZLE_MOSAIC_PERCENT = 2;                 /* 馬賽克強度(%) */
+const PUZZLE_IMG_SRC = 'assets/MYs_logo_1.png';   /* 拼圖圖片路徑 */
 let puzzleImage = new Image();
 puzzleImage.src = PUZZLE_IMG_SRC;
 
-/* 內部狀態 */
 let pieces = [];
 let assignedSlots = new Array(9).fill(null);
 let activePiece = null;
@@ -784,11 +780,9 @@ let dragStart = { x: 0, y: 0 };
 let pieceStart = { x: 0, y: 0 };
 let revealTimerId = null;
 
-/* 計時用於第5點規則：以 10 秒為前提，之後每滿 5 秒扣 1 分（無條件捨去） */
-let puzzleStartMs = 0;
-let pendingPuzzleScore = null; /* 完成後等 HUD 回來再一次性加分 */
+let puzzleStartMs = 0;          /* 計時起點 */
+let pendingPuzzleScore = null;  /* 完成後待加分 */
 
-/* 3x3 棋盤（不畫格線）的幾何資訊 */
 const board = { cell: 0, size: 0, left: 0, top: 0, areaLeft: 0, areaTop: 0 };
 
 function openPuzzle() {
@@ -796,14 +790,12 @@ function openPuzzle() {
   const area = document.getElementById('puzzleArea');
   if (!overlay || !area) return;
 
-  /* ✅ 進入拼圖時隱藏 HUD */
-  hideHUD();
+  hideHUD(); /* 進入拼圖隱藏 HUD */
 
   overlay.style.display = 'block';
   area.style.display = 'grid';
   startPuzzle();
 
-  /* 開始計時 */
   puzzleStartMs = Date.now();
   pendingPuzzleScore = null;
 }
@@ -812,10 +804,8 @@ function closePuzzle() {
   const overlay = document.getElementById('puzzleContainer');
   if (overlay) overlay.style.display = 'none';
 
-  /* ✅ 離開拼圖時顯示 HUD 並重新定位 */
-  showHUD();
+  showHUD(); /* 離開拼圖顯示 HUD */
 
-  /* 若有待加的拼圖分數（計時完成後才加），此時 HUD 已可見，立刻加分＋浮動提示 */
   if (pendingPuzzleScore !== null && !scoreFlags.puzzle) {
     awardOnce('puzzle', pendingPuzzleScore);
     pendingPuzzleScore = null;
@@ -831,11 +821,8 @@ function resetPuzzle() {
   if (revealTimerId) { clearTimeout(revealTimerId); revealTimerId = null; }
 
   const reveal = document.getElementById('puzzleReveal');
-  if (reveal) {
-    reveal.style.display = 'none';
-  }
+  if (reveal) { reveal.style.display = 'none'; }
 
-  /* 恢復散塊與互動 */
   const topBox = document.getElementById('puzzleTop');
   if (topBox) {
     topBox.style.visibility = 'visible';
@@ -846,24 +833,21 @@ function resetPuzzle() {
     p.style.pointerEvents = 'auto';
   });
 
-  /* 顯示按鈕區（重來／完成） */
   const actions = document.getElementById('puzzleActions');
   if (actions) actions.style.display = 'flex';
   const cb = document.getElementById('completePuzzleButton');
   if (cb) {
     cb.disabled = false;
     cb.textContent = "完成";
-    cb.style.display = 'none'; /* 重新開始時先隱藏，拼好再顯示 */
+    cb.style.display = 'none';
   }
 
-  /* 隱藏完成 Banner */
   const banner = document.getElementById('puzzleBanner');
   if (banner) {
     banner.style.display = 'none';
     banner.textContent = '';
   }
 
-  /* 重新開始計時 */
   puzzleStartMs = Date.now();
   pendingPuzzleScore = null;
 
@@ -910,7 +894,6 @@ function createPuzzle() {
     piece.className = 'puzzlePiece';
     piece.style.width = piece.style.height = board.cell + 'px';
 
-    /* 馬賽克強度（百分比 → 像素） */
     const blurPx = Math.max(0, Math.round(board.cell * (window.PUZZLE_MOSAIC_PERCENT || 0) / 100));
     piece.style.filter = `blur(${blurPx}px)`;
 
@@ -921,7 +904,6 @@ function createPuzzle() {
     piece.dataset.indexOriginal = i;
     piece.dataset.slotIndex = '';
 
-    /* 隨機放到上方散塊區 */
     const randX = topRect.left + Math.random() * Math.max(1, (topRect.width  - board.cell));
     const randY = topRect.top  + Math.random() * Math.max(1, (topRect.height - board.cell));
     piece.style.left = (randX - areaRect.left) + 'px';
@@ -977,7 +959,6 @@ function onPointerUp(e) {
 
   let snapped = false;
 
-  /* 若釋放點在下方大框內 → 吸附到最近的 3x3 格（不畫線，但用格座標） */
   if (cx >= bottomRect.left && cx <= bottomRect.right && cy >= bottomRect.top && cy <= bottomRect.bottom) {
     measureBoard();
     const relX = Math.min(board.size, Math.max(0, cx - board.left));
@@ -1071,30 +1052,25 @@ function checkPuzzleComplete() {
   return true;
 }
 
-/* ✅ 完成：顯示清晰圖＋Banner，計算分數；3 秒後關閉拼圖並在 HUD 顯示加分 */
 function completePuzzle() {
   if (!checkPuzzleComplete()) {
     showMissionNotice("🧩 還沒完成喔，加油加油加油");
     return;
   }
 
-  /* 1) 立刻把按鈕區隱藏，避免以為要再按一次 */
   const actions = document.getElementById('puzzleActions');
   if (actions) actions.style.display = 'none';
 
-  /* 2) 隱藏上方散塊區與所有拼圖塊（保留佔位避免跳動） */
   const topBox = document.getElementById('puzzleTop');
   if (topBox) { topBox.style.visibility = 'hidden'; topBox.style.pointerEvents = 'none'; }
   pieces.forEach(p => { p.style.visibility = 'hidden'; p.style.pointerEvents = 'none'; });
 
-  /* 3) 顯示清晰原圖與完成 Banner（3 秒後關閉拼圖並回主卡） */
   measureBoard();
   const area = document.getElementById('puzzleArea');
   const areaRect = area.getBoundingClientRect();
   const reveal = document.getElementById('puzzleReveal');
   const banner = document.getElementById('puzzleBanner');
 
-  // 顯示清晰圖
   reveal.style.display = 'block';
   reveal.style.width  = board.size + 'px';
   reveal.style.height = board.size + 'px';
@@ -1105,35 +1081,28 @@ function completePuzzle() {
   reveal.style.backgroundPosition = `0px 0px`;
   requestAnimationFrame(() => { requestAnimationFrame(() => { reveal.style.opacity = '1'; }); });
 
-  // 顯示「恭喜完成拼圖！」文字（置中、往下些，依你需求）
   banner.textContent = "🎉 恭喜完成拼圖";
   banner.style.display = 'block';
 
-  /* 4) 計分（基準 10 秒=15 分；每滿 5 秒 -1；下限 0；無條件捨去） */
   const elapsedSec = Math.max(0, Math.floor((Date.now() - puzzleStartMs) / 1000));
   const over = Math.max(0, elapsedSec - 10);
   const minus = Math.floor(over / 5);
   const puzzlePoints = Math.max(0, 15 - minus);
 
-  /* 先存起來，等關閉拼圖且 HUD 顯示後再一次性加分（並浮動提示） */
   pendingPuzzleScore = puzzlePoints;
 
-  // 3 秒後收合拼圖，回主卡（HUD 會在 closePuzzle() 時顯示，並加分）
   revealTimerId = setTimeout(() => {
     revealTimerId = null;
     reveal.style.display = 'none';
     reveal.style.opacity = '0';
     banner.style.display = 'none';
-    closePuzzle();   /* ← HUD 顯示 */
-    nextMission();   /* ← 回主卡（若是第 6 關會先顯示密碼頁） */
+    closePuzzle();
+    nextMission();
   }, 3000);
 }
 
 /* ===================================================================
    📘 第 6 關：婚禮趣味問答（六題四選一）
-   - 每題第一次答對 +5
-   - 每點一次錯誤選項 -1（可為負）
-   - 題目間密碼閘：Q1→0000、Q2→1111、Q3→2222、Q4→3333、Q5→4444
    =================================================================== */
 const quizData = [
   { q: "💍 誰愛吃香蕉？", o: ["小慧", "阿佑", "大軒", "成成"], a: 0 },
@@ -1272,7 +1241,7 @@ function renderLeaderboard() {
     const prev = lastRanks[p.name];
     if (prev !== undefined && prev !== i) {
       if (prev > i) showMissionNotice(`${p.name} ⬆️ 上升至第 ${i + 1} 名！🎉`);
-      else          showMissionNotice(`${p.name} ⬆️ 下降至第 ${i + 1} 名～😅`);
+      else          showMissionNotice(`${p.name} ⬇️ 下降至第 ${i + 1} 名～😅`);
     }
     lastRanks[p.name] = i;
   });
@@ -1403,4 +1372,3 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
-
