@@ -1099,25 +1099,28 @@ let _interGateTargetIndex = null; // 要進入的下一題 index（0-based）
 function showInterQuizGate(nextIndex) {
   _interGateTargetIndex = nextIndex;
   const card = document.getElementById("mission-card");
+  // 👇 完全沿用「進第六關」同版面與同 ID（gatePwd / gateBtn）
   card.innerHTML = `
     <h1>🔒 密碼驗證</h1>
     <div id="missionNotice"></div>
     <p>請輸入密碼以進入下一題</p>
-    <input type="password" id="interGatePwd" placeholder="輸入密碼..." inputmode="numeric" maxlength="6" />
-    <button id="interGateBtn" style="background-color:#ffb703;margin-top:18px;" onclick="verifyInterQuizGate()">確認 ▶</button>`;
-  const input = document.getElementById('interGatePwd');
+    <input type="password" id="gatePwd" placeholder="輸入密碼..." inputmode="numeric" maxlength="6" />
+    <button id="gateBtn" style="background-color:#ffb703;margin-top:18px;" onclick="verifyInterQuizGate()">確認 ▶</button>`;
+  const input = document.getElementById('gatePwd');
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') verifyInterQuizGate(); });
   queuePlaceHud();
 }
+
 function verifyInterQuizGate() {
-  const input = document.getElementById('interGatePwd');
+  const input = document.getElementById('gatePwd'); // 👈 一樣讀 gatePwd
   const v = (input?.value || '').trim();
   const neededCode = interQuizCodes[Math.max(0, (_interGateTargetIndex ?? 1) - 1)];
   if (v !== neededCode) {
     showMissionNotice("❌ 密碼錯誤，請再試一次！");
     return;
   }
-  quizIndex = _interGateTargetIndex;   // 密碼通過 → 進入下一題
+  // 密碼正確 → 進入下一題
+  quizIndex = _interGateTargetIndex;
   _interGateTargetIndex = null;
   showQuestion();
 }
@@ -1345,4 +1348,5 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
 
