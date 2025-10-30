@@ -633,13 +633,23 @@ function nextMission() {
     queuePlaceHud();
 
   } else if (step === 2) {
-    /* ✅ 第 3 關：找招待（按下一關＋15 分） */
+    /* ✅ 第 3 關：找招待（需輸入「1號桌～80號桌」方可通過，完成＋15 分） */
     currentMissionKey = 'host';
     card.innerHTML = `
       <h1>🎯 第 3 關</h1>
       <div id="missionNotice"></div>
       <p>${baseMissions[2]}</p>
-      <button style="background-color:#ffb703;margin-top:25px;" onclick="awardHostAndNext()">下一關 ▶</button>`;
+      <input
+        type="text"
+        id="hostInput"
+        placeholder="輸入你的桌號（例如：12號桌）"
+        inputmode="numeric"
+        style="width:60%;max-width:280px;height:40px;margin:12px auto;display:block;
+        border-radius:10px;border:2px solid #ddd;background-color:#f2f2f2;
+        font-size:16px;text-align:center;outline:none;box-shadow:0 2px 5px rgba(0,0,0,0.1) inset;"/>
+      <button style="background-color:#ffb703;margin-top:18px;" onclick="attemptHostNext()">下一關 ▶</button>`;
+    const hostInput = document.getElementById('hostInput');
+    hostInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptHostNext(); });
     step++;
     queuePlaceHud();
 
@@ -1372,3 +1382,4 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
