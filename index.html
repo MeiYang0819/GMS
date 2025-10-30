@@ -646,7 +646,7 @@ function awardHostAndNext() {
   nextMission();
 }
 
-/* 🔒 密碼頁 or 直接進測驗 */
+/* 🔒 進第六關前的總密碼（0313） */
 function goToGateOrQuiz() {
   const card = document.getElementById("mission-card");
   if (NEED_GATE && !GATE_DONE) {
@@ -1078,7 +1078,8 @@ function completePuzzle() {
    📘 第 6 關：婚禮趣味問答（六題四選一）
    - 每題第一次答對 +5
    - 每點一次錯誤選項 -1（可為負）
-   - 不顯示勾勾圖示，只做按鈕暫時高亮；換題自動清除
+   - 題目間密碼閘：
+     Q1→0000、Q2→1111、Q3→2222、Q4→3333、Q5→4444（通過才可進下一題）
    =================================================================== */
 const quizData = [
   { q: "💍 誰愛吃香蕉？", o: ["小慧", "阿佑", "大軒", "成成"], a: 0 },
@@ -1091,6 +1092,37 @@ const quizData = [
 
 let quizIndex = 0;
 let answered = false;
+
+/* 題間密碼配置與流程 */
+const interQuizCodes = ['0000','1111','2222','3333','4444']; 
+let _interGateTargetIndex = null; // 目標要進入的下一題 index（0-based）
+
+function showInterQuizGate(nextIndex) {
+  _interGateTargetIndex = nextIndex;
+  const card = document.getElementById("mission-card");
+  card.innerHTML = `
+    <h1>🔒 密碼驗證</h1>
+    <div id="missionNotice"></div>
+    <p>請輸入密碼以進入下一題</p>
+    <input type="password" id="interGatePwd" placeholder="輸入密碼..." inputmode="numeric" maxlength="6" />
+    <button id="interGateBtn" style="background-color:#ffb703;margin-top:18px;" onclick="verifyInterQuizGate()">確認 ▶</button>`;
+  const input = document.getElementById('interGatePwd');
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') verifyInterQuizGate(); });
+  queuePlaceHud();
+}
+function verifyInterQuizGate() {
+  const input = document.getElementById('interGatePwd');
+  const v = (input?.value || '').trim();
+  const neededCode = interQuizCodes[Math.max(0, (_interGateTargetIndex || 1) - 1)];
+  if (v !== neededCode) {
+    showMissionNotice("❌ 密碼錯誤，請再試一次！");
+    return;
+  }
+  /* 密碼正確 → 真的進入下一題 */
+  quizIndex = _interGateTargetIndex;
+  _interGateTargetIndex = null;
+  showQuestion();
+}
 
 function startQuiz() {
   quizIndex = 0;
@@ -1116,7 +1148,7 @@ function showQuestion() {
   html += `</div>`;
   card.innerHTML = html;
 
-  /* 清除上一題任何殘留 focus / 顏色（新題進來一律乾淨） */
+  /* 清除上一題任何殘留 focus / 高亮（新題一律乾淨） */
   setTimeout(() => { try { document.activeElement && document.activeElement.blur(); } catch(_) {} }, 0);
 
   queuePlaceHud(); // 題目切換後重新定位 HUD
@@ -1134,9 +1166,20 @@ function checkAnswer(choice) {
   btn.classList.add('selected');
 
   if (choice === correct) {
-    /* 第一次答對該題 +5 分（允許整體為負但這裡是加分） */
+    /* 第一次答對該題 +5 分 */
     addScore(5);
     answered = true;
+
+    /* 準備要去的下一題 index（0-based） */
+    const nextIndex = quizIndex + 1;
+
+    /* 若仍在第1~5題之間 → 先顯示題間密碼頁（Q1→0000、Q2→1111、Q3→2222、Q4→3333、Q5→4444） */
+    if (quizIndex <= 4) {
+      showInterQuizGate(nextIndex);
+      return; // 等密碼通過後才進下一題
+    }
+
+    /* 已經是第6題答對 → 直接收尾 */
     quizIndex++;
     if (quizIndex < quizData.length) {
       setTimeout(showQuestion, 900);
@@ -1152,7 +1195,7 @@ function checkAnswer(choice) {
       }, 900);
     }
   } else {
-    /* 每按一次錯誤選項 -1 分（第六點允許為負） */
+    /* 每按一次錯誤選項 -1 分（允許為負） */
     addScore(-1);
   }
 }
@@ -1316,9 +1359,3 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
-
-
-
-
-
-
