@@ -348,22 +348,35 @@
     }
 
     @media (max-width: 768px) {
-      #bottom-area {
-        flex-direction: row;
-        overflow-x: auto;
-        overflow-y: hidden;
-        white-space: nowrap;
-        height: 45vh;
-        scroll-snap-type: x mandatory;
-      }
-      #leaderboard, #map {
-        flex: none;
-        width: 100vw;
-        height: 100%;
-        scroll-snap-align: start;
-        display: inline-block;
-      }
-    }
+  #bottom-area {
+    flex-direction: column; /* 改為垂直排列 */
+    height: 100vh;           /* 佔滿整個螢幕高度 */
+    overflow-y: auto;        /* 開啟垂直滾動 */
+    white-space: normal;
+    scroll-snap-type: y mandatory; /* 確保每個區塊是可單獨滑動的 */
+  }
+
+  #leaderboard, #map, #extra-panel {
+    flex: none;
+    width: 100%;             /* 讓每個區塊寬度填滿 */
+    height: 50vh;            /* 每個區塊佔用螢幕的 50% 高度 */
+    scroll-snap-align: start; /* 確保區塊從頂端開始對齊 */
+    display: block;
+  }
+
+  #leaderboard {
+    height: 50%; /* 調整排行榜高度 */
+    overflow-y: auto;
+  }
+
+  #map {
+    height: 50%; /* 調整地圖區塊高度 */
+  }
+
+  #extra-panel {
+    height: 50%; /* 調整額外資訊區塊高度 */
+  }
+}
 
     /* ------------------------------------------------------------------
        ★ 新增：第三頁（桌面端樣式）
@@ -1415,5 +1428,6 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
 
 
