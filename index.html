@@ -348,36 +348,22 @@
     }
 
     @media (max-width: 768px) {
-  #bottom-area {
-    flex-direction: row;    /* 橫版時保持左右排列 */
-    height: 100vh;           /* 佔滿整個螢幕高度 */
-    overflow-x: auto;        /* 開啟水平方向滾動 */
-    white-space: nowrap;     /* 使內容不換行 */
-  }
-
-  #leaderboard {
-    flex: none;
-    width: 50vw;             /* 排行榜佔一半的寬度 */
-    height: 100%;            /* 高度佔滿 */
-    overflow-y: auto;        /* 開啟垂直滾動 */
-    scroll-snap-align: start; /* 確保滑動對齊 */
-  }
-
-  #map {
-    flex: none;
-    width: 50vw;             /* 地圖佔另一半寬度 */
-    height: 100%;            /* 高度佔滿 */
-    overflow-y: auto;        /* 開啟垂直滾動 */
-    scroll-snap-align: start; /* 確保滑動對齊 */
-  }
-
-  #extra-panel {
-    width: 100vw;            /* 第三頁佔滿全寬 */
-    height: 100%;            /* 高度佔滿 */
-    overflow-y: auto;        /* 開啟垂直滾動 */
-    scroll-snap-align: start; /* 確保滑動對齊 */
-  }
-}
+      #bottom-area {
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        height: 45vh;
+        scroll-snap-type: x mandatory;
+      }
+      #leaderboard, #map {
+        flex: none;
+        width: 100vw;
+        height: 100%;
+        scroll-snap-align: start;
+        display: inline-block;
+      }
+    }
 
     /* ------------------------------------------------------------------
        ★ 新增：第三頁（桌面端樣式）
@@ -1429,6 +1415,7 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
 
 
 
