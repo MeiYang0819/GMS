@@ -347,57 +347,56 @@
       z-index: 9999;
     }
 
-    @media (min-width: 769px) {
+   @media (max-width: 768px) {
+      #bottom-area {
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        height: 45vh;
+        scroll-snap-type: x mandatory;
+      }
+      #leaderboard, #map {
+        flex: none;
+        width: 100vw;
+        height: 100%;
+        scroll-snap-align: start;
+        display: inline-block;
+      }
+    }
+
+    @media (max-width: 768px) and (orientation: landscape) {
   #bottom-area {
-    display: flex;
-    flex-direction: column; /* Stack the sections vertically */
-    height: 55vh; /* 55% of screen height for flexibility */
-    overflow-y: auto; /* Allow vertical scrolling */
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    white-space: nowrap;
+    scroll-snap-type: y mandatory;
   }
 
   #leaderboard {
-    flex: 1;
+    flex: none;
     width: 100%;
-    background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%);
-    padding: 10px;
+    height: 50%; /* 排行榜佔右半區的上半部分 */
+    scroll-snap-align: start;
   }
 
   #map {
-    flex: 1;
-    width: 100%;
-    background: #f5f5f5;
-  }
-
-  #extra-panel {
-    flex: 1;
-    width: 100%;
-    background: linear-gradient(180deg, #ffe0b3 0%, #ffd19e 77%, #ffc37a 100%);
-  }
-}
-
-@media (max-width: 768px) {
-  #bottom-area {
-    flex-direction: row; /* Arrange the sections side by side */
-    overflow-x: auto; /* Enable horizontal scrolling */
-    overflow-y: hidden;
-    white-space: nowrap; /* Ensure content stays in one line */
-    height: 45vh; /* Adjust for a more compact display */
-    scroll-snap-type: x mandatory; /* Enable scroll snap */
-  }
-
-  #leaderboard, #map {
     flex: none;
-    width: 50vw; /* Each section takes up half the screen */
-    height: 100%;
+    width: 100%;
+    height: 50%; /* 地圖佔右半區的下半部分 */
     scroll-snap-align: start;
-    display: inline-block; /* Keep them side by side */
   }
 
   #extra-panel {
     flex: none;
-    width: 100vw; /* Take the full screen width */
+    width: 100%;
     height: 100%;
     scroll-snap-align: start;
+  }
+
+  #leaderboard, #map, #extra-panel {
     display: inline-block;
   }
 }
@@ -1452,6 +1451,7 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
 
 
 
