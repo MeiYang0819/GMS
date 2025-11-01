@@ -349,32 +349,33 @@
 
     @media (max-width: 768px) {
   #bottom-area {
-    flex-direction: column; /* 改為垂直排列 */
+    flex-direction: row;    /* 橫版時保持左右排列 */
     height: 100vh;           /* 佔滿整個螢幕高度 */
-    overflow-y: auto;        /* 開啟垂直滾動 */
-    white-space: normal;
-    scroll-snap-type: y mandatory; /* 確保每個區塊是可單獨滑動的 */
-  }
-
-  #leaderboard, #map, #extra-panel {
-    flex: none;
-    width: 100%;             /* 讓每個區塊寬度填滿 */
-    height: 50vh;            /* 每個區塊佔用螢幕的 50% 高度 */
-    scroll-snap-align: start; /* 確保區塊從頂端開始對齊 */
-    display: block;
+    overflow-x: auto;        /* 開啟水平方向滾動 */
+    white-space: nowrap;     /* 使內容不換行 */
   }
 
   #leaderboard {
-    height: 50%; /* 調整排行榜高度 */
-    overflow-y: auto;
+    flex: none;
+    width: 50vw;             /* 排行榜佔一半的寬度 */
+    height: 100%;            /* 高度佔滿 */
+    overflow-y: auto;        /* 開啟垂直滾動 */
+    scroll-snap-align: start; /* 確保滑動對齊 */
   }
 
   #map {
-    height: 50%; /* 調整地圖區塊高度 */
+    flex: none;
+    width: 50vw;             /* 地圖佔另一半寬度 */
+    height: 100%;            /* 高度佔滿 */
+    overflow-y: auto;        /* 開啟垂直滾動 */
+    scroll-snap-align: start; /* 確保滑動對齊 */
   }
 
   #extra-panel {
-    height: 50%; /* 調整額外資訊區塊高度 */
+    width: 100vw;            /* 第三頁佔滿全寬 */
+    height: 100%;            /* 高度佔滿 */
+    overflow-y: auto;        /* 開啟垂直滾動 */
+    scroll-snap-align: start; /* 確保滑動對齊 */
   }
 }
 
@@ -1428,6 +1429,7 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
 
 
 
