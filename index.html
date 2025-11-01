@@ -1328,26 +1328,28 @@ img.onload = function () {
   map.setMaxBounds(bounds);
   map.fitBounds(bounds, { animate: false });
 
-  /* 手機略縮小地圖比例 */
-  if (window.innerWidth <= 768) { map.setZoom(map.getZoom() - 1.6); }
-  else                           { map.setZoom(map.getZoom() - 1.2); }
+  /* === 把地圖視野往上對齊（不是置中） === */
+const TOP_BIAS_RATIO = 0.22; // 0~0.45 推薦，值越大畫面越靠上
 
-    /* === 把地圖視野往上對齊（不是置中） === */
-  const TOP_BIAS_RATIO = 0.22; // 0~0.45 推薦，值越大畫面越靠上
+function recenterMapTop() {
+  // 在 Simple CRS 下，y=0 是最上方；把中心 y 從 h/2 往上拉一些
+  const centerX = w / 2;
+  const centerY = h * (0.5 - TOP_BIAS_RATIO);
+  map.setView([centerY, centerX], map.getZoom(), { animate: false });
+}
 
-  function recenterMapTop() {
-    // 在 Simple CRS 下，y=0 是最上方；把中心 y 從 h/2 往上拉一些
-    const centerX = w / 2;
-    const centerY = h * (0.5 - TOP_BIAS_RATIO);
-    map.setView([centerY, centerX], map.getZoom(), { animate: false });
-  }
+// 縮放級別設定
+if (window.innerWidth <= 768) { map.setZoom(map.getZoom() - 1.6); }
+else                           { map.setZoom(map.getZoom() - 1.2); }
 
-  // 調整完縮放後，立刻改成靠上視角
+// 調整完縮放後，立刻改成靠上視角
+setTimeout(() => { recenterMapTop(); }, 0);
+
+// 容器尺寸變化後，重算尺寸並維持靠上
+window.addEventListener('resize', () => {
+  map.invalidateSize(); // 確保地圖大小調整後再進行視角修正
   recenterMapTop();
-
-  // 容器尺寸變化後，重算尺寸並維持靠上
-  setTimeout(() => { map.invalidateSize(); recenterMapTop(); }, 0);
-  window.addEventListener('resize', () => { map.invalidateSize(); recenterMapTop(); });
+});
 
   /* 關卡與 Bonus 點位 */
   const points = [
@@ -1413,4 +1415,5 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
 
