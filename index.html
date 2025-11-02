@@ -347,63 +347,24 @@
       z-index: 9999;
     }
 
-   @media (max-width: 768px) {
-  #bottom-area {
-    flex-direction: row;            /* 改为横向排列 */
-    overflow-x: auto;               /* 开启横向滚动 */
-    overflow-y: hidden;
-    white-space: nowrap;            /* 禁止换行 */
-    height: 45vh;
-    scroll-snap-type: x mandatory;  /* 滚动条对齐 */
-  }
-  #leaderboard, #map, #extra-panel {
-    flex: none;
-    width: 100vw;
-    height: 100%;
-    scroll-snap-align: start;       /* 让每一部分都对齐 */
-    display: inline-block;
-  }
+    @media (max-width: 768px) {
+      #bottom-area {
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        height: 45vh;
+        scroll-snap-type: x mandatory;
+      }
+      #leaderboard, #map {
+        flex: none;
+        width: 100vw;
+        height: 100%;
+        scroll-snap-align: start;
+        display: inline-block;
+      }
+    }
 
-  /* 确保第三页也能横向滚动 */
-  #extra-panel {
-    background: linear-gradient(180deg, #ffe0b3 0%, #ffd19e 77%, #ffc37a 100%);
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 0 0 60px 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    border-left: 4px solid #fff;
-  }
-
-  /* 竖屏时的调整 */
-  #app {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    position: relative;
-  }
-
-  /* 底部区域的修改 */
-  #bottom-area {
-    display: flex;
-    height: 55vh;                   /* 调整高度 */
-    border-top: 4px solid #fff;
-  }
-  #leaderboard {
-    flex: 1;
-    background: linear-gradient(180deg, #a9a9eb 0%, #9ee0ff 77%, #00d4ff 100%);
-    overflow-y: auto;
-    padding: 0 0 60px 0;
-  }
-  #map {
-    flex: 1;
-    border-left: 4px solid #fff;
-    position: relative;
-    overflow: hidden;
-  }
-}
-    
     /* ------------------------------------------------------------------
        ★ 新增：第三頁（桌面端樣式）
        ------------------------------------------------------------------ */
@@ -1454,12 +1415,4 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
 
