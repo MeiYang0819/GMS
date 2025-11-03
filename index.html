@@ -1323,11 +1323,12 @@ const img = new Image();
 img.src = imageUrl;
 img.onload = function () {
   const w = img.width, h = img.height;
-  const bounds = [[0, 0], [h, w]];
-  L.imageOverlay(imageUrl, bounds).addTo(map);
-  map.setMaxBounds(bounds);
-  map.fitBounds(bounds, { animate: false });
-  setTimeout(() => { recenterMapTop(); map.invalidateSize(); }, 200);
+  // 讓圖片靠上置中顯示（保留原比例）
+const offsetY = h * 0.35; // 想往上多少就調這個比例（0.25 ≈ 上移 25%）
+const newBounds = [[offsetY, 0], [h + offsetY, w]]; 
+L.imageOverlay(imageUrl, newBounds).addTo(map);
+map.setMaxBounds(newBounds);
+map.fitBounds(newBounds, { animate: false });
 
   /* === 把地圖視野往上對齊（不是置中） === */
 const TOP_BIAS_RATIO = 0.38; // 手機螢幕地圖較矮，可設 0.35~0.42，值越大畫面越靠上
@@ -1416,6 +1417,7 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
 
 
 
