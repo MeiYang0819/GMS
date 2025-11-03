@@ -1323,9 +1323,8 @@ img.onload = function () {
   const bounds = [[0, 0], [h, w]];
   L.imageOverlay(imageUrl, bounds).addTo(map);
   map.fitBounds(bounds);
-};
 
-  /* 關卡與 Bonus 點位 */
+  // ✅ 關卡與 Bonus 點位
   const points = [
     { name: "關卡一", coords: [h * 0.45, w * 0.45], color: "red" },
     { name: "關卡二", coords: [h * 0.35, w * 0.70], color: "red" },
@@ -1337,6 +1336,7 @@ img.onload = function () {
     { name: "🎁 Bonus B", coords: [h * 0.40, w * 0.60], color: "gold" },
     { name: "🎁 Bonus C", coords: [h * 0.75, w * 0.50], color: "gold" }
   ];
+
   points.forEach(p => {
     L.circleMarker(p.coords, {
       radius: 4,
@@ -1350,7 +1350,7 @@ img.onload = function () {
     .addAttribution("💍 MYs Map © 2025")
     .addTo(map);
 };
-
+    
 /* 修正滑動衝突（支援雙指縮放、單指左右滑頁） */
 map.on('touchstart', function(e){ e.preventDefault(); });
 map.getContainer().addEventListener('touchmove', e => e.stopPropagation(), { passive: true });
@@ -1389,6 +1389,7 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
 
 
 
