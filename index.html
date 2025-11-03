@@ -1327,9 +1327,10 @@ img.onload = function () {
   L.imageOverlay(imageUrl, bounds).addTo(map);
   map.setMaxBounds(bounds);
   map.fitBounds(bounds, { animate: false });
+  setTimeout(() => { recenterMapTop(); map.invalidateSize(); }, 200);
 
   /* === 把地圖視野往上對齊（不是置中） === */
-const TOP_BIAS_RATIO = 0.45; // 0~0.45 推薦，值越大畫面越靠上
+const TOP_BIAS_RATIO = 0.38; // 手機螢幕地圖較矮，可設 0.35~0.42，值越大畫面越靠上
 
 function recenterMapTop() {
   // 在 Simple CRS 下，y=0 是最上方；把中心 y 從 h/2 往上拉一些
@@ -1415,5 +1416,6 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
 
 
