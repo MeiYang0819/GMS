@@ -1325,14 +1325,14 @@ img.onload = function () {
   const w = img.width, h = img.height;
 
   // ✅ 讓圖片靠上置中顯示（保留原比例）
-  const offsetY = h * 0.5; // 想往上多少就調這個比例（0.25 ≈ 上移 25%）
+  const offsetY = h * 0.25; // 想往上多少就調這個比例（0.25 ≈ 上移 25%）
   const newBounds = [[offsetY, 0], [h + offsetY, w]]; 
   L.imageOverlay(imageUrl, newBounds).addTo(map);
   map.setMaxBounds(newBounds);
   map.fitBounds(newBounds, { animate: false });
 
   // ✅ 設定初始視角（靠上）
-  const TOP_BIAS_RATIO = 0.40; // 手機螢幕地圖較矮，可設 0.35~0.42，值越大畫面越靠上
+  const TOP_BIAS_RATIO = 0.35; // 手機螢幕地圖較矮，可設 0.35~0.42，值越大畫面越靠上
   function recenterMapTop() {
     const centerX = w / 2;
     const centerY = h * (0.5 - TOP_BIAS_RATIO);
@@ -1420,6 +1420,7 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
 
 
 
