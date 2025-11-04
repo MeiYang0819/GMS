@@ -715,3 +715,24 @@ map.getContainer().addEventListener('touchend', () => {
   map.touchZoom.disable();
   map.dragging.disable();
 });
+
+/* 🧷 全域防止鍵盤彈出導致畫面上移（所有輸入與上傳框適用） */
+function preventKeyboardPushUp() {
+  document.addEventListener('focusin', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+    }
+  });
+  document.addEventListener('focusout', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+      document.body.style.position = '';
+      document.body.style.width = '';
+      window.scrollTo(0, 0);
+    }
+  });
+}
+preventKeyboardPushUp();
+</script>
+</body>
+</html>
