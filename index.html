@@ -331,7 +331,20 @@
   border-left: 4px solid #fff;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(0deg, rgba(232, 200, 222, 1) 0%, rgba(228, 172, 221, 1) 55%, rgba(225, 151, 220, 1) 100%, rgba(235, 150, 233, 1) 100%); /* 新的漸層背景 */
+  background: linear-gradient(0deg, rgba(232, 200, 222, 1) 0%, rgba(228, 172, 221, 1) 55%, rgba(225, 151, 220, 1) 100%, rgba(235, 150, 233, 1) 100%); /* 這裡是你提供的漸層背景 */
+}
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  background: transparent; /* 設置為透明，讓 #map 背景顯示出來 */
+}
+
+.leaflet-control-attribution {
+  background: rgba(180, 180, 180, 0.9);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 13px;
 }
     #map::before {
       content: "右滑排行 👉";
@@ -437,7 +450,7 @@
     </div>
   </div>
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
   <!-- ✅ 全螢幕拼圖覆蓋層（上散塊／下大框／完成揭示＋Banner） -->
   <div id="puzzleContainer" style="display: none;">
@@ -587,7 +600,7 @@ if (Math.random() > 0.5) {
 /* 當前關卡 key（用來在上傳/拼圖等流程判斷要加哪一種分） */
 let currentMissionKey = '';
 
-/* 狀態列工具 */
+    /* 狀態列工具 */
 function showMissionNotice(text) {
   const notice = document.getElementById("missionNotice");
   if (!notice) return;
@@ -1317,23 +1330,34 @@ const imageUrl = "assets/WL-平面場圖-4.png";
 const img = new Image();
 img.src = imageUrl;
 
+/* ★★★ 可調區：地圖底圖縮放比例（1 = 原尺寸；0.90 = 縮小 10%）★★★ */
+const MAP_IMAGE_SCALE = 0.85;  /* ← 想調整縮放就改這行，例如 0.85 = 縮小 15% */
+
 img.onload = function () {
   const w = img.width, h = img.height;
-  const bounds = [[0, 0], [h, w]];
+
+  /* 依縮放參數計算縮放後的影像邊界（Leaflet CRS.Simple 以像素為座標） */
+  const scaledW = Math.round(w * MAP_IMAGE_SCALE);
+  const scaledH = Math.round(h * MAP_IMAGE_SCALE);
+  const bounds = [[0, 0], [scaledH, scaledW]];
+
   L.imageOverlay(imageUrl, bounds).addTo(map);
   map.fitBounds(bounds);
 
+  /* 為了保持原本相對位置寫法（用 0.x 比例），以下用縮放後的 W/H 來計算點位 */
+  const W = scaledW, H = scaledH;
+
   // ✅ 關卡與 Bonus 點位
   const points = [
-    { name: "關卡一", coords: [h * 0.45, w * 0.45], color: "red" },
-    { name: "關卡二", coords: [h * 0.35, w * 0.70], color: "red" },
-    { name: "關卡三", coords: [h * 0.55, w * 0.30], color: "red" },
-    { name: "關卡四", coords: [h * 0.25, w * 0.80], color: "red" },
-    { name: "關卡五", coords: [h * 0.20, w * 0.20], color: "red" },
-    { name: "關卡六", coords: [h * 0.40, w * 0.10], color: "red" },
-    { name: "🎁 Bonus A", coords: [h * 0.55, w * 0.65], color: "gold" },
-    { name: "🎁 Bonus B", coords: [h * 0.40, w * 0.60], color: "gold" },
-    { name: "🎁 Bonus C", coords: [h * 0.75, w * 0.50], color: "gold" }
+    { name: "關卡一", coords: [H * 0.45, W * 0.45], color: "red" },
+    { name: "關卡二", coords: [H * 0.35, W * 0.70], color: "red" },
+    { name: "關卡三", coords: [H * 0.55, W * 0.30], color: "red" },
+    { name: "關卡四", coords: [H * 0.25, W * 0.80], color: "red" },
+    { name: "關卡五", coords: [H * 0.20, W * 0.20], color: "red" },
+    { name: "關卡六", coords: [H * 0.40, W * 0.10], color: "red" },
+    { name: "🎁 Bonus A", coords: [H * 0.55, W * 0.65], color: "gold" },
+    { name: "🎁 Bonus B", coords: [H * 0.40, W * 0.60], color: "gold" },
+    { name: "🎁 Bonus C", coords: [H * 0.75, W * 0.50], color: "gold" }
   ];
 
   points.forEach(p => {
@@ -1387,4 +1411,4 @@ function preventKeyboardPushUp() {
 preventKeyboardPushUp();
 </script>
 </body>
-</html>
+</html>    
