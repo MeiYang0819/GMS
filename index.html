@@ -326,7 +326,15 @@
     }
     .flash { animation: scoreFlash 1s ease; }
 
-    #map { flex: 1; border-left: 4px solid #fff; position: relative; overflow: hidden; }
+    #map {
+  flex: 1;
+  border-left: 4px solid #fff;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;  /* 水平置中 */
+  align-items: flex-start;  /* 垂直靠上 */
+}
     .leaflet-container { width: 100%; height: 100%; background: #f5f5f5; } /* 🎨 想改地圖後面框框的顏色→改這裡 */
     .leaflet-control-attribution {
       background: rgba(180,180,180,0.9);
@@ -1400,3 +1408,4 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>    
+
