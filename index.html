@@ -1335,11 +1335,14 @@ img.onload = function () {
   const scaledH = Math.round(h * MAP_IMAGE_SCALE);
   const bounds = [[0, 0], [scaledH, scaledW]];
 
+  // 添加圖像覆蓋層並設置地圖顯示範圍
   L.imageOverlay(imageUrl, bounds).addTo(map);
   map.fitBounds(bounds);
 
-  /* 為了保持原本相對位置寫法（用 0.x 比例），以下用縮放後的 W/H 來計算點位 */
-  const W = scaledW, H = scaledH;
+  /* 設置地圖顯示為圖片的上方，這裡的 'top' 設置為 0，讓圖片靠上 */
+  // 計算圖片上邊緣的位置並設置為視圖中心
+  map.setView([scaledH / 4, scaledW / 2], 3); // 這樣可以使圖片上方顯示並稍微縮小
+};
 
   // ✅ 關卡與 Bonus 點位
   const points = [
@@ -1406,5 +1409,6 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>    
+
 
 
