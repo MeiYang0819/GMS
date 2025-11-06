@@ -45,7 +45,7 @@
 
     /* 🎴 主卡（上半部面板） */
     .main-card {
-      background: linear-gradient(0deg, rgba(247,237,143,1) 0%, rgba(241,223,57,1) 71%, rgba(237,214,5,1) 100%); /* 🎨 主卡背景色 可調 */
+      background: linear-gradient(0deg,rgba(230, 211, 223, 1) 0%, rgba(228, 172, 221, 1) 80%, rgba(242, 174, 232, 1) 100%); /* 🎨 主卡背景色 可調 */
       border-radius: 24px;
       box-shadow: 0 0 20px rgba(0,0,0,0.2);
       text-align: center;
@@ -1331,7 +1331,7 @@ const img = new Image();
 img.src = imageUrl;
 
 /* ★★★ 可調區：地圖底圖縮放比例（1 = 原尺寸；0.90 = 縮小 10%）★★★ */
-const MAP_IMAGE_SCALE = 0.7;  /* ← 想調整縮放就改這行，例如 0.85 = 縮小 15% */
+const MAP_IMAGE_SCALE = 0.55;  /* ← 想調整縮放就改這行，例如 0.85 = 縮小 15% */
 
 img.onload = function () {
   const w = img.width, h = img.height;
@@ -1412,4 +1412,5 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>    
+
 
