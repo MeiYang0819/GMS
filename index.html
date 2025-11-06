@@ -1315,7 +1315,7 @@ setInterval(() => {
 
 renderLeaderboard();
 
-    /* ===================================================================
+   /* ===================================================================
    🗺️ 地圖設定（簡易室內平面）
    =================================================================== */
 const map = L.map("map", {
@@ -1335,23 +1335,22 @@ const MAP_IMAGE_SCALE = 0.90;  /* ← 想調整縮放就改這行，例如 0.85 
 
 img.onload = function () {
   const w = img.width, h = img.height;
-
-  /* 依縮放參數計算縮放後的影像邊界（Leaflet CRS.Simple 以像素為座標） */
   const scaledW = Math.round(w * MAP_IMAGE_SCALE);
   const scaledH = Math.round(h * MAP_IMAGE_SCALE);
   const bounds = [[0, 0], [scaledH, scaledW]];
 
   L.imageOverlay(imageUrl, bounds).addTo(map);
-map.fitBounds(bounds);
+  map.fitBounds(bounds);
 
-// ✅ 強制讓地圖靠上顯示（維持水平置中）
-setTimeout(() => {
-  const offsetY = map.getSize().y / 2 - 40; // ← 越大越靠上，可自行微調
-  map.panBy([0, -offsetY]);
-}, 300);
+  // ✅ 靠上顯示（維持水平置中）
+  setTimeout(() => {
+    const offsetY = map.getSize().y / 2 - 40; // ← 數字越大越靠上，可調成 60、80 試試
+    map.panBy([0, -offsetY]);
+  }, 300);
 
   /* 為了保持原本相對位置寫法（用 0.x 比例），以下用縮放後的 W/H 來計算點位 */
   const W = scaledW, H = scaledH;
+};
 
   // ✅ 關卡與 Bonus 點位
   const points = [
@@ -1418,5 +1417,6 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
 
 
