@@ -1342,13 +1342,13 @@ img.onload = function () {
   const bounds = [[0, 0], [scaledH, scaledW]];
 
   L.imageOverlay(imageUrl, bounds).addTo(map);
-map.fitBounds(bounds, { padding: [0, 0] });
+map.fitBounds(bounds);
 
-// 讓地圖靠上顯示（維持左右置中）
+// ✅ 強制讓地圖靠上顯示（維持水平置中）
 setTimeout(() => {
-  const offsetY = map.getSize().y / 2 - 20; // ← 調整此數值可改靠上距離
+  const offsetY = map.getSize().y / 2 - 40; // ← 越大越靠上，可自行微調
   map.panBy([0, -offsetY]);
-}, 200);
+}, 300);
 
   /* 為了保持原本相對位置寫法（用 0.x 比例），以下用縮放後的 W/H 來計算點位 */
   const W = scaledW, H = scaledH;
@@ -1418,4 +1418,5 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
 
