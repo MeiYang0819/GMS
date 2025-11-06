@@ -1331,7 +1331,7 @@ const img = new Image();
 img.src = imageUrl;
 
 /* ★★★ 可調區：地圖底圖縮放比例（1 = 原尺寸；0.90 = 縮小 10%）★★★ */
-const MAP_IMAGE_SCALE = 0.90;  /* ← 想調整縮放就改這行，例如 0.85 = 縮小 15% */
+const MAP_IMAGE_SCALE = 0.90;
 
 img.onload = function () {
   const w = img.width, h = img.height;
@@ -1339,20 +1339,18 @@ img.onload = function () {
   const scaledH = Math.round(h * MAP_IMAGE_SCALE);
   const bounds = [[0, 0], [scaledH, scaledW]];
 
+  // 加入地圖底圖
   L.imageOverlay(imageUrl, bounds).addTo(map);
   map.fitBounds(bounds);
 
-  // ✅ 靠上顯示（維持水平置中）
+  // ✅ 強制靠上顯示（維持水平置中）
   setTimeout(() => {
-    const offsetY = map.getSize().y / 2 - 40; // ← 數字越大越靠上，可調成 60、80 試試
+    const offsetY = map.getSize().y / 2 - 80; // 越大越靠上，可調整
     map.panBy([0, -offsetY]);
-  }, 300);
+  }, 400);
 
-  /* 為了保持原本相對位置寫法（用 0.x 比例），以下用縮放後的 W/H 來計算點位 */
+  // ✅ 設定地圖上的點位
   const W = scaledW, H = scaledH;
-};
-
-  // ✅ 關卡與 Bonus 點位
   const points = [
     { name: "關卡一", coords: [H * 0.45, W * 0.45], color: "red" },
     { name: "關卡二", coords: [H * 0.35, W * 0.70], color: "red" },
@@ -1374,10 +1372,12 @@ img.onload = function () {
     }).addTo(map).bindTooltip(p.name, { direction: "top", offset: [0, -4] });
   });
 
+  // ✅ 著作權資訊
   L.control.attribution({ prefix: false })
     .addAttribution("💍 MYs Map © 2025")
     .addTo(map);
 };
+
     
 /* 修正滑動衝突（支援雙指縮放、單指左右滑頁） */
 map.on('touchstart', function(e){ e.preventDefault(); });
@@ -1417,6 +1417,7 @@ preventKeyboardPushUp();
 </script>
 </body>
 </html>
+
 
 
 
